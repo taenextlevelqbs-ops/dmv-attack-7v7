@@ -389,6 +389,113 @@ export default function Home() {
         </div>
       </footer>
 
-    </main>
+
+      <section
+        data-dmv-photo-story="true"
+        className="border-t border-white/10 bg-black px-4 py-16 text-white md:px-8 md:py-24"
+      >
+        <div className="mx-auto max-w-7xl">
+
+          <div className="mb-10">
+
+            <div className="text-[10px] font-black uppercase tracking-[0.25em] text-lime-400">
+              The Attack
+            </div>
+
+            <h2 className="mt-3 text-4xl font-black uppercase md:text-6xl">
+              More Than A Team.
+            </h2>
+
+            <p className="mt-5 max-w-2xl text-sm leading-7 text-white/50">
+              Development. Competition. Exposure. Mentorship. Relationships. Built in Northern Virginia for athletes throughout the DMV.
+            </p>
+
+          </div>
+
+
+          <div className="grid gap-4 lg:grid-cols-12">
+
+            <div className="relative min-h-[560px] overflow-hidden rounded-3xl border border-white/10 lg:col-span-8">
+
+              <img
+                src="/fullteam.jpeg"
+                alt="DMV Attack team"
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent" />
+
+              <div className="absolute bottom-0 p-8">
+
+                <div className="text-xs font-black uppercase tracking-[0.2em] text-lime-400">
+                  Family
+                </div>
+
+                <div className="mt-2 text-4xl font-black uppercase">
+                  Attack The World.
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <div className="grid gap-4 lg:col-span-4">
+
+              <div className="relative min-h-[270px] overflow-hidden rounded-3xl border border-white/10">
+
+                <img
+                  src="/10UChamp.JPG"
+                  alt="DMV Attack champions"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+
+                <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent" />
+
+                <div className="absolute bottom-0 p-5 text-sm font-black uppercase">
+                  Compete.
+                </div>
+
+              </div>
+
+
+              <div className="relative min-h-[270px] overflow-hidden rounded-3xl border border-white/10">
+
+                <img
+                  src="/MECCAchamp.jpeg"
+                  alt="DMV Attack championship"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+
+                <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent" />
+
+                <div className="absolute bottom-0 p-5 text-sm font-black uppercase">
+                  Win Together.
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <div className="mt-8">
+
+            <a
+              href="https://www.instagram.com/dmvattack_7on7/"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex rounded-xl border border-lime-400/25 bg-lime-400/[0.08] px-6 py-3 text-xs font-black uppercase tracking-wider text-lime-400"
+            >
+              @dmvattack_7on7 ↗
+            </a>
+
+          </div>
+
+        </div>
+      </section>
+
+</main>
   );
 }

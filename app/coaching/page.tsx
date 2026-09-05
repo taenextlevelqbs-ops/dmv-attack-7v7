@@ -4,29 +4,15 @@ export const metadata = {
   title: "Coaching Staff",
 };
 
-type StaffMember = {
-  number: string;
-  name: string;
-  title: string;
-  highSchoolRole: string;
-  photo: string;
-  instagram: string;
-  instagramUrl: string;
-  bio: string;
-  playing: string[];
-  development: string[];
-};
-
-const staff: StaffMember[] = [
+const staff = [
   {
     number: "01",
-
     name: "Tae Crews-Naylor",
 
     title:
       "Co-Founder | QB Development | Offensive Development",
 
-    highSchoolRole:
+    school:
       "QB Coach • Stone Bridge High School",
 
     photo:
@@ -35,11 +21,11 @@ const staff: StaffMember[] = [
     instagram:
       "@coachtae3",
 
-    instagramUrl:
+    url:
       "https://www.instagram.com/coachtae3/",
 
     bio:
-      "Tae Crews-Naylor brings quarterback experience, offensive knowledge, and player development to DMV Attack. A former college quarterback, Tae now develops quarterbacks and offensive players through high school coaching, private quarterback training, and DMV Attack.",
+      "Former college quarterback and experienced quarterback coach focused on offensive development, quarterback mechanics, football IQ and preparing athletes for the next level.",
 
     playing: [
       "Loudoun County High School",
@@ -60,13 +46,12 @@ const staff: StaffMember[] = [
 
   {
     number: "02",
-
     name: "Dante Absher",
 
     title:
       "Co-Founder | WR Development",
 
-    highSchoolRole:
+    school:
       "Coach • Independence High School",
 
     photo:
@@ -75,11 +60,11 @@ const staff: StaffMember[] = [
     instagram:
       "@dasp_training",
 
-    instagramUrl:
+    url:
       "https://www.instagram.com/dasp_training/",
 
     bio:
-      "Dante Absher brings high-level wide receiver and professional football experience to DMV Attack. His approach combines position development, athletic performance, competitiveness, and mentorship for the next generation of DMV athletes.",
+      "Former collegiate and professional wide receiver bringing position development, competition, mentorship and athletic development to DMV Attack athletes.",
 
     playing: [
       "Park View High School",
@@ -103,26 +88,25 @@ const staff: StaffMember[] = [
 
   {
     number: "03",
-
     name: "Ross Madison",
 
     title:
       "Co-Founder | Defensive Backs | Speed & Performance",
 
-    highSchoolRole:
+    school:
       "Coach • Loudoun Valley High School",
 
     photo:
-      "/CoachRoss.png",
+      "/CoachRoss.jpeg",
 
     instagram:
       "@r.a.m_training",
 
-    instagramUrl:
+    url:
       "https://www.instagram.com/r.a.m_training/",
 
     bio:
-      "Ross Madison brings Division I and professional football experience to DMV Attack along with a strong background in defensive back development, speed, agility, and athletic performance.",
+      "Former Division I and professional defensive back bringing high-level football experience, speed development, agility and athletic performance training to DMV Attack.",
 
     playing: [
       "Heritage High School",
@@ -138,7 +122,7 @@ const staff: StaffMember[] = [
       "RAM Training",
       "DMV Attack Co-Founder",
       "Defensive Back Development",
-      "Speed + Agility + Sports Performance",
+      "Speed + Agility + Performance",
     ],
   },
 ];
@@ -148,157 +132,132 @@ export default function CoachingPage() {
     <main className="min-h-screen bg-black text-white">
 
       <DmvPageHeader
-        eyebrow="Leadership"
+        eyebrow="DMV Attack Leadership"
         title="Coaching Staff"
-        description="Built by former college and professional athletes who now coach, mentor, train, and develop the next generation across Northern Virginia."
+        description="Former college and professional athletes now developing the next generation across Northern Virginia."
       />
+
 
       <section className="mx-auto max-w-7xl px-4 py-16 md:px-8">
 
-        <div className="mb-10">
-
-          <div className="text-[10px] font-black uppercase tracking-[0.25em] text-lime-400">
-            DMV Attack Leadership
-          </div>
-
-          <h2 className="mt-3 max-w-4xl text-3xl font-black uppercase leading-tight text-white md:text-5xl">
-            Experience that translates to development.
-          </h2>
-
-        </div>
-
-
         <div className="space-y-8">
 
-          {staff.map(
-            (coach) => (
-              <article
-                key={coach.name}
-                className="overflow-hidden rounded-3xl border border-white/10 bg-white/[0.025]"
-              >
+          {staff.map((coach) => (
+            <article
+              key={coach.name}
+              className="overflow-hidden rounded-3xl border border-white/10 bg-white/[0.025]"
+            >
 
-                <div className="grid lg:grid-cols-[360px_1fr]">
+              <div className="grid lg:grid-cols-[360px_1fr]">
 
 
-                  <div className="relative min-h-[420px] overflow-hidden border-b border-white/10 lg:border-b-0 lg:border-r">
+                <div className="relative min-h-[460px] overflow-hidden">
 
-                    <img
-                      src={coach.photo}
-                      alt={coach.name}
-                      className="absolute inset-0 h-full w-full object-cover"
-                    />
+                  <img
+                    src={coach.photo}
+                    alt={coach.name}
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent" />
 
-                    <div className="absolute inset-x-0 bottom-0 p-7">
+                  <div className="absolute inset-x-0 bottom-0 p-7">
 
-                      <div className="flex items-center justify-between">
+                    <div className="text-[10px] font-black uppercase tracking-[0.2em] text-lime-400">
+                      Co-Founder
+                    </div>
 
-                        <div>
-                          <div className="text-[10px] font-black uppercase tracking-[0.22em] text-lime-400">
-                            Co-Founder
-                          </div>
+                    <div className="mt-2 flex items-end justify-between">
 
-                          <h3 className="mt-2 text-3xl font-black uppercase leading-none text-white">
-                            {coach.name}
-                          </h3>
-                        </div>
+                      <h2 className="text-3xl font-black uppercase">
+                        {coach.name}
+                      </h2>
 
-                        <div className="text-5xl font-black text-white/20">
-                          {coach.number}
-                        </div>
-
+                      <div className="text-5xl font-black text-white/20">
+                        {coach.number}
                       </div>
 
                     </div>
 
                   </div>
 
-
-                  <div className="p-6 md:p-8 lg:p-10">
-
-                    <div className="text-xs font-black uppercase tracking-[0.14em] text-lime-400">
-                      {coach.title}
-                    </div>
-
-                    <div className="mt-2 text-xs font-bold uppercase tracking-wider text-white/40">
-                      {coach.highSchoolRole}
-                    </div>
+                </div>
 
 
-                    <a
-                      href={coach.instagramUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-black text-white/70 transition hover:border-lime-400/40 hover:text-lime-400"
-                    >
-                      Instagram
-                      <span className="text-lime-400">
-                        {coach.instagram}
-                      </span>
-                      ↗
-                    </a>
+                <div className="p-7 md:p-10">
+
+                  <div className="text-xs font-black uppercase tracking-[0.14em] text-lime-400">
+                    {coach.title}
+                  </div>
+
+                  <div className="mt-2 text-xs font-bold uppercase tracking-wider text-white/40">
+                    {coach.school}
+                  </div>
 
 
-                    <p className="mt-6 max-w-3xl text-sm leading-7 text-white/60 md:text-base">
-                      {coach.bio}
-                    </p>
+                  <a
+                    href={coach.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-5 inline-flex rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-black text-white/70 transition hover:border-lime-400/40 hover:text-lime-400"
+                  >
+                    Instagram&nbsp;
+                    <span className="text-lime-400">
+                      {coach.instagram}
+                    </span>
+                    &nbsp;↗
+                  </a>
 
 
-                    <div className="mt-8 grid gap-8 md:grid-cols-2">
+                  <p className="mt-6 max-w-3xl text-sm leading-7 text-white/60">
+                    {coach.bio}
+                  </p>
 
-                      <div>
 
-                        <div className="text-[10px] font-black uppercase tracking-[0.22em] text-white/35">
-                          Playing Career
-                        </div>
+                  <div className="mt-8 grid gap-8 md:grid-cols-2">
 
-                        <div className="mt-4 space-y-2">
+                    <div>
 
-                          {coach.playing.map(
-                            (item) => (
-                              <div
-                                key={item}
-                                className="flex gap-3 text-sm text-white/65"
-                              >
-                                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-lime-400" />
+                      <div className="text-[10px] font-black uppercase tracking-[0.2em] text-white/35">
+                        Playing Career
+                      </div>
 
-                                <span>
-                                  {item}
-                                </span>
-                              </div>
-                            )
-                          )}
+                      <div className="mt-4 space-y-2">
 
-                        </div>
+                        {coach.playing.map((item) => (
+                          <div
+                            key={item}
+                            className="flex gap-3 text-sm text-white/65"
+                          >
+                            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-lime-400" />
+
+                            {item}
+                          </div>
+                        ))}
 
                       </div>
 
+                    </div>
 
-                      <div>
 
-                        <div className="text-[10px] font-black uppercase tracking-[0.22em] text-white/35">
-                          Coaching + Development
-                        </div>
+                    <div>
 
-                        <div className="mt-4 space-y-2">
+                      <div className="text-[10px] font-black uppercase tracking-[0.2em] text-white/35">
+                        Coaching + Development
+                      </div>
 
-                          {coach.development.map(
-                            (item) => (
-                              <div
-                                key={item}
-                                className="flex gap-3 text-sm text-white/65"
-                              >
-                                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-lime-400" />
+                      <div className="mt-4 space-y-2">
 
-                                <span>
-                                  {item}
-                                </span>
-                              </div>
-                            )
-                          )}
+                        {coach.development.map((item) => (
+                          <div
+                            key={item}
+                            className="flex gap-3 text-sm text-white/65"
+                          >
+                            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-lime-400" />
 
-                        </div>
+                            {item}
+                          </div>
+                        ))}
 
                       </div>
 
@@ -308,9 +267,10 @@ export default function CoachingPage() {
 
                 </div>
 
-              </article>
-            )
-          )}
+              </div>
+
+            </article>
+          ))}
 
         </div>
 

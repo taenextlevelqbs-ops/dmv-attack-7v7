@@ -1,7 +1,7 @@
 import DmvPageHeader from "@/components/dmv-page-header";
 
 export const metadata = {
-  title: "Foundation | DMV Attack",
+  title: "Foundation",
 };
 
 export default function FoundationPage() {
@@ -11,49 +11,40 @@ export default function FoundationPage() {
       <DmvPageHeader
         eyebrow="DMV Attack Foundation"
         title="More Than Football"
-        description="The DMV Attack Foundation exists to help youth athletes access opportunities, resources, development, mentorship, camps, equipment, and support beyond the field."
+        description="Providing resources, opportunity, mentorship and support to youth athletes across the DMV."
       />
+
 
       <section className="mx-auto max-w-7xl px-4 py-16 md:px-8">
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-8 lg:grid-cols-2">
 
-          {[
-            "Equipment + Uniform Support",
-            "Travel Assistance",
-            "Training + Mentorship",
-            "Free Camps + Community Events",
-          ].map(
-            (item) => (
-              <div
-                key={
-                  item
-                }
-                className="rounded-2xl border border-white/10 bg-white/[0.03] p-6"
-              >
-                <div className="h-2 w-10 rounded-full bg-lime-400" />
+          <div className="relative min-h-[520px] overflow-hidden rounded-3xl border border-white/10">
 
-                <div className="mt-5 text-base font-black uppercase leading-tight">
-                  {
-                    item
-                  }
-                </div>
-              </div>
-            )
-          )}
+            <img
+              src="/DMVAttackFoundation.jpeg"
+              alt="DMV Attack Foundation"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
 
-        </div>
-
-
-        <div className="mt-12 rounded-3xl border border-lime-400/20 bg-lime-400/[0.06] p-7 md:p-10">
-
-          <div className="text-xs font-black uppercase tracking-[0.2em] text-lime-400">
-            Mission
           </div>
 
-          <p className="mt-4 max-w-3xl text-lg font-bold leading-8 text-white/80">
-            Create opportunities for young athletes regardless of financial circumstance while developing leadership, character, confidence, and community.
-          </p>
+
+          <div className="flex flex-col justify-center">
+
+            <div className="text-xs font-black uppercase tracking-[0.2em] text-lime-400">
+              Our Mission
+            </div>
+
+            <h2 className="mt-4 text-4xl font-black uppercase leading-tight md:text-5xl">
+              Opportunity should not depend on circumstance.
+            </h2>
+
+            <p className="mt-6 text-sm leading-7 text-white/60">
+              The DMV Attack Foundation supports youth athletes through equipment, uniforms, travel assistance, training, mentorship, leadership development, free camps and community opportunities.
+            </p>
+
+          </div>
 
         </div>
 

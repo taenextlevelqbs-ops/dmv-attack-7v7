@@ -1,10 +1,32 @@
-import Link from "next/link";
-
 import DmvPageHeader from "@/components/dmv-page-header";
 
 export const metadata = {
-  title: "7v7 | DMV Attack",
+  title: "7v7",
 };
+
+const groups = [
+  {
+    label: "10U",
+    image: "/10UChamp.JPG",
+  },
+  {
+    label: "15U",
+    image: "/15U.JPEG",
+  },
+  {
+    label: "18U",
+    image: "/Aiden18U.JPEG",
+  },
+];
+
+const athletes = [
+  "/10Ukid.JPEG",
+  "/Dylan18U.JPEG",
+  "/JayB18U.JPEG",
+  "/dj18U.JPEG",
+  "/Preston.JPEG",
+  "/ShyChamp.jpeg",
+];
 
 export default function SevenOnSevenPage() {
   return (
@@ -13,69 +35,73 @@ export default function SevenOnSevenPage() {
       <DmvPageHeader
         eyebrow="DMV Attack"
         title="7v7 Football"
-        description="Competitive 7v7 football development for athletes across Northern Virginia and the DMV. Our program is built around development, competition, exposure, accountability, and relationships."
+        description="Development. Competition. Exposure. An environment built to prepare athletes for their school teams and beyond."
       />
+
 
       <section className="mx-auto max-w-7xl px-4 py-16 md:px-8">
 
         <div className="grid gap-4 md:grid-cols-3">
 
-          {[
-            [
-              "Development",
-              "Position-specific work, football IQ, competitive reps, and a standard that prepares athletes for their school teams.",
-            ],
-            [
-              "Competition",
-              "Regional and national tournament opportunities designed to challenge our athletes against quality competition.",
-            ],
-            [
-              "Exposure",
-              "A platform for players to compete, create film, build relationships, and continue developing their football résumé.",
-            ],
-          ].map(
-            ([title, text]) => (
-              <div
-                key={title}
-                className="rounded-2xl border border-white/10 bg-white/[0.03] p-6"
-              >
-                <div className="text-xs font-black uppercase tracking-[0.18em] text-lime-400">
-                  {
-                    title
-                  }
+          {groups.map((group) => (
+            <div
+              key={group.label}
+              className="relative min-h-[420px] overflow-hidden rounded-3xl border border-white/10"
+            >
+
+              <img
+                src={group.image}
+                alt={`DMV Attack ${group.label}`}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/5 to-transparent" />
+
+              <div className="absolute bottom-0 p-7">
+
+                <div className="text-[10px] font-black uppercase tracking-[0.2em] text-lime-400">
+                  DMV Attack
                 </div>
 
-                <p className="mt-4 text-sm leading-7 text-white/55">
-                  {text}
-                </p>
+                <div className="mt-2 text-4xl font-black">
+                  {group.label}
+                </div>
+
               </div>
-            )
-          )}
+
+            </div>
+          ))}
 
         </div>
 
-        <div className="mt-10 rounded-3xl border border-lime-400/20 bg-lime-400/[0.06] p-6 md:p-10">
 
-          <div className="text-xs font-black uppercase tracking-[0.2em] text-lime-400">
-            Join DMV Attack
+        <div className="mt-16">
+
+          <div className="text-[10px] font-black uppercase tracking-[0.22em] text-lime-400">
+            The Athletes
           </div>
 
-          <h2 className="mt-3 text-3xl font-black uppercase text-white">
-            Ready to compete?
+          <h2 className="mt-3 text-4xl font-black uppercase md:text-6xl">
+            Built Through Reps.
           </h2>
 
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-white/55">
-            Follow DMV Attack for tryout announcements, team updates, tournament schedules, camps, and upcoming opportunities.
-          </p>
 
-          <a
-            href="https://www.instagram.com/dmvattack_7on7/"
-            target="_blank"
-            rel="noreferrer"
-            className="mt-6 inline-flex rounded-xl bg-lime-400 px-5 py-3 text-xs font-black uppercase tracking-wider text-black"
-          >
-            Follow DMV Attack
-          </a>
+          <div className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-3">
+
+            {athletes.map((image) => (
+              <div
+                key={image}
+                className="relative aspect-[4/5] overflow-hidden rounded-2xl border border-white/10"
+              >
+                <img
+                  src={image}
+                  alt="DMV Attack athlete"
+                  className="absolute inset-0 h-full w-full object-cover transition duration-500 hover:scale-105"
+                />
+              </div>
+            ))}
+
+          </div>
 
         </div>
 
