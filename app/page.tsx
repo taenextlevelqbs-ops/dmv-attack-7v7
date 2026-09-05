@@ -1,501 +1,463 @@
-const ageGroups = ["8U", "10U", "12U", "14U", "15U", "18U"];
+import Image from "next/image";
+import Link from "next/link";
 
-const includedItems = [
-  "Tournament Entry",
-  "Team Practices",
-  "Jerseys",
-  "Media Coverage",
-  "Coaching",
-  "Player Development",
+const programCards = [
+  {
+    title: "7v7 Program",
+    text: "Competitive teams, development, exposure, and real relationships throughout the DMV.",
+    href: "/7v7",
+    image: "/fullteeam.jpeg",
+  },
+  {
+    title: "QB Training",
+    text: "Position-specific development and quarterback work led by Coach Tae.",
+    href: "/training",
+    image: "/Qb.jpeg",
+  },
+  {
+    title: "Coaching Staff",
+    text: "Meet Tae Crews-Naylor, Dante Absher, and Ross Madison.",
+    href: "/coaching",
+    image: "/CoachTae.jpeg",
+  },
+  {
+    title: "Foundation",
+    text: "Community impact, mentorship, support, and opportunities for young athletes.",
+    href: "/foundation",
+    image: "/DMVAttackFoundation.jpeg",
+  },
 ];
 
-export default function Home() {
+const coaches = [
+  {
+    name: "Tae Crews Naylor",
+    role: "Co Founder  •  Stone Bridge HS",
+    image: "/CoachTae.jpeg",
+    ig: "coachtae3",
+    igUrl: "https://www.instagram.com/coachtae3/",
+    bio: "Former college quarterback and current QB developer. Loudoun County High School Hall of Fame member, former Elite 11 regional quarterback, and founder focused on development, leadership, and helping DMV athletes grow on and off the field.",
+  },
+  {
+    name: "Dante Absher",
+    role: "Co Founder  •  Independence HS",
+    image: "/CoachDante.jpeg",
+    ig: "dasp_training",
+    igUrl: "https://www.instagram.com/dasp_training/",
+    bio: "Former wide receiver, Park View Hall of Fame member, and Glenville State product with pro football experience. Coach Dante brings energy, skill development, and leadership through DMV Attack, DASP Training, and Next Up Nova.",
+  },
+  {
+    name: "Ross Madison",
+    role: "Co Founder  •  Loudoun Valley",
+    image: "/CoachRoss.png",
+    ig: "r.a.m_training",
+    igUrl: "https://www.instagram.com/r.a.m_training/",
+    bio: "Former Heritage standout and University of Toledo safety who also spent time in the NFL with Washington and Denver. Ross is a performance coach and founder of RAM Training with a focus on speed, athletic movement, and complete athlete development.",
+  },
+];
+
+const gallery = [
+  { src: "/fullteeam.jpeg", title: "DMV Attack Team" },
+  { src: "/MECCAchamp.jpeg", title: "Championship Moment" },
+  { src: "/ShyChamp.jpeg", title: "Player Spotlight" },
+  { src: "/defense.jpeg", title: "Defense" },
+  { src: "/10Ukid.JPG", title: "10U" },
+  { src: "/15U.JPEG", title: "15U" },
+  { src: "/Aiden18U.JPEG", title: "18U" },
+  { src: "/RjQb.JPEG", title: "QB Work" },
+];
+
+export default function HomePage() {
   return (
     <main className="min-h-screen bg-black text-white">
+      <section className="border-b border-white/10">
+        <div className="mx-auto max-w-7xl px-4 py-10 md:px-8 md:py-16">
+          <div className="grid gap-8 lg:grid-cols-[1.1fr_1fr]">
+            <div className="flex flex-col justify-center">
+              <div className="inline-flex w-fit items-center rounded-full border border-lime-400/30 bg-lime-400/10 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.28em] text-lime-400">
+                Northern Virginia  •  DMV
+              </div>
 
-      {/* NAV */}
-      <nav className="sticky top-0 z-50 border-b border-white/10 bg-black/90 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 md:px-8">
+              <h1 className="mt-6 max-w-4xl text-5xl font-black uppercase leading-[0.92] tracking-[-0.04em] md:text-7xl xl:text-8xl">
+                Attack
+                <br />
+                The
+                <br />
+                <span className="text-lime-400">World.</span>
+              </h1>
 
-          <div>
-            <p className="text-xl font-black tracking-[0.16em] md:text-2xl">
-              DMV ATTACK
-            </p>
-
-            <p className="mt-1 text-[9px] font-bold tracking-[0.3em] text-lime-400">
-              7V7 FOOTBALL
-            </p>
-          </div>
-
-          <div className="hidden items-center gap-7 text-sm font-semibold text-white/65 md:flex">
-            <a href="#about" className="hover:text-white">
-              About
-            </a>
-
-            <a href="#teams" className="hover:text-white">
-              Teams
-            </a>
-
-            <a href="#included" className="hover:text-white">
-              Program
-            </a>
-
-            <a href="#tryouts" className="hover:text-white">
-              Tryouts
-            </a>
-
-            <a href="#contact" className="hover:text-white">
-              Contact
-            </a>
-          </div>
-
-        </div>
-      </nav>
-
-      {/* HERO */}
-      <section className="relative overflow-hidden border-b border-white/10">
-
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[size:44px_44px]" />
-
-        <div className="pointer-events-none absolute -right-40 top-[-60px] h-[520px] w-[520px] rounded-full bg-lime-500/10 blur-[150px]" />
-
-        <div className="pointer-events-none absolute left-[-180px] bottom-[-100px] h-[400px] w-[400px] rounded-full bg-yellow-400/[0.06] blur-[140px]" />
-
-        <div className="relative mx-auto flex min-h-[760px] max-w-7xl flex-col justify-between px-6 py-16 md:px-8 md:py-20">
-
-          <div>
-
-            <div className="flex items-center gap-3">
-              <span className="h-[2px] w-12 bg-lime-400" />
-
-              <p className="text-[10px] font-black tracking-[0.38em] text-lime-400">
-                NORTHERN VIRGINIA // DMV
-              </p>
-            </div>
-
-            <h1 className="mt-8 text-6xl font-black leading-[0.84] tracking-[-0.05em] sm:text-7xl md:text-8xl lg:text-9xl">
-              ATTACK
-              <br />
-              THE
-              <br />
-              <span className="text-lime-400">
-                WORLD.
-              </span>
-            </h1>
-
-            <p className="mt-8 max-w-2xl text-base leading-relaxed text-white/65 md:text-xl">
-              Competitive 7v7 football built around development,
-              competition, exposure, relationships, and opportunity.
-            </p>
-
-          </div>
-
-          <div className="mt-16 flex flex-col justify-between gap-8 border-t border-white/10 pt-8 md:flex-row md:items-end">
-
-            <div className="flex flex-col gap-3 sm:flex-row">
-
-              <a
-                href="#tryouts"
-                className="rounded-full bg-lime-400 px-7 py-3 text-center font-black text-black transition hover:scale-[1.02]"
-              >
-                Join DMV Attack →
-              </a>
-
-              <a
-                href="#teams"
-                className="rounded-full border border-white/20 px-7 py-3 text-center font-bold transition hover:bg-white hover:text-black"
-              >
-                View Teams
-              </a>
-
-            </div>
-
-            <div className="text-left md:text-right">
-
-              <p className="text-[10px] font-black tracking-[0.3em] text-yellow-300/70">
-                DEVELOPMENT // COMPETITION // EXPOSURE
+              <p className="mt-6 max-w-2xl text-base leading-8 text-white/70 md:text-lg">
+                DMV Attack is built around development, competition, exposure,
+                relationships, and opportunity. We want athletes to grow their
+                game, compete the right way, and represent the DMV at a high level.
               </p>
 
-              <p className="mt-2 text-sm text-white/40">
-                Loudoun • Fairfax • Northern Virginia
-              </p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href="/7v7"
+                  className="rounded-full bg-lime-400 px-8 py-4 text-center text-sm font-black uppercase tracking-[0.18em] text-black transition hover:scale-[1.01]"
+                >
+                  Join DMV Attack
+                </Link>
 
+                <Link
+                  href="/coaching"
+                  className="rounded-full border border-white/20 bg-white/[0.03] px-8 py-4 text-center text-sm font-black uppercase tracking-[0.18em] text-white transition hover:bg-white/10"
+                >
+                  Meet The Coaches
+                </Link>
+              </div>
+
+              <div className="mt-10 grid gap-4 sm:grid-cols-3">
+                <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-white/45">
+                    Focus
+                  </p>
+                  <p className="mt-3 text-2xl font-black text-white">
+                    Development
+                  </p>
+                </div>
+
+                <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-white/45">
+                    Standard
+                  </p>
+                  <p className="mt-3 text-2xl font-black text-white">
+                    Compete
+                  </p>
+                </div>
+
+                <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-white/45">
+                    Identity
+                  </p>
+                  <p className="mt-3 text-2xl font-black text-white">
+                    DMV Built
+                  </p>
+                </div>
+              </div>
             </div>
 
+            <div className="grid gap-5 lg:grid-rows-[1.15fr_0.85fr]">
+              <div className="relative overflow-hidden rounded-[32px] border border-white/10">
+                <Image
+                  src="/fullteeam.jpeg"
+                  alt="DMV Attack team"
+                  width={1600}
+                  height={1000}
+                  className="h-[420px] w-full object-cover md:h-[520px]"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <div className="absolute bottom-0 left-0 p-6 md:p-8">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-lime-400">
+                    Family
+                  </p>
+                  <h2 className="mt-2 text-3xl font-black uppercase md:text-5xl">
+                    Attack The World.
+                  </h2>
+                </div>
+              </div>
+
+              <div className="grid gap-5 md:grid-cols-2">
+                <div className="relative overflow-hidden rounded-[28px] border border-white/10">
+                  <Image
+                    src="/MECCAchamp.jpeg"
+                    alt="DMV Attack champions"
+                    width={1200}
+                    height={1200}
+                    className="h-[240px] w-full object-cover md:h-[280px]"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                  <div className="absolute bottom-0 left-0 p-5">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-lime-400">
+                      Champions
+                    </p>
+                    <p className="mt-2 text-2xl font-black uppercase">
+                      Built Different.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="relative overflow-hidden rounded-[28px] border border-white/10">
+                  <Image
+                    src="/ShyChamp.jpeg"
+                    alt="DMV Attack player spotlight"
+                    width={1200}
+                    height={1200}
+                    className="h-[240px] w-full object-cover md:h-[280px]"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                  <div className="absolute bottom-0 left-0 p-5">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-lime-400">
+                      Player Spotlight
+                    </p>
+                    <p className="mt-2 text-2xl font-black uppercase">
+                      Compete. Develop.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
+          <div className="mt-10 rounded-[32px] border border-white/10 bg-white/[0.03] p-6 md:p-8">
+            <div className="grid gap-6 md:grid-cols-4">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-[0.26em] text-white/45">
+                  Teams
+                </p>
+                <p className="mt-2 text-4xl font-black text-lime-400">6+</p>
+              </div>
+
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-[0.26em] text-white/45">
+                  Age Groups
+                </p>
+                <p className="mt-2 text-4xl font-black text-white">10U to 18U</p>
+              </div>
+
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-[0.26em] text-white/45">
+                  Coaches
+                </p>
+                <p className="mt-2 text-4xl font-black text-white">3 Leaders</p>
+              </div>
+
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-[0.26em] text-white/45">
+                  Mission
+                </p>
+                <p className="mt-2 text-2xl font-black text-white">
+                  Development  •  Competition  •  Exposure
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* ABOUT */}
-      <section
-        id="about"
-        className="px-6 py-24 md:px-8 md:py-32"
-      >
-        <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-2">
+      <section className="border-b border-white/10">
+        <div className="mx-auto max-w-7xl px-4 py-14 md:px-8 md:py-20">
+          <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-lime-400">
+                What We Do
+              </p>
+              <h2 className="mt-3 text-4xl font-black uppercase md:text-6xl">
+                More Than 7v7.
+              </h2>
+            </div>
 
-          <div>
-            <p className="text-[10px] font-black tracking-[0.35em] text-lime-400">
-              ABOUT // DMV ATTACK
-            </p>
-
-            <h2 className="mt-5 text-4xl font-black leading-[0.95] md:text-6xl">
-              More Than
-              <br />
-              7v7.
-            </h2>
-          </div>
-
-          <div>
-            <p className="text-lg leading-relaxed text-white/65">
-              DMV Attack gives athletes an opportunity to compete,
-              develop their game, build relationships, and represent
-              the DMV against strong competition.
-            </p>
-
-            <p className="mt-6 leading-relaxed text-white/45">
-              The goal is bigger than tournament weekends. We want players
-              learning how to compete, communicate, prepare, and grow
-              alongside teammates and coaches.
+            <p className="max-w-2xl text-base leading-8 text-white/65">
+              We are building athletes through coaching, training, community,
+              mentorship, and real development opportunities.
             </p>
           </div>
 
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+            {programCards.map((card) => (
+              <Link
+                key={card.title}
+                href={card.href}
+                className="group overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.03] transition hover:-translate-y-1 hover:border-white/20"
+              >
+                <Image
+                  src={card.image}
+                  alt={card.title}
+                  width={1200}
+                  height={800}
+                  className="h-[260px] w-full object-cover"
+                />
+                <div className="p-6">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-lime-400">
+                    DMV Attack
+                  </p>
+                  <h3 className="mt-3 text-2xl font-black uppercase">
+                    {card.title}
+                  </h3>
+                  <p className="mt-4 text-sm leading-7 text-white/65">
+                    {card.text}
+                  </p>
+                  <p className="mt-5 text-xs font-black uppercase tracking-[0.18em] text-white group-hover:text-lime-400">
+                    Explore →
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* AGE GROUPS */}
-      <section
-        id="teams"
-        className="border-y border-white/10 bg-white/[0.02] px-6 py-24 md:px-8"
-      >
-        <div className="mx-auto max-w-7xl">
-
-          <div className="mb-12">
-
-            <p className="text-[10px] font-black tracking-[0.35em] text-yellow-300">
-              TEAMS // AGE GROUPS
+      <section className="border-b border-white/10">
+        <div className="mx-auto max-w-7xl px-4 py-14 md:px-8 md:py-20">
+          <div className="mb-8">
+            <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-lime-400">
+              Coaching Staff
             </p>
-
-            <h2 className="mt-4 text-4xl font-black md:text-6xl">
-              Find Your Team.
+            <h2 className="mt-3 text-4xl font-black uppercase md:text-6xl">
+              Meet The Coaches
             </h2>
-
           </div>
 
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
-
-            {ageGroups.map((group, index) => (
+          <div className="grid gap-6 lg:grid-cols-3">
+            {coaches.map((coach) => (
               <div
-                key={group}
-                className="group rounded-2xl border border-white/10 bg-black p-6 transition hover:-translate-y-1 hover:border-lime-400/60"
+                key={coach.name}
+                className="overflow-hidden rounded-[32px] border border-white/10 bg-white/[0.03]"
               >
-                <p className="text-[9px] font-black tracking-[0.3em] text-yellow-300/60">
-                  {String(index + 1).padStart(2, "0")}
-                </p>
+                <Image
+                  src={coach.image}
+                  alt={coach.name}
+                  width={1200}
+                  height={1200}
+                  className="h-[360px] w-full object-cover object-top"
+                />
 
-                <p className="mt-5 text-4xl font-black transition group-hover:text-lime-400">
-                  {group}
-                </p>
+                <div className="p-6 md:p-7">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-lime-400">
+                    {coach.role}
+                  </p>
+                  <h3 className="mt-3 text-3xl font-black uppercase">
+                    {coach.name}
+                  </h3>
+                  <p className="mt-4 text-sm leading-7 text-white/68">
+                    {coach.bio}
+                  </p>
 
-                <div className="mt-5 h-[2px] w-8 bg-lime-400/60" />
-
-                <p className="mt-4 text-xs uppercase tracking-widest text-white/35">
-                  DMV Attack
-                </p>
+                  <a
+                    href={coach.igUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-6 inline-flex rounded-full border border-white/15 bg-white/[0.04] px-5 py-3 text-sm font-black uppercase tracking-[0.15em] text-white transition hover:border-lime-400 hover:text-lime-400"
+                  >
+                    @{coach.ig}
+                  </a>
+                </div>
               </div>
             ))}
-
           </div>
-
         </div>
       </section>
 
-      {/* PROGRAM */}
-      <section
-        id="included"
-        className="px-6 py-24 md:px-8 md:py-32"
-      >
-        <div className="mx-auto max-w-7xl">
+      <section className="border-b border-white/10">
+        <div className="mx-auto max-w-7xl px-4 py-14 md:px-8 md:py-20">
+          <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-lime-400">
+                Gallery
+              </p>
+              <h2 className="mt-3 text-4xl font-black uppercase md:text-6xl">
+                Real Photos. Big Energy.
+              </h2>
+            </div>
 
-          <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr]">
+            <p className="max-w-2xl text-base leading-8 text-white/65">
+              Bigger visuals on the homepage so the site actually feels alive and
+              looks like DMV Attack.
+            </p>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+            {gallery.map((photo) => (
+              <div
+                key={photo.title + photo.src}
+                className="overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.03]"
+              >
+                <Image
+                  src={photo.src}
+                  alt={photo.title}
+                  width={1200}
+                  height={1400}
+                  className="h-[340px] w-full object-cover"
+                />
+                <div className="p-4">
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-white">
+                    {photo.title}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-white/10">
+        <div className="mx-auto max-w-7xl px-4 py-14 md:px-8 md:py-20">
+          <div className="grid gap-8 lg:grid-cols-[1fr_1.1fr] lg:items-center">
+            <div className="overflow-hidden rounded-[32px] border border-white/10">
+              <Image
+                src="/DMVAttackFoundation.jpeg"
+                alt="DMV Attack Foundation"
+                width={1600}
+                height={1100}
+                className="h-[360px] w-full object-cover md:h-[500px]"
+              />
+            </div>
 
             <div>
-
-              <p className="text-[10px] font-black tracking-[0.35em] text-lime-400">
-                PROGRAM // INCLUDED
+              <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-lime-400">
+                Foundation
               </p>
-
-              <h2 className="mt-5 text-4xl font-black md:text-6xl">
-                Built for
-                <br />
-                Competition.
+              <h2 className="mt-3 text-4xl font-black uppercase md:text-6xl">
+                Bigger Than Football.
               </h2>
-
-              <p className="mt-6 max-w-lg leading-relaxed text-white/50">
-                One program. One team experience. Everything centered
-                around development and competing together.
+              <p className="mt-6 max-w-2xl text-base leading-8 text-white/70 md:text-lg">
+                DMV Attack Foundation is about giving back, helping athletes,
+                building character, and creating more access to opportunity.
+                The mission goes beyond wins and losses.
               </p>
 
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-
-              {includedItems.map((item, index) => (
-                <div
-                  key={item}
-                  className="rounded-2xl border border-white/10 bg-white/[0.025] p-6"
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href="/foundation"
+                  className="rounded-full bg-lime-400 px-8 py-4 text-center text-sm font-black uppercase tracking-[0.18em] text-black"
                 >
-                  <p className="text-[9px] font-black tracking-[0.3em] text-yellow-300/60">
-                    PROGRAM // {String(index + 1).padStart(2, "0")}
-                  </p>
+                  Learn More
+                </Link>
 
-                  <p className="mt-4 text-xl font-black">
-                    {item}
-                  </p>
-
-                  <div className="mt-5 h-[2px] w-10 bg-lime-400/60" />
-                </div>
-              ))}
-
+                <Link
+                  href="/contact"
+                  className="rounded-full border border-white/20 bg-white/[0.03] px-8 py-4 text-center text-sm font-black uppercase tracking-[0.18em] text-white"
+                >
+                  Connect With Us
+                </Link>
+              </div>
             </div>
-
           </div>
-
         </div>
       </section>
 
-      {/* TRYOUTS */}
-      <section
-        id="tryouts"
-        className="px-6 pb-24 md:px-8 md:pb-32"
-      >
-        <div className="mx-auto max-w-7xl">
+      <section>
+        <div className="mx-auto max-w-7xl px-4 py-14 md:px-8 md:py-20">
+          <div className="rounded-[36px] border border-white/10 bg-gradient-to-br from-lime-400/12 via-white/[0.03] to-white/[0.02] p-8 md:p-12">
+            <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-lime-400">
+              Ready To Compete
+            </p>
+            <h2 className="mt-3 max-w-4xl text-4xl font-black uppercase md:text-6xl">
+              Join The DMV Attack Movement.
+            </h2>
+            <p className="mt-5 max-w-3xl text-base leading-8 text-white/70 md:text-lg">
+              If you want to compete, grow, and be part of something real, this
+              is where it starts.
+            </p>
 
-          <div className="relative overflow-hidden rounded-[32px] border border-lime-400/30 bg-lime-400 p-8 text-black md:p-14">
-
-            <div className="pointer-events-none absolute -right-12 -top-20 text-[160px] font-black leading-none text-black/[0.06] md:text-[240px]">
-              7V7
-            </div>
-
-            <div className="relative">
-
-              <p className="text-[10px] font-black tracking-[0.35em] text-black/60">
-                TRYOUTS // DMV ATTACK
-              </p>
-
-              <h2 className="mt-5 text-5xl font-black leading-[0.9] md:text-7xl">
-                READY TO
-                <br />
-                ATTACK?
-              </h2>
-
-              <p className="mt-6 max-w-2xl text-base font-medium text-black/70 md:text-lg">
-                Tryout information, registration, dates, and team openings
-                will be posted here.
-              </p>
-
-              <a
-                href="mailto:taenextlevelqbs@gmail.com?subject=DMV%20Attack%207v7"
-                className="mt-8 inline-block rounded-full bg-black px-8 py-4 font-black text-white"
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Link
+                href="/contact"
+                className="rounded-full bg-lime-400 px-8 py-4 text-center text-sm font-black uppercase tracking-[0.18em] text-black"
               >
-                Contact DMV Attack →
-              </a>
+                Get In Touch
+              </Link>
 
+              <Link
+                href="/7v7"
+                className="rounded-full border border-white/20 bg-black/30 px-8 py-4 text-center text-sm font-black uppercase tracking-[0.18em] text-white"
+              >
+                View Program
+              </Link>
             </div>
-
           </div>
-
         </div>
       </section>
-
-      {/* APPAREL */}
-      <section className="border-t border-white/10 px-6 py-24 md:px-8">
-        <div className="mx-auto max-w-7xl">
-
-          <p className="text-[10px] font-black tracking-[0.35em] text-yellow-300">
-            DMV ATTACK // APPAREL
-          </p>
-
-          <div className="mt-5 flex flex-col justify-between gap-8 md:flex-row md:items-end">
-
-            <h2 className="text-4xl font-black md:text-6xl">
-              Wear the Brand.
-            </h2>
-
-            <a
-              href="https://dmvattack.myshopify.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-full bg-white px-7 py-3 text-center font-black text-black transition hover:bg-lime-400"
-            >
-              Shop DMV Attack →
-            </a>
-
-          </div>
-
-        </div>
-      </section>
-
-      {/* CONTACT */}
-      <section
-        id="contact"
-        className="border-t border-white/10 px-6 py-24 text-center md:px-8"
-      >
-        <div className="mx-auto max-w-3xl">
-
-          <p className="text-[10px] font-black tracking-[0.35em] text-lime-400">
-            CONTACT // DMV ATTACK
-          </p>
-
-          <h2 className="mt-5 text-4xl font-black md:text-6xl">
-            Attack the Opportunity.
-          </h2>
-
-          <p className="mx-auto mt-6 max-w-xl leading-relaxed text-white/50">
-            Questions about teams, tryouts, registration, partnerships,
-            or DMV Attack 7v7?
-          </p>
-
-          <a
-            href="mailto:taenextlevelqbs@gmail.com?subject=DMV%20Attack%207v7"
-            className="mt-8 inline-block rounded-full bg-lime-400 px-8 py-4 font-black text-black"
-          >
-            Contact Us →
-          </a>
-
-        </div>
-      </section>
-
-      {/* FOOTER */}
-      <footer className="border-t border-white/10 px-6 py-10 md:px-8">
-        <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 text-center md:flex-row md:items-center md:text-left">
-
-          <div>
-
-            <p className="font-black tracking-[0.18em]">
-              DMV ATTACK
-            </p>
-
-            <p className="mt-2 text-[10px] tracking-[0.25em] text-lime-400/60">
-              ATTACK THE WORLD
-            </p>
-
-          </div>
-
-          <p className="text-xs text-white/25">
-            © 2026 DMV Attack 7v7. All Rights Reserved.
-          </p>
-
-        </div>
-      </footer>
-
-
-      <section
-        data-dmv-photo-story="true"
-        className="border-t border-white/10 bg-black px-4 py-16 text-white md:px-8 md:py-24"
-      >
-        <div className="mx-auto max-w-7xl">
-
-          <div className="mb-10">
-
-            <div className="text-[10px] font-black uppercase tracking-[0.25em] text-lime-400">
-              The Attack
-            </div>
-
-            <h2 className="mt-3 text-4xl font-black uppercase md:text-6xl">
-              More Than A Team.
-            </h2>
-
-            <p className="mt-5 max-w-2xl text-sm leading-7 text-white/50">
-              Development. Competition. Exposure. Mentorship. Relationships. Built in Northern Virginia for athletes throughout the DMV.
-            </p>
-
-          </div>
-
-
-          <div className="grid gap-4 lg:grid-cols-12">
-
-            <div className="relative min-h-[560px] overflow-hidden rounded-3xl border border-white/10 lg:col-span-8">
-
-              <img
-                src="/fullteam.jpeg"
-                alt="DMV Attack team"
-                className="absolute inset-0 h-full w-full object-cover"
-              />
-
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent" />
-
-              <div className="absolute bottom-0 p-8">
-
-                <div className="text-xs font-black uppercase tracking-[0.2em] text-lime-400">
-                  Family
-                </div>
-
-                <div className="mt-2 text-4xl font-black uppercase">
-                  Attack The World.
-                </div>
-
-              </div>
-
-            </div>
-
-
-            <div className="grid gap-4 lg:col-span-4">
-
-              <div className="relative min-h-[270px] overflow-hidden rounded-3xl border border-white/10">
-
-                <img
-                  src="/10UChamp.JPG"
-                  alt="DMV Attack champions"
-                  className="absolute inset-0 h-full w-full object-cover"
-                />
-
-                <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent" />
-
-                <div className="absolute bottom-0 p-5 text-sm font-black uppercase">
-                  Compete.
-                </div>
-
-              </div>
-
-
-              <div className="relative min-h-[270px] overflow-hidden rounded-3xl border border-white/10">
-
-                <img
-                  src="/MECCAchamp.jpeg"
-                  alt="DMV Attack championship"
-                  className="absolute inset-0 h-full w-full object-cover"
-                />
-
-                <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent" />
-
-                <div className="absolute bottom-0 p-5 text-sm font-black uppercase">
-                  Win Together.
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
-
-
-          <div className="mt-8">
-
-            <a
-              href="https://www.instagram.com/dmvattack_7on7/"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex rounded-xl border border-lime-400/25 bg-lime-400/[0.08] px-6 py-3 text-xs font-black uppercase tracking-wider text-lime-400"
-            >
-              @dmvattack_7on7 ↗
-            </a>
-
-          </div>
-
-        </div>
-      </section>
-
-</main>
+    </main>
   );
 }
