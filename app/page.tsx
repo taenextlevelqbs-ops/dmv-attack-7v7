@@ -65,11 +65,11 @@ const coaches = [
 
 const gallery = [
   {
-    src: "/10UChamp.JPG",
+    src: "/10u-champ.jpeg",
     label: "10U",
   },
   {
-    src: "/10Ukid.JPEG",
+    src: "/10u-kid.jpeg",
     label: "Next Generation",
   },
   {
@@ -334,7 +334,7 @@ export default function HomePage() {
             {[
               {
                 title: "10U",
-                image: "/10UChamp.JPG",
+                image: "/10u-champ.jpeg",
               },
               {
                 title: "15U",

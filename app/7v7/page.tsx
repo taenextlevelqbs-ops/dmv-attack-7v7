@@ -7,7 +7,7 @@ export const metadata = {
 const groups = [
   {
     label: "10U",
-    image: "/10UChamp.JPG",
+    image: "/10u-champ.jpeg",
   },
   {
     label: "15U",
@@ -20,7 +20,7 @@ const groups = [
 ];
 
 const athletes = [
-  "/10Ukid.JPEG",
+  "/10u-kid.jpeg",
   "/Dylan18U.JPEG",
   "/JayB18U.JPEG",
   "/dj18U.JPEG",
