@@ -7,7 +7,7 @@ export const metadata = {
 const groups = [
   {
     label: "10U",
-    image: "/10u-champ.jpeg",
+    image: "/10Ukid.JPEG",
   },
   {
     label: "15U",
