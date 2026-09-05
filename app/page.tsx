@@ -15,7 +15,7 @@ const programs = [
     title: "Train With Purpose",
     description:
       "Quarterback, receiver, defensive back, speed and performance development from experienced coaches.",
-    image: "/RjQb.JPEG",
+    image: "/Qb.jpeg",
     href: "/training",
   },
   {
