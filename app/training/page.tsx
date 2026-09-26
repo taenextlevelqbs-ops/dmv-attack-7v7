@@ -19,12 +19,12 @@ export default function TrainingPage() {
 
         <div className="mx-auto w-full max-w-3xl">
 
-          <div className="relative h-[320px] overflow-hidden rounded-3xl border border-white/10 sm:h-[380px]">
+          <div className="relative overflow-hidden rounded-3xl border border-white/10">
 
             <img
               src="/RjQb.JPEG"
               alt="DMV Attack quarterback"
-              className="absolute inset-0 h-full w-full object-contain"
+              className="block h-auto w-full"
             />
 
             <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent" />
