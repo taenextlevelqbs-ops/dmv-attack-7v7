@@ -12,7 +12,7 @@ const navItems = [
   { href: "/foundation", label: "Foundation" },
   { href: "/girls-flag", label: "Girls Flag" },
   { href: "/camps", label: "Camps" },
-  { href: "/apparel", label: "Apparel" },
+  { href: "https://dmvattack.myshopify.com/", label: "Apparel" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];

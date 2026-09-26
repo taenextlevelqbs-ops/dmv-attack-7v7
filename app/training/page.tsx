@@ -15,7 +15,7 @@ export default function TrainingPage() {
       />
 
 
-      <section className="mx-auto max-w-7xl px-4 py-16 md:px-8">
+      <section className="mx-auto max-w-7xl px-4 py-8 md:px-8 md:py-10">
 
         <div className="mx-auto w-full max-w-3xl">
 
