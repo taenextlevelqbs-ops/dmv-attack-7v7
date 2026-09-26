@@ -120,7 +120,7 @@ export default function TrainingPage() {
             className="rounded-2xl border border-white/10 bg-white/[0.03] p-7 transition hover:border-lime-400/40"
           >
             <div className="text-xs font-black uppercase text-lime-400">
-              Performance
+              Defensive Back Training
             </div>
 
             <div className="mt-3 text-2xl font-black">
@@ -132,6 +132,54 @@ export default function TrainingPage() {
             </div>
           </a>
 
+        </div>
+
+        <div className="mt-5 rounded-2xl border border-lime-400/20 bg-white/[0.03] p-7 sm:p-9">
+          <div className="text-xs font-black uppercase tracking-wider text-lime-400">
+            Performance Training
+          </div>
+
+          <div className="mt-3 text-3xl font-black uppercase">
+            Speed &amp; Strength Training
+          </div>
+
+          <p className="mt-3 text-lg font-bold text-white">
+            Choose Any Trainer
+          </p>
+
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-white/55">
+            Speed, strength, agility, explosiveness, movement, and complete
+            athletic development with the DMV Attack training staff.
+          </p>
+
+          <div className="mt-6 flex flex-wrap gap-3">
+            <a
+              href="https://coachtaeqb.com/"
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-xl bg-lime-400 px-5 py-3 text-xs font-black uppercase tracking-wider text-black"
+            >
+              Coach Tae
+            </a>
+
+            <a
+              href="https://www.instagram.com/dasp_training/"
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-xl border border-white/10 px-5 py-3 text-xs font-black uppercase tracking-wider text-white transition hover:border-lime-400/40"
+            >
+              @dasp_training
+            </a>
+
+            <a
+              href="https://www.instagram.com/r.a.m_training/"
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-xl border border-white/10 px-5 py-3 text-xs font-black uppercase tracking-wider text-white transition hover:border-lime-400/40"
+            >
+              @r.a.m_training
+            </a>
+          </div>
         </div>
 
       </section>
