@@ -17,9 +17,9 @@ export default function TrainingPage() {
 
       <section className="mx-auto max-w-7xl px-4 py-16 md:px-8">
 
-        <div className="grid gap-4">
+        <div className="mx-auto w-full max-w-3xl">
 
-          <div className="relative min-h-[500px] overflow-hidden rounded-3xl border border-white/10">
+          <div className="relative h-[320px] overflow-hidden rounded-3xl border border-white/10 sm:h-[380px]">
 
             <img
               src="/RjQb.JPEG"
