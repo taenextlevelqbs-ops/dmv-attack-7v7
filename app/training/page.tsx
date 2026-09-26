@@ -24,7 +24,7 @@ export default function TrainingPage() {
             <img
               src="/RjQb.JPEG"
               alt="DMV Attack quarterback"
-              className="absolute inset-0 h-full w-full object-cover"
+              className="absolute inset-0 h-full w-full object-contain"
             />
 
             <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent" />
