@@ -17,32 +17,7 @@ export default function TrainingPage() {
 
       <section className="mx-auto max-w-7xl px-4 py-16 md:px-8">
 
-        <div className="grid gap-4 lg:grid-cols-2">
-
-          <div className="relative min-h-[500px] overflow-hidden rounded-3xl border border-white/10">
-
-            <img
-              src="/Qb.jpeg"
-              alt="Quarterback training"
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-
-            <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent" />
-
-            <div className="absolute bottom-0 p-8">
-
-              <div className="text-xs font-black uppercase tracking-wider text-lime-400">
-                Quarterback Development
-              </div>
-
-              <div className="mt-2 text-3xl font-black uppercase">
-                Coach Tae QB
-              </div>
-
-            </div>
-
-          </div>
-
+        <div className="grid gap-4">
 
           <div className="relative min-h-[500px] overflow-hidden rounded-3xl border border-white/10">
 
