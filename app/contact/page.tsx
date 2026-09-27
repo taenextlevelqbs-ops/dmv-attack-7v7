@@ -135,17 +135,62 @@ export default function ContactPage() {
               />
             </label>
 
-            <label className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2">
               <span className="text-xs font-black uppercase tracking-[0.15em] text-white/55">
                 Birthday
               </span>
-              <input
-                type="date"
-                name="Birthday"
-                required
-                className="rounded-xl border border-white/10 bg-black px-4 py-4 text-white outline-none transition focus:border-lime-400"
-              />
-            </label>
+
+              <div className="grid grid-cols-3 gap-2">
+                <select
+                  name="Birth Month"
+                  required
+                  className="rounded-xl border border-white/10 bg-black px-3 py-4 text-white outline-none transition focus:border-lime-400"
+                >
+                  <option value="">Month</option>
+                  <option>January</option>
+                  <option>February</option>
+                  <option>March</option>
+                  <option>April</option>
+                  <option>May</option>
+                  <option>June</option>
+                  <option>July</option>
+                  <option>August</option>
+                  <option>September</option>
+                  <option>October</option>
+                  <option>November</option>
+                  <option>December</option>
+                </select>
+
+                <select
+                  name="Birth Day"
+                  required
+                  className="rounded-xl border border-white/10 bg-black px-3 py-4 text-white outline-none transition focus:border-lime-400"
+                >
+                  <option value="">Day</option>
+                  {Array.from({ length: 31 }, (_, i) => (
+                    <option key={i + 1} value={i + 1}>
+                      {i + 1}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  name="Birth Year"
+                  required
+                  className="rounded-xl border border-white/10 bg-black px-3 py-4 text-white outline-none transition focus:border-lime-400"
+                >
+                  <option value="">Year</option>
+                  {Array.from({ length: 22 }, (_, i) => {
+                    const year = 2026 - i;
+                    return (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+            </div>
 
             <label className="flex flex-col gap-2">
               <span className="text-xs font-black uppercase tracking-[0.15em] text-white/55">
