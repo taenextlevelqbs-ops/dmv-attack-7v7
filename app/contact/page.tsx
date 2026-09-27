@@ -1,4 +1,4 @@
-import DmvPageHeader from "@/components/DmvPageHeader";
+import DmvPageHeader from "@/components/dmv-page-header";
 
 export default function ContactPage() {
   return (
