@@ -616,6 +616,15 @@ export default function HomePage() {
                   @dmvattack_7on7 ↗
                 </a>
 
+                <a
+                  href="https://dmvattack.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-full border border-lime-400/40 bg-lime-400/10 px-8 py-4 text-center text-xs font-black uppercase tracking-[0.18em] text-lime-400 transition hover:bg-lime-400 hover:text-black"
+                >
+                  Visit DMVAttack.com ↗
+                </a>
+
               </div>
 
             </div>
