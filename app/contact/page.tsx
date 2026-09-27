@@ -63,10 +63,9 @@ export default function ContactPage() {
           </p>
 
           <form
-            action="mailto:dmvattack@gmail.com?subject=DMV%20Attack%20Player%20Interest"
-            method="post"
-            encType="text/plain"
-            className="mt-10 grid gap-5 md:grid-cols-2"
+            action="https://formspree.io/f/mwlpwarv"
+            method="POST"
+                        className="mt-10 grid gap-5 md:grid-cols-2"
           >
             <label className="flex flex-col gap-2">
               <span className="text-xs font-black uppercase tracking-[0.15em] text-white/55">
