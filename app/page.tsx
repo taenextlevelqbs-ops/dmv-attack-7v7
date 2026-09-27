@@ -147,7 +147,7 @@ export default function HomePage() {
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
 
               <Link
-                href="/7v7"
+                href="/contact"
                 className="rounded-full bg-lime-400 px-8 py-4 text-center text-xs font-black uppercase tracking-[0.18em] text-black transition hover:scale-[1.02]"
               >
                 Join DMV Attack →
@@ -320,7 +320,7 @@ export default function HomePage() {
             </div>
 
             <Link
-              href="/7v7"
+              href="/contact"
               className="text-xs font-black uppercase tracking-[0.18em] text-white/60 hover:text-lime-400"
             >
               View 7v7 Program →
