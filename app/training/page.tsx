@@ -63,7 +63,25 @@ export default function TrainingPage() {
             </div>
 
             <div className="mt-5 text-xs text-white/40">
-              CoachTaeQB.com →
+              <div className="mt-4 flex flex-col gap-1 text-sm">
+  <a
+    href="https://www.instagram.com/coachtae3/"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-zinc-400 transition hover:text-[#a6ff00]"
+  >
+    @coachtae3
+  </a>
+
+  <a
+    href="https://coachtaeqb.com"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-zinc-400 transition hover:text-[#a6ff00]"
+  >
+    CoachTaeQB.com →
+  </a>
+</div>
             </div>
           </a>
 
