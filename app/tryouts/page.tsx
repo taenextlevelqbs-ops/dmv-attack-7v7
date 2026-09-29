@@ -40,8 +40,8 @@ export default function TryoutsPage() {
         <div className="mx-auto max-w-7xl px-4 py-10 md:px-8 md:py-14">
           <div className="grid gap-4 md:grid-cols-3">
             {[
-              ["Date", "Coming Soon"],
-              ["Time", "Coming Soon"],
+              ["Youth Tryout", "Sunday, November 8"],
+              ["High School Tryout", "Sunday, November 22"],
               ["Location", "Coming Soon"],
             ].map(([title, value]) => (
               <div
@@ -60,12 +60,44 @@ export default function TryoutsPage() {
           </div>
 
           <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.025] p-6">
-            <p className="text-sm leading-7 text-white/60">
-              Registering now places your athlete on our tryout registration
-              list. Once official tryout information is finalized, registered
-              families will receive updated details. Registration does not
-              guarantee placement on a DMV Attack roster.
-            </p>
+            <div className="grid gap-5 md:grid-cols-2">
+              <div>
+                <div className="text-[10px] font-black uppercase tracking-[0.22em] text-lime-400">
+                  November 8
+                </div>
+                <div className="mt-2 text-xl font-black uppercase">
+                  8U • 10U • 12U • 14U
+                </div>
+                <p className="mt-3 text-sm leading-7 text-white/55">
+                  Youth divisions will try out first so younger teams can begin
+                  evaluations and roster planning early.
+                </p>
+              </div>
+
+              <div>
+                <div className="text-[10px] font-black uppercase tracking-[0.22em] text-lime-400">
+                  November 22
+                </div>
+                <div className="mt-2 text-xl font-black uppercase">
+                  15U • 18U
+                </div>
+                <p className="mt-3 text-sm leading-7 text-white/55">
+                  High school divisions will try out later in November to allow
+                  more athletes to complete their school football seasons.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 border-t border-white/10 pt-6">
+              <p className="text-sm leading-7 text-white/60">
+                Tryout location and times will be announced soon. A December
+                makeup opportunity may also be added for high school athletes
+                whose teams advance deep into the postseason. Registering now
+                places your athlete on our tryout list and allows DMV Attack to
+                send your family updated tryout information as details are
+                finalized.
+              </p>
+            </div>
           </div>
         </div>
       </section>
