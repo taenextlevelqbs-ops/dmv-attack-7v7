@@ -147,10 +147,10 @@ export default function HomePage() {
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
 
               <Link
-                href="/contact"
+                href="/tryouts"
                 className="rounded-full bg-lime-400 px-8 py-4 text-center text-xs font-black uppercase tracking-[0.18em] text-black transition hover:scale-[1.02]"
               >
-                Join DMV Attack →
+                Register For Tryouts →
               </Link>
 
               <Link

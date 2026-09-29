@@ -452,10 +452,10 @@ export default function SevenOnSevenPage() {
               </p>
 
               <Link
-                href="/contact"
+                href="/tryouts"
                 className="mt-8 inline-flex rounded-full bg-black px-8 py-4 text-xs font-black uppercase tracking-[0.18em] text-white transition hover:scale-[1.02]"
               >
-                Submit Player Interest →
+                Register For Tryouts →
               </Link>
             </div>
 
