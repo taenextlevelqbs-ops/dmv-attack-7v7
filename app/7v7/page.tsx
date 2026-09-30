@@ -93,8 +93,96 @@ const included = [
 ];
 
 export default function SevenOnSevenPage() {
+  const tournamentSchedule = [
+    {
+      date: "FEB 27–28",
+      title: "Duel in the DMV",
+      location: "Upper Marlboro, MD",
+    },
+    {
+      date: "MAR 13–14",
+      title: "Music City Mayhem",
+      location: "Murfreesboro, TN",
+    },
+    {
+      date: "MAR 20–21",
+      title: "Football City Clash",
+      location: "Rock Hill, SC",
+    },
+    {
+      date: "APR 3–4",
+      title: "Virginia Frenzy",
+      location: "Gainesville, VA",
+    },
+    {
+      date: "APR 10–11",
+      title: "PA Classic",
+      location: "West Bradford Township, PA",
+    },
+    {
+      date: "MAY 1–2",
+      title: "National Championship",
+      location: "Indianapolis, IN",
+      note: "Qualification Required",
+    },
+  ];
+
+
+
+
   return (
     <main className="min-h-screen bg-black text-white">
+      <section className="border-t border-white/10 bg-black px-5 py-16 text-white md:px-8 md:py-20">
+        <div className="mx-auto max-w-6xl">
+          <div className="max-w-2xl">
+            <div className="text-[10px] font-black uppercase tracking-[0.25em] text-lime-400">
+              2027 National Schedule
+            </div>
+
+            <h2 className="mt-3 text-3xl font-black uppercase tracking-tight sm:text-4xl">
+              DMV Attack x Prep Redzone 7v7
+            </h2>
+
+            <p className="mt-3 text-sm leading-6 text-white/45">
+              DMV Attack is proud to compete on the Prep Redzone 7v7 national circuit for the 2027 season. Our athletes will compete across the region and nationally with the opportunity to qualify for the National Championship in Indianapolis.
+            </p>
+          </div>
+
+          <div className="mt-8 divide-y divide-white/10 border-y border-white/10">
+            {tournamentSchedule.map((event) => (
+              <div
+                key={`${event.date}-${event.title}`}
+                className="grid gap-3 py-5 sm:grid-cols-[130px_1fr_auto] sm:items-center"
+              >
+                <div className="text-xs font-black uppercase tracking-[0.14em] text-lime-400">
+                  {event.date}
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-black uppercase">
+                    {event.title}
+                  </h3>
+
+                  <p className="mt-1 text-xs text-white/40">
+                    {event.location}
+                  </p>
+                </div>
+
+                {event.note && (
+                  <div className="justify-self-start rounded-full bg-lime-400 px-3 py-1.5 text-[8px] font-black uppercase tracking-[0.12em] text-black sm:justify-self-end">
+                    {event.note}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <p className="mt-5 text-[11px] leading-5 text-white/30">
+            Tournament participation and championship qualification are subject to team placement and event requirements.
+          </p>
+        </div>
+      </section>
+
       <DmvPageHeader
         eyebrow="DMV Attack"
         title="7v7 Football"
@@ -460,6 +548,161 @@ export default function SevenOnSevenPage() {
             </div>
 
           </div>
+        </div>
+      </section>
+
+
+
+      <section className="border-t border-white/10 bg-black px-5 py-16 text-white md:px-8 md:py-20">
+        <div className="mx-auto max-w-6xl">
+          <div className="max-w-2xl">
+            <div className="text-[10px] font-black uppercase tracking-[0.25em] text-lime-400">
+              2027 Tournament Schedule
+            </div>
+
+            <h2 className="mt-3 text-3xl font-black uppercase tracking-tight sm:text-4xl">
+              The Road To Indy
+            </h2>
+
+            <p className="mt-3 text-sm leading-6 text-white/45">
+              Five tournament weekends lead into the National Championship in Indianapolis.
+            </p>
+          </div>
+
+          <div className="mt-8 divide-y divide-white/10 border-y border-white/10">
+            {tournamentSchedule.map((event) => (
+              <div
+                key={`${event.date}-${event.title}`}
+                className="grid gap-3 py-5 sm:grid-cols-[130px_1fr_auto] sm:items-center"
+              >
+                <div className="text-xs font-black uppercase tracking-[0.14em] text-lime-400">
+                  {event.date}
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-black uppercase">
+                    {event.title}
+                  </h3>
+
+                  <p className="mt-1 text-xs text-white/40">
+                    {event.location}
+                  </p>
+                </div>
+
+                {event.note && (
+                  <div className="justify-self-start rounded-full bg-lime-400 px-3 py-1.5 text-[8px] font-black uppercase tracking-[0.12em] text-black sm:justify-self-end">
+                    {event.note}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <p className="mt-5 text-[11px] leading-5 text-white/30">
+            Tournament participation and championship qualification are subject to team placement and event requirements.
+          </p>
+        </div>
+      </section>
+
+      <section className="border-t border-white/10 bg-black px-5 py-16 text-white md:px-8 md:py-20">
+        <div className="mx-auto max-w-6xl">
+          <div className="max-w-2xl">
+            <div className="text-[10px] font-black uppercase tracking-[0.25em] text-lime-400">
+              2027 Tournament Schedule
+            </div>
+
+            <h2 className="mt-3 text-3xl font-black uppercase tracking-tight sm:text-4xl">
+              The Road To Indy
+            </h2>
+
+            <p className="mt-3 text-sm leading-6 text-white/45">
+              Five tournament weekends lead into the National Championship in Indianapolis.
+            </p>
+          </div>
+
+          <div className="mt-8 divide-y divide-white/10 border-y border-white/10">
+            {tournamentSchedule.map((event) => (
+              <div
+                key={`${event.date}-${event.title}`}
+                className="grid gap-3 py-5 sm:grid-cols-[130px_1fr_auto] sm:items-center"
+              >
+                <div className="text-xs font-black uppercase tracking-[0.14em] text-lime-400">
+                  {event.date}
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-black uppercase">
+                    {event.title}
+                  </h3>
+
+                  <p className="mt-1 text-xs text-white/40">
+                    {event.location}
+                  </p>
+                </div>
+
+                {event.note && (
+                  <div className="justify-self-start rounded-full bg-lime-400 px-3 py-1.5 text-[8px] font-black uppercase tracking-[0.12em] text-black sm:justify-self-end">
+                    {event.note}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <p className="mt-5 text-[11px] leading-5 text-white/30">
+            Tournament participation and championship qualification are subject to team placement and event requirements.
+          </p>
+        </div>
+      </section>
+
+      <section className="border-t border-white/10 bg-black px-5 py-16 text-white md:px-8 md:py-20">
+        <div className="mx-auto max-w-6xl">
+          <div className="max-w-2xl">
+            <div className="text-[10px] font-black uppercase tracking-[0.25em] text-lime-400">
+              2027 Tournament Schedule
+            </div>
+
+            <h2 className="mt-3 text-3xl font-black uppercase tracking-tight sm:text-4xl">
+              The Road To Indy
+            </h2>
+
+            <p className="mt-3 text-sm leading-6 text-white/45">
+              Five tournament weekends lead into the National Championship in Indianapolis.
+            </p>
+          </div>
+
+          <div className="mt-8 divide-y divide-white/10 border-y border-white/10">
+            {tournamentSchedule.map((event) => (
+              <div
+                key={`${event.date}-${event.title}`}
+                className="grid gap-3 py-5 sm:grid-cols-[130px_1fr_auto] sm:items-center"
+              >
+                <div className="text-xs font-black uppercase tracking-[0.14em] text-lime-400">
+                  {event.date}
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-black uppercase">
+                    {event.title}
+                  </h3>
+
+                  <p className="mt-1 text-xs text-white/40">
+                    {event.location}
+                  </p>
+                </div>
+
+                {event.note && (
+                  <div className="justify-self-start rounded-full bg-lime-400 px-3 py-1.5 text-[8px] font-black uppercase tracking-[0.12em] text-black sm:justify-self-end">
+                    {event.note}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <p className="mt-5 text-[11px] leading-5 text-white/30">
+            Tournament participation and championship qualification are subject to team placement and event requirements.
+          </p>
         </div>
       </section>
 
