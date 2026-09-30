@@ -120,8 +120,9 @@ export default function TryoutsPage() {
         </div>
 
         <form
-          action="https://formspree.io/f/mwlpwarv"
+          action="/api/tryouts/register"
           method="POST"
+          encType="multipart/form-data"
           className="space-y-10"
         >
           <input
@@ -133,6 +134,36 @@ export default function TryoutsPage() {
           <div className="rounded-[32px] border border-white/10 bg-white/[0.025] p-6 md:p-9">
             <div className="text-xs font-black uppercase tracking-[0.2em] text-lime-400">
               01 • Athlete Information
+            </div>
+
+            <div className="mt-7 rounded-2xl border border-lime-400/20 bg-lime-400/[0.06] p-5 md:p-6">
+              <div className="text-[10px] font-black uppercase tracking-[0.2em] text-lime-400">
+                Athlete Headshot • Required
+              </div>
+
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-white/55">
+                Upload a clear, recent photo of the athlete. This will appear on
+                the athlete&apos;s tryout profile so our staff can quickly match
+                names, evaluations and roster decisions to the correct player.
+              </p>
+
+              <label className="mt-5 flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/20 bg-black/40 px-6 py-10 text-center transition hover:border-lime-400/60">
+                <span className="text-sm font-black uppercase tracking-[0.15em] text-white">
+                  Upload Athlete Headshot
+                </span>
+
+                <span className="mt-2 text-xs text-white/40">
+                  JPG, PNG or WEBP • Maximum 5MB
+                </span>
+
+                <input
+                  type="file"
+                  name="Athlete Headshot"
+                  accept="image/jpeg,image/png,image/webp"
+                  required
+                  className="mt-5 block w-full max-w-sm text-xs text-white/60 file:mr-4 file:rounded-full file:border-0 file:bg-lime-400 file:px-5 file:py-3 file:text-xs file:font-black file:uppercase file:text-black"
+                />
+              </label>
             </div>
 
             <div className="mt-7 grid gap-5 md:grid-cols-2">
@@ -561,9 +592,9 @@ export default function TryoutsPage() {
             </h3>
 
             <p className="mt-4 max-w-2xl text-sm font-semibold leading-7 text-black/65">
-              After submitting, your athlete&apos;s information will be sent to
-              the DMV Attack staff. Families will receive additional information
-              as tryout details are finalized.
+              After submitting, your athlete will be added directly to the DMV
+              Attack tryout system and assigned a unique Tryout ID. Keep that ID
+              for check-in and future tryout communication.
             </p>
 
             <button
