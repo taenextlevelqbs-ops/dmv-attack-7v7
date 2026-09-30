@@ -3,7 +3,7 @@ import DmvPageHeader from "@/components/dmv-page-header";
 export const metadata = {
   title: "Tryout Registration | DMV Attack",
   description:
-    "Register your athlete for upcoming DMV Attack 7v7 tryouts. 2027 DMV Attack 7v7 tryouts will be held at Independence High School in Ashburn, Virginia. Official tryout times will be announced soon.",
+    "Register your athlete for upcoming DMV Attack 7v7 tryouts. 2027 DMV Attack 7v7 tryouts will be held at Independence High School in Brambleton, Virginia. Official tryout times will be announced soon.",
 };
 
 const divisions = ["8U", "10U", "12U", "14U", "15U", "18U"];
@@ -33,7 +33,7 @@ export default function TryoutsPage() {
       <DmvPageHeader
         eyebrow="DMV Attack 7v7"
         title="Tryout Registration"
-        description="Complete the registration form now for DMV Attack 7v7 tryouts at Independence High School in Ashburn, Virginia. Our staff will keep your family updated when official tryout times are announced."
+        description="Complete the registration form now for DMV Attack 7v7 tryouts at Independence High School in Brambleton, Virginia. Our staff will keep your family updated when official tryout times are announced."
       />
 
       <section className="border-b border-white/10">
@@ -42,7 +42,7 @@ export default function TryoutsPage() {
             {[
               ["Youth Tryout", "Sunday, November 8"],
               ["High School Tryout", "Sunday, November 22"],
-              ["Location", "Independence High School • Ashburn, VA"],
+              ["Location", "Independence High School • Brambleton, VA"],
             ].map(([title, value]) => (
               <div
                 key={title}
@@ -90,7 +90,7 @@ export default function TryoutsPage() {
 
             <div className="mt-6 border-t border-white/10 pt-6">
               <p className="text-sm leading-7 text-white/60">
-                Tryouts will be held at Independence High School in Ashburn, Virginia. Official times will be announced soon. A December
+                Tryouts will be held at Independence High School in Brambleton, Virginia. Official times will be announced soon. A December
                 makeup opportunity may also be added for high school athletes
                 whose teams advance deep into the postseason. Registering now
                 places your athlete on our tryout list and allows DMV Attack to
