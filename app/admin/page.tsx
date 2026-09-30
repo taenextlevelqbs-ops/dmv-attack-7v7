@@ -41,7 +41,7 @@ const modules: Module[] = [
     title: "Communication",
     description:
       "Organization announcements, team messages, email and SMS communication.",
-    href: "/admin/communication",
+    href: "/admin/communications",
   },
   {
     title: "Schedule",

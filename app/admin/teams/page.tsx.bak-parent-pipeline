@@ -94,63 +94,6 @@ export default function TeamsPage() {
     loadRosters();
   }, []);
 
-  async function activatePlayer(
-    tryoutSubmissionId: string,
-    teamId: string
-  ) {
-    const confirmed = window.confirm(
-      "Activate this player? This will accept the roster offer and create/connect the athlete and family records."
-    );
-
-    if (!confirmed) return;
-
-    try {
-      setError("");
-
-      const response = await fetch(
-        "/api/admin/rosters/accept",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            tryout_submission_id:
-              tryoutSubmissionId,
-            team_id: teamId,
-          }),
-        }
-      );
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          result.error ||
-            "Unable to activate player"
-        );
-      }
-
-      if (result.parent_account_linked) {
-        window.alert(
-          "Player activated successfully. Family and parent portal account are connected."
-        );
-      } else {
-        window.alert(
-          `Player activated successfully. Family and athlete records were created. Parent account still needs activation for ${result.parent_email}.`
-        );
-      }
-
-      await loadRosters();
-    } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Unable to activate player"
-      );
-    }
-  }
-
   const totals = useMemo(() => {
     const assignments = teams.flatMap(
       (team) => team.assignments
@@ -536,51 +479,23 @@ export default function TeamsPage() {
                         </div>
                       </div>
 
-                      <div className="border-t border-white/10 px-4 py-3">
-                        <div className="flex items-center justify-between gap-3">
-                          <div
-                            className={`rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-[0.12em] ${
-                              assignment.roster_status ===
-                              "OFFERED"
-                                ? "bg-lime-400/10 text-lime-400"
-                                : assignment.roster_status ===
-                                    "ACCEPTED"
-                                  ? "bg-white/10 text-white"
-                                  : "bg-white/10 text-white/60"
-                            }`}
-                          >
-                            {
-                              assignment.roster_status
-                            }
-                          </div>
-
-                          <div className="text-[9px] font-black uppercase tracking-[0.1em] text-white/25">
-                            {athlete.tryout_id}
-                          </div>
+                      <div className="flex items-center justify-between border-t border-white/10 px-4 py-3">
+                        <div
+                          className={`rounded-full px-3 py-1 text-[9px] font-black uppercase tracking-[0.12em] ${
+                            assignment.roster_status ===
+                            "OFFERED"
+                              ? "bg-lime-400/10 text-lime-400"
+                              : "bg-white/10 text-white/60"
+                          }`}
+                        >
+                          {
+                            assignment.roster_status
+                          }
                         </div>
 
-                        {assignment.roster_status ===
-                          "OFFERED" && (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              activatePlayer(
-                                assignment.tryout_submission_id,
-                                assignment.team.id
-                              )
-                            }
-                            className="mt-3 w-full rounded-xl bg-lime-400 px-4 py-3 text-[10px] font-black uppercase tracking-[0.14em] text-black transition hover:bg-lime-300"
-                          >
-                            Activate Player
-                          </button>
-                        )}
-
-                        {assignment.roster_status ===
-                          "ACCEPTED" && (
-                          <div className="mt-3 rounded-xl border border-lime-400/20 bg-lime-400/[0.06] px-4 py-3 text-center text-[9px] font-black uppercase tracking-[0.12em] text-lime-400">
-                            Player Activated
-                          </div>
-                        )}
+                        <div className="text-[9px] font-black uppercase tracking-[0.1em] text-white/25">
+                          {athlete.tryout_id}
+                        </div>
                       </div>
                     </article>
                   );
