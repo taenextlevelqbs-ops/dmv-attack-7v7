@@ -121,103 +121,113 @@ export default async function AdminPage() {
       .filter(Boolean)
       .join(" ") || "Staff";
 
+  const primaryModules = visibleModules.filter((module) =>
+    [
+      "/admin/tryouts",
+      "/admin/teams",
+      "/admin/athletes",
+      "/admin/schedule",
+    ].includes(module.href)
+  );
+
+  const organizationModules = visibleModules.filter((module) =>
+    [
+      "/admin/families",
+      "/admin/communications",
+      "/admin/forms",
+    ].includes(module.href)
+  );
+
+  const programModules = visibleModules.filter((module) =>
+    [
+      "/admin/camps",
+      "/admin/girls-flag",
+      "/admin/foundation",
+    ].includes(module.href)
+  );
+
+  const businessModules = visibleModules.filter((module) =>
+    [
+      "/admin/finance",
+      "/admin/payments",
+    ].includes(module.href)
+  );
+
   return (
-    <main className="min-h-screen bg-black px-4 py-10 text-white md:px-8 md:py-14">
-      <div className="mx-auto max-w-7xl">
-        <header className="flex flex-col gap-6 border-b border-white/10 pb-8 md:flex-row md:items-end md:justify-between">
-          <div>
-            <div className="text-[10px] font-black uppercase tracking-[0.3em] text-lime-400">
-              DMV Attack
+    <main className="min-h-screen bg-black px-4 py-7 text-white md:px-8 md:py-10">
+      <div className="mx-auto max-w-6xl">
+
+        <header className="border-b border-white/10 pb-6">
+          <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+            <div>
+              <div className="text-[9px] font-black uppercase tracking-[0.28em] text-lime-400">
+                DMV Attack • 2027
+              </div>
+
+              <h1 className="mt-2 text-3xl font-black uppercase tracking-tight sm:text-4xl md:text-5xl">
+                Command Center
+              </h1>
+
+              <p className="mt-2 text-sm text-white/40">
+                Welcome back,{" "}
+                <span className="font-bold text-white/70">
+                  {displayName}
+                </span>
+              </p>
             </div>
 
-            <h1 className="mt-3 text-4xl font-black uppercase md:text-6xl">
-              Command Center
-            </h1>
+            <div className="flex items-center gap-3">
+              <div className="rounded-full border border-lime-400/20 bg-lime-400/[0.07] px-4 py-2 text-[10px] font-black uppercase tracking-[0.15em] text-lime-400">
+                {profile.role}
+              </div>
 
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-white/50">
-              Run DMV Attack from one place. Manage athletes,
-              tryouts, teams, families, communication and programs.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-white/10 bg-white/[0.035] px-5 py-4">
-            <div className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30">
-              Signed In
-            </div>
-
-            <div className="mt-1 font-black uppercase">
-              {displayName}
-            </div>
-
-            <div className="mt-1 text-xs font-bold text-lime-400">
-              {profile.role}
+              <Link
+                href="/admin/settings"
+                className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-[10px] font-black uppercase tracking-[0.15em] text-white/50 transition hover:border-white/20 hover:text-white"
+              >
+                Settings
+              </Link>
             </div>
           </div>
         </header>
 
-        <section className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Stat
-            label="System"
-            value="ACTIVE"
-          />
-
-          <Stat
-            label="Season"
-            value="2027"
-          />
-
-          <Stat
+        <section className="mt-5 grid grid-cols-3 gap-2 sm:gap-3">
+          <MiniStat label="Season" value="2027" />
+          <MiniStat label="System" value="Active" highlight />
+          <MiniStat
             label="Access"
-            value={profile.role}
-          />
-
-          <Stat
-            label="Programs"
-            value="7V7 +"
+            value={isOwner ? "Owner" : "Admin"}
           />
         </section>
 
-        <section className="mt-12">
-          <div className="flex items-end justify-between gap-4">
-            <div>
-              <div className="text-[10px] font-black uppercase tracking-[0.25em] text-lime-400">
-                Operations
-              </div>
+        <section className="mt-8">
+          <SectionHeader
+            eyebrow="Quick Access"
+            title="Run The Program"
+          />
 
-              <h2 className="mt-2 text-3xl font-black uppercase">
-                Management
-              </h2>
-            </div>
-
-            <div className="text-xs font-bold text-white/30">
-              {visibleModules.length} modules
-            </div>
-          </div>
-
-          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {visibleModules.map((module) => (
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {primaryModules.map((module, index) => (
               <Link
-                key={module.title}
+                key={module.href}
                 href={module.href}
-                className="group relative min-h-[210px] overflow-hidden rounded-[30px] border border-white/10 bg-white/[0.03] p-6 transition hover:border-lime-400/40 hover:bg-white/[0.05]"
+                className="group rounded-[22px] border border-white/10 bg-white/[0.035] p-5 transition hover:border-lime-400/40 hover:bg-white/[0.055]"
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-full border border-lime-400/25 bg-lime-400/[0.08] text-sm font-black text-lime-400 transition group-hover:bg-lime-400 group-hover:text-black">
-                    →
+                <div className="flex items-start justify-between">
+                  <div className="text-[10px] font-black uppercase tracking-[0.18em] text-lime-400">
+                    0{index + 1}
                   </div>
 
-                  {module.badge && (
-                    <div className="rounded-full bg-lime-400 px-3 py-1 text-[9px] font-black uppercase tracking-[0.15em] text-black">
-                      {module.badge}
-                    </div>
-                  )}
+                  <div className="text-lg text-white/25 transition group-hover:translate-x-1 group-hover:text-lime-400">
+                    →
+                  </div>
                 </div>
 
-                <h3 className="mt-7 text-2xl font-black uppercase">
+                <h2 className="mt-8 text-lg font-black uppercase leading-tight">
                   {module.title}
-                </h3>
+                </h2>
 
-                <p className="mt-3 max-w-sm text-sm leading-6 text-white/45">
+                <p className="mt-2 line-clamp-2 text-xs leading-5 text-white/35">
                   {module.description}
                 </p>
               </Link>
@@ -225,47 +235,166 @@ export default async function AdminPage() {
           </div>
         </section>
 
-        {!isOwner && (
-          <section className="mt-10 rounded-[28px] border border-white/10 bg-white/[0.025] p-6">
-            <div className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">
-              Staff Access
-            </div>
+        <section className="mt-9">
+          <SectionHeader
+            eyebrow="Organization"
+            title="People + Communication"
+          />
 
-            <p className="mt-2 text-sm leading-6 text-white/50">
-              Your account has full DMV Attack operational
-              management access.
-            </p>
+          <div className="mt-4 grid gap-2 sm:grid-cols-3">
+            {organizationModules.map((module) => (
+              <CompactLink
+                key={module.href}
+                href={module.href}
+                title={module.title}
+                description={module.description}
+              />
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-9">
+          <SectionHeader
+            eyebrow="Programs"
+            title="DMV Attack Programs"
+          />
+
+          <div className="mt-4 grid gap-2 sm:grid-cols-3">
+            {programModules.map((module) => (
+              <CompactLink
+                key={module.href}
+                href={module.href}
+                title={module.title}
+                description={module.description}
+              />
+            ))}
+          </div>
+        </section>
+
+        {businessModules.length > 0 && (
+          <section className="mt-9">
+            <SectionHeader
+              eyebrow="Owner Access"
+              title="Business"
+            />
+
+            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              {businessModules.map((module) => (
+                <CompactLink
+                  key={module.href}
+                  href={module.href}
+                  title={module.title}
+                  description={module.description}
+                />
+              ))}
+            </div>
           </section>
         )}
 
-        <div className="mt-12 flex justify-end">
+        {!isOwner && (
+          <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.025] px-5 py-4">
+            <div className="text-[9px] font-black uppercase tracking-[0.18em] text-white/30">
+              Staff Access
+            </div>
+
+            <p className="mt-1 text-xs leading-5 text-white/40">
+              Operational tools are available to your staff account.
+              Owner financial controls remain restricted.
+            </p>
+          </div>
+        )}
+
+        <div className="mt-10 flex items-center justify-between border-t border-white/10 pt-6">
+          <div>
+            <div className="text-[9px] font-black uppercase tracking-[0.18em] text-white/20">
+              DMV Attack
+            </div>
+            <div className="mt-1 text-xs text-white/25">
+              Internal Management System
+            </div>
+          </div>
+
           <SignOutButton />
         </div>
-
-        <footer className="mt-8 border-t border-white/10 pt-7 text-xs leading-6 text-white/25">
-          DMV Attack internal management system.
-        </footer>
       </div>
     </main>
   );
 }
 
-function Stat({
+function MiniStat({
   label,
   value,
+  highlight = false,
 }: {
   label: string;
   value: string;
+  highlight?: boolean;
 }) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-5">
-      <div className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30">
+    <div className="rounded-2xl border border-white/10 bg-white/[0.025] px-4 py-3 sm:px-5 sm:py-4">
+      <div className="text-[8px] font-black uppercase tracking-[0.16em] text-white/25">
         {label}
       </div>
 
-      <div className="mt-2 text-xl font-black uppercase">
+      <div
+        className={`mt-1 text-sm font-black uppercase sm:text-base ${
+          highlight ? "text-lime-400" : "text-white"
+        }`}
+      >
         {value}
       </div>
     </div>
   );
 }
+
+function SectionHeader({
+  eyebrow,
+  title,
+}: {
+  eyebrow: string;
+  title: string;
+}) {
+  return (
+    <div>
+      <div className="text-[9px] font-black uppercase tracking-[0.22em] text-lime-400">
+        {eyebrow}
+      </div>
+
+      <h2 className="mt-1 text-xl font-black uppercase sm:text-2xl">
+        {title}
+      </h2>
+    </div>
+  );
+}
+
+function CompactLink({
+  href,
+  title,
+  description,
+}: {
+  href: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="group flex min-h-[100px] items-center justify-between gap-4 rounded-[20px] border border-white/10 bg-white/[0.025] p-4 transition hover:border-lime-400/30 hover:bg-white/[0.045]"
+    >
+      <div className="min-w-0">
+        <h3 className="text-sm font-black uppercase">
+          {title}
+        </h3>
+
+        <p className="mt-1 line-clamp-1 text-[11px] text-white/30">
+          {description}
+        </p>
+      </div>
+
+      <div className="shrink-0 text-base text-white/20 transition group-hover:translate-x-1 group-hover:text-lime-400">
+        →
+      </div>
+    </Link>
+  );
+}
+
