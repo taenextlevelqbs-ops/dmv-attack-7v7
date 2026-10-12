@@ -19,10 +19,10 @@ const positions = [
 ];
 
 const inputClass =
-  "rounded-xl border border-white/10 bg-black px-4 py-4 text-white outline-none transition placeholder:text-white/25 focus:border-lime-400";
+  "min-h-12 rounded-xl border border-white/10 bg-black px-4 py-3 text-base text-white outline-none transition placeholder:text-white/25 focus:border-lime-400 focus-visible:ring-2 focus-visible:ring-lime-400/60";
 
 const selectClass =
-  "rounded-xl border border-white/10 bg-black px-4 py-4 text-white outline-none transition focus:border-lime-400";
+  "min-h-12 rounded-xl border border-white/10 bg-black px-4 py-3 text-base text-white outline-none transition focus:border-lime-400 focus-visible:ring-2 focus-visible:ring-lime-400/60";
 
 const labelClass =
   "text-xs font-black uppercase tracking-[0.15em] text-white/55";
@@ -34,6 +34,8 @@ export default function TryoutsPage() {
         eyebrow="DMV Attack 7v7"
         title="Tryout Registration"
         description="Complete the registration form now for DMV Attack 7v7 tryouts at Independence High School in Brambleton, Virginia. Our staff will keep your family updated when official tryout times are announced."
+        buttonText="Register your athlete"
+        buttonHref="#registration"
       />
 
       <section className="border-b border-white/10">
@@ -102,7 +104,7 @@ export default function TryoutsPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-5xl px-4 py-16 md:px-8 md:py-24">
+      <section id="registration" className="mx-auto max-w-5xl scroll-mt-24 px-4 py-14 md:px-8 md:py-20">
         <div className="mb-10">
           <div className="text-[10px] font-black uppercase tracking-[0.25em] text-lime-400">
             Athlete Registration
@@ -117,13 +119,18 @@ export default function TryoutsPage() {
             Attack staff understand your athlete&apos;s age group, football
             background, positions and current experience before tryouts.
           </p>
+          <p className="mt-4 max-w-3xl border-l-2 border-lime-400/70 pl-4 text-xs leading-6 text-white/45">
+            A parent or guardian should complete the registration. Fields marked
+            with an asterisk are required; a recent athlete headshot is required
+            for staff to match the registration with tryout evaluations.
+          </p>
         </div>
 
         <form
           action="/api/tryouts/register"
           method="POST"
           encType="multipart/form-data"
-          className="space-y-10"
+          className="space-y-6 md:space-y-8"
         >
           <input
             type="hidden"
@@ -131,7 +138,7 @@ export default function TryoutsPage() {
             value="DMV Attack Tryout Registration"
           />
 
-          <div className="rounded-[32px] border border-white/10 bg-white/[0.025] p-6 md:p-9">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.025] p-5 sm:p-6 md:p-8">
             <div className="text-xs font-black uppercase tracking-[0.2em] text-lime-400">
               01 • Athlete Information
             </div>
@@ -286,7 +293,7 @@ export default function TryoutsPage() {
             </div>
           </div>
 
-          <div className="rounded-[32px] border border-white/10 bg-white/[0.025] p-6 md:p-9">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.025] p-5 sm:p-6 md:p-8">
             <div className="text-xs font-black uppercase tracking-[0.2em] text-lime-400">
               02 • Football Information
             </div>
@@ -395,7 +402,7 @@ export default function TryoutsPage() {
             </div>
           </div>
 
-          <div className="rounded-[32px] border border-white/10 bg-white/[0.025] p-6 md:p-9">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.025] p-5 sm:p-6 md:p-8">
             <div className="text-xs font-black uppercase tracking-[0.2em] text-lime-400">
               03 • Parent / Guardian
             </div>
@@ -406,6 +413,7 @@ export default function TryoutsPage() {
                 <input
                   name="Parent Guardian Name"
                   required
+                  autoComplete="name"
                   className={inputClass}
                   placeholder="Full name"
                 />
@@ -427,6 +435,7 @@ export default function TryoutsPage() {
                   type="email"
                   name="Parent Email"
                   required
+                  autoComplete="email"
                   className={inputClass}
                   placeholder="parent@email.com"
                 />
@@ -438,6 +447,8 @@ export default function TryoutsPage() {
                   type="tel"
                   name="Parent Phone"
                   required
+                  autoComplete="tel"
+                  inputMode="tel"
                   className={inputClass}
                   placeholder="Phone number"
                 />
@@ -448,6 +459,7 @@ export default function TryoutsPage() {
                 <input
                   name="City"
                   required
+                  autoComplete="address-level2"
                   className={inputClass}
                   placeholder="City"
                 />
@@ -458,6 +470,7 @@ export default function TryoutsPage() {
                 <input
                   name="State"
                   required
+                  autoComplete="address-level1"
                   className={inputClass}
                   placeholder="VA"
                 />
@@ -465,7 +478,7 @@ export default function TryoutsPage() {
             </div>
           </div>
 
-          <div className="rounded-[32px] border border-white/10 bg-white/[0.025] p-6 md:p-9">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.025] p-5 sm:p-6 md:p-8">
             <div className="text-xs font-black uppercase tracking-[0.2em] text-lime-400">
               04 • Emergency + Additional Information
             </div>
@@ -531,7 +544,7 @@ export default function TryoutsPage() {
             </div>
           </div>
 
-          <div className="rounded-[32px] border border-lime-400/20 bg-lime-400/[0.06] p-6 md:p-9">
+          <div className="rounded-2xl border border-lime-400/20 bg-lime-400/[0.06] p-5 sm:p-6 md:p-8">
             <div className="text-xs font-black uppercase tracking-[0.2em] text-lime-400">
               05 • Registration Confirmation
             </div>
