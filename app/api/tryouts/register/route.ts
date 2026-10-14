@@ -4,7 +4,6 @@ import { createClient } from "@supabase/supabase-js";
 export const runtime = "nodejs";
 
 const allowedDivisions = new Set([
-  "8U",
   "10U",
   "12U",
   "14U",

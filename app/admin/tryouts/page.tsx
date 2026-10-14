@@ -59,7 +59,6 @@ type Registration = {
 
 const divisions = [
   "ALL",
-  "8U",
   "10U",
   "12U",
   "14U",
