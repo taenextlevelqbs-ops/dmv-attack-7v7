@@ -6,7 +6,7 @@ export const metadata = {
     "Register your athlete for upcoming DMV Attack 7v7 tryouts. 2027 DMV Attack 7v7 tryouts will be held at Independence High School in Brambleton, Virginia. Official tryout times will be announced soon.",
 };
 
-const divisions = ["8U", "10U", "12U", "14U", "15U", "18U"];
+const divisions = ["10U", "12U", "14U", "15U", "18U"];
 
 const positions = [
   "Quarterback",
@@ -63,7 +63,7 @@ export default function TryoutsPage() {
 
           <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.025] px-4 py-4 sm:px-6">
             <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-white/70">
-              <span><span className="text-lime-400">Nov 8:</span> 8U • 10U • 12U • 14U</span>
+              <span><span className="text-lime-400">Nov 8:</span> 10U • 12U • 14U</span>
               <span><span className="text-lime-400">Nov 22:</span> 15U • 18U</span>
             </div>
             <p className="mt-3 text-sm leading-6 text-white/55">
