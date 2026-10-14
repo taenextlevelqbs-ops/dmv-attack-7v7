@@ -27,16 +27,16 @@ export default function ApparelPage() {
           </h2>
 
           <p className="mt-5 max-w-2xl text-sm leading-7 text-white/55">
-            Team apparel, lifestyle pieces, training gear, and future drops will be available here.
+            Shop official DMV Attack apparel, team gear, and new drops in our online store.
           </p>
 
           <a
-            href="https://www.instagram.com/dmvattack_7on7/"
+            href="https://dmvattack.myshopify.com"
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             className="mt-7 inline-flex rounded-xl bg-lime-400 px-6 py-3 text-xs font-black uppercase tracking-wider text-black"
           >
-            Follow For Drops
+            Shop DMV Attack Apparel ↗
           </a>
 
         </div>
