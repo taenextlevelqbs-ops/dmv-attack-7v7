@@ -67,6 +67,12 @@ export default async function TryoutSuccessPage({
             </div>
           </div>
 
+          <div className="mt-8 rounded-2xl border border-lime-400/30 bg-lime-400/[0.06] p-5">
+            <div className="text-xs font-black uppercase tracking-[0.18em] text-lime-400">Tryout Fee — $20 Per Athlete</div>
+            <p className="mt-3 text-sm leading-7 text-white/70">If you have not paid yet, please pay the $20 tryout fee using DMV Attack Venmo. Include the athlete’s full name, division, and Tryout ID in the payment note. Your registration is saved, but payment is verified separately by staff.</p>
+            <a href="https://venmo.com/code?user_id=4448738877638638119&created=1792019750.353775&printed=1" target="_blank" rel="noopener noreferrer" className="mt-5 inline-flex min-h-12 items-center justify-center rounded-full bg-lime-400 px-6 py-3 text-sm font-black uppercase text-black">Pay $20 via Venmo ↗</a>
+          </div>
+
           <div className="mt-8 rounded-2xl border border-white/10 bg-black/30 p-5">
             <div className="text-xs font-black uppercase tracking-[0.18em] text-lime-400">
               What Happens Next?
