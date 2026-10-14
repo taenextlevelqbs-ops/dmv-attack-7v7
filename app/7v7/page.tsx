@@ -132,6 +132,56 @@ export default function SevenOnSevenPage() {
 
   return (
     <main className="min-h-screen bg-black text-white">
+      <section className="border-t border-white/10 bg-black px-4 py-12 text-white md:px-8 md:py-20">
+        <div className="mx-auto max-w-6xl">
+          <div className="text-[10px] font-black uppercase tracking-[0.25em] text-lime-400">2027 National Circuit</div>
+          <h2 className="mt-3 text-3xl font-black uppercase sm:text-4xl">Road to Nationals</h2>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/60">
+            Follow our tournament stops from the DMV to Indianapolis. Select any stop to view its location.
+          </p>
+          <div className="mt-7 overflow-hidden rounded-3xl border border-lime-400/20 bg-[#0c1411] p-3 sm:p-6">
+            <svg viewBox="0 0 760 440" role="img" aria-label="Map of 2027 DMV Attack tournament locations in Virginia, Maryland, Tennessee, South Carolina, Pennsylvania and Indiana" className="h-auto w-full">
+              <defs>
+                <pattern id="mapGrid" width="38" height="38" patternUnits="userSpaceOnUse"><path d="M 38 0 L 0 0 0 38" fill="none" stroke="#a3e635" strokeOpacity=".09" strokeWidth="1"/></pattern>
+              </defs>
+              <rect width="760" height="440" rx="18" fill="#0c1411"/>
+              <rect width="760" height="440" rx="18" fill="url(#mapGrid)"/>
+              <text x="22" y="34" fill="#a3e635" fontSize="12" fontWeight="800" letterSpacing="3">DMV ATTACK • 2027</text>
+              <text x="22" y="56" fill="#ffffff" fillOpacity=".5" fontSize="11">TOURNAMENT ROUTE • SCHEMATIC MAP</text>
+              <path d="M 553 143 L 255 320 L 445 352 L 515 181 L 612 108 L 246 119" stroke="#a3e635" strokeWidth="3" strokeDasharray="9 9" fill="none" strokeLinecap="round" opacity=".85"/>
+              {[
+                {x:553,y:143,n:"1",city:"UPPER MARLBORO",date:"FEB 27–28",dx:-15,dy:-25},
+                {x:255,y:320,n:"2",city:"MURFREESBORO",date:"MAR 13–14",dx:-95,dy:40},
+                {x:445,y:352,n:"3",city:"ROCK HILL",date:"MAR 20–21",dx:20,dy:30},
+                {x:515,y:181,n:"4",city:"GAINESVILLE",date:"APR 3–4",dx:-130,dy:35},
+                {x:612,y:108,n:"5",city:"WEST BRADFORD",date:"APR 10–11",dx:20,dy:-14},
+                {x:246,y:119,n:"★",city:"INDIANAPOLIS",date:"MAY 1–2",dx:-60,dy:-25},
+              ].map((stop)=>(
+                <g key={stop.city}>
+                  <circle cx={stop.x} cy={stop.y} r="17" fill="#a3e635" stroke="#0c1411" strokeWidth="4"/>
+                  <text x={stop.x} y={stop.y+4} fill="#111" fontSize="12" textAnchor="middle" fontWeight="900">{stop.n}</text>
+                  <text x={stop.x+stop.dx} y={stop.y+stop.dy} fill="#fff" fontSize="11" fontWeight="900">{stop.city}</text>
+                  <text x={stop.x+stop.dx} y={stop.y+stop.dy+15} fill="#a3e635" fontSize="10">{stop.date}</text>
+                </g>
+              ))}
+              <text x="22" y="418" fill="#fff" fillOpacity=".4" fontSize="10">Illustrative route • not turn-by-turn navigation</text>
+            </svg>
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {tournamentSchedule.map((event,index)=>(
+              <a key={event.title} href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`} target="_blank" rel="noopener noreferrer" className="group rounded-2xl border border-white/10 bg-white/[0.025] p-4 transition hover:border-lime-400/50">
+                <div className="text-xs font-black text-lime-400">{String(index+1).padStart(2,"0")} • {event.date}</div>
+                <div className="mt-2 text-sm font-black uppercase">{event.title} ↗</div>
+                <div className="mt-1 text-xs text-white/55">{event.location}</div>
+                {event.note&&<div className="mt-2 text-xs font-bold text-lime-400">{event.note}</div>}
+              </a>
+            ))}
+          </div>
+          <p className="mt-5 text-xs leading-5 text-white/45">National Championship qualification is required. Dates and locations are subject to event updates.</p>
+        </div>
+      </section>
+
+
       <DmvPageHeader
         eyebrow="DMV Attack"
         title="7v7 Football"
@@ -502,54 +552,6 @@ export default function SevenOnSevenPage() {
 
 
 
-      <section className="border-t border-white/10 bg-black px-4 py-12 text-white md:px-8 md:py-20">
-        <div className="mx-auto max-w-6xl">
-          <div className="text-[10px] font-black uppercase tracking-[0.25em] text-lime-400">2027 National Circuit</div>
-          <h2 className="mt-3 text-3xl font-black uppercase sm:text-4xl">Road to Nationals</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/60">
-            Follow our tournament stops from the DMV to Indianapolis. Select any stop to view its location.
-          </p>
-          <div className="mt-7 overflow-hidden rounded-3xl border border-lime-400/20 bg-[#0c1411] p-3 sm:p-6">
-            <svg viewBox="0 0 760 440" role="img" aria-label="Map of 2027 DMV Attack tournament locations in Virginia, Maryland, Tennessee, South Carolina, Pennsylvania and Indiana" className="h-auto w-full">
-              <defs>
-                <pattern id="mapGrid" width="38" height="38" patternUnits="userSpaceOnUse"><path d="M 38 0 L 0 0 0 38" fill="none" stroke="#a3e635" strokeOpacity=".09" strokeWidth="1"/></pattern>
-              </defs>
-              <rect width="760" height="440" rx="18" fill="#0c1411"/>
-              <rect width="760" height="440" rx="18" fill="url(#mapGrid)"/>
-              <text x="22" y="34" fill="#a3e635" fontSize="12" fontWeight="800" letterSpacing="3">DMV ATTACK • 2027</text>
-              <text x="22" y="56" fill="#ffffff" fillOpacity=".5" fontSize="11">TOURNAMENT ROUTE • SCHEMATIC MAP</text>
-              <path d="M 553 143 L 255 320 L 445 352 L 515 181 L 612 108 L 246 119" stroke="#a3e635" strokeWidth="3" strokeDasharray="9 9" fill="none" strokeLinecap="round" opacity=".85"/>
-              {[
-                {x:553,y:143,n:"1",city:"UPPER MARLBORO",date:"FEB 27–28",dx:-15,dy:-25},
-                {x:255,y:320,n:"2",city:"MURFREESBORO",date:"MAR 13–14",dx:-95,dy:40},
-                {x:445,y:352,n:"3",city:"ROCK HILL",date:"MAR 20–21",dx:20,dy:30},
-                {x:515,y:181,n:"4",city:"GAINESVILLE",date:"APR 3–4",dx:-130,dy:35},
-                {x:612,y:108,n:"5",city:"WEST BRADFORD",date:"APR 10–11",dx:20,dy:-14},
-                {x:246,y:119,n:"★",city:"INDIANAPOLIS",date:"MAY 1–2",dx:-60,dy:-25},
-              ].map((stop)=>(
-                <g key={stop.city}>
-                  <circle cx={stop.x} cy={stop.y} r="17" fill="#a3e635" stroke="#0c1411" strokeWidth="4"/>
-                  <text x={stop.x} y={stop.y+4} fill="#111" fontSize="12" textAnchor="middle" fontWeight="900">{stop.n}</text>
-                  <text x={stop.x+stop.dx} y={stop.y+stop.dy} fill="#fff" fontSize="11" fontWeight="900">{stop.city}</text>
-                  <text x={stop.x+stop.dx} y={stop.y+stop.dy+15} fill="#a3e635" fontSize="10">{stop.date}</text>
-                </g>
-              ))}
-              <text x="22" y="418" fill="#fff" fillOpacity=".4" fontSize="10">Illustrative route • not turn-by-turn navigation</text>
-            </svg>
-          </div>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {tournamentSchedule.map((event,index)=>(
-              <a key={event.title} href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`} target="_blank" rel="noopener noreferrer" className="group rounded-2xl border border-white/10 bg-white/[0.025] p-4 transition hover:border-lime-400/50">
-                <div className="text-xs font-black text-lime-400">{String(index+1).padStart(2,"0")} • {event.date}</div>
-                <div className="mt-2 text-sm font-black uppercase">{event.title} ↗</div>
-                <div className="mt-1 text-xs text-white/55">{event.location}</div>
-                {event.note&&<div className="mt-2 text-xs font-bold text-lime-400">{event.note}</div>}
-              </a>
-            ))}
-          </div>
-          <p className="mt-5 text-xs leading-5 text-white/45">National Championship qualification is required. Dates and locations are subject to event updates.</p>
-        </div>
-      </section>
 
     </main>
   );
