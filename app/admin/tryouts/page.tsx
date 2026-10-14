@@ -274,6 +274,8 @@ export default function AdminTryoutsPage() {
               Open Check-In Mode
             </Link>
 
+            <Link href="/admin/tryouts/payments" className="rounded-full border border-lime-400/40 px-6 py-3 text-xs font-black uppercase tracking-[0.15em] text-lime-400">Track $20 Payments</Link>
+
             <Link
               href="/admin"
               className="rounded-full border border-white/10 px-6 py-3 text-xs font-black uppercase tracking-[0.15em] text-white"
