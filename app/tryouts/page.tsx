@@ -33,14 +33,14 @@ export default function TryoutsPage() {
       <DmvPageHeader
         eyebrow="DMV Attack 7v7"
         title="Tryout Registration"
-        description="Complete the registration form now for DMV Attack 7v7 tryouts at Independence High School in Brambleton, Virginia. Our staff will keep your family updated when official tryout times are announced."
+        description="2027 tryouts at Independence High School in Brambleton, VA. Register your athlete and get updates when times are announced."
         buttonText="Register your athlete"
         buttonHref="#registration"
       />
 
       <section className="border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-4 py-10 md:px-8 md:py-14">
-          <div className="grid gap-4 md:grid-cols-3">
+        <div className="mx-auto max-w-7xl px-4 py-6 sm:py-8 md:px-8 md:py-12">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {[
               ["Youth Tryout", "Sunday, November 8"],
               ["High School Tryout", "Sunday, November 22"],
@@ -48,89 +48,56 @@ export default function TryoutsPage() {
             ].map(([title, value]) => (
               <div
                 key={title}
-                className="rounded-3xl border border-lime-400/20 bg-lime-400/[0.07] p-6"
+                className="rounded-2xl border border-lime-400/20 bg-lime-400/[0.07] p-4 sm:p-5"
               >
                 <div className="text-[10px] font-black uppercase tracking-[0.22em] text-lime-400">
                   {title}
                 </div>
 
-                <div className="mt-3 text-2xl font-black uppercase">
+                <div className="mt-2 text-lg font-black uppercase leading-snug sm:text-xl">
                   {value}
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.025] p-6">
-            <div className="grid gap-5 md:grid-cols-2">
-              <div>
-                <div className="text-[10px] font-black uppercase tracking-[0.22em] text-lime-400">
-                  November 8
-                </div>
-                <div className="mt-2 text-xl font-black uppercase">
-                  8U • 10U • 12U • 14U
-                </div>
-                <p className="mt-3 text-sm leading-7 text-white/55">
-                  Youth divisions will try out first so younger teams can begin
-                  evaluations and roster planning early.
-                </p>
-              </div>
-
-              <div>
-                <div className="text-[10px] font-black uppercase tracking-[0.22em] text-lime-400">
-                  November 22
-                </div>
-                <div className="mt-2 text-xl font-black uppercase">
-                  15U • 18U
-                </div>
-                <p className="mt-3 text-sm leading-7 text-white/55">
-                  High school divisions will try out later in November to allow
-                  more athletes to complete their school football seasons.
-                </p>
-              </div>
+          <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.025] px-4 py-4 sm:px-6">
+            <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-white/70">
+              <span><span className="text-lime-400">Nov 8:</span> 8U • 10U • 12U • 14U</span>
+              <span><span className="text-lime-400">Nov 22:</span> 15U • 18U</span>
             </div>
-
-            <div className="mt-6 border-t border-white/10 pt-6">
-              <p className="text-sm leading-7 text-white/60">
-                Tryouts will be held at Independence High School in Brambleton, Virginia. Official times will be announced soon. A December
-                makeup opportunity may also be added for high school athletes
-                whose teams advance deep into the postseason. Registering now
-                places your athlete on our tryout list and allows DMV Attack to
-                send your family updated tryout information as details are
-                finalized.
-              </p>
-            </div>
+            <p className="mt-3 text-sm leading-6 text-white/55">
+              Exact times will be announced. Families who register will receive updates. A December makeup date may be added for high school athletes still in postseason play.
+            </p>
           </div>
         </div>
       </section>
 
       <section className="border-b border-lime-400/20 bg-lime-400/[0.06]">
-        <div className="mx-auto max-w-5xl px-4 py-8 md:px-8">
-          <div className="flex flex-col gap-5 rounded-2xl border border-lime-400/30 p-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mx-auto max-w-5xl px-4 py-5 md:px-8 md:py-8">
+          <div className="flex flex-col gap-4 rounded-2xl border border-lime-400/30 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.2em] text-lime-400">Tryout Registration Fee</p>
-              <h2 className="mt-2 text-3xl font-black">$20 PER ATHLETE</h2>
+              <h2 className="mt-2 text-2xl font-black sm:text-3xl">$20 PER ATHLETE</h2>
               <p className="mt-2 max-w-xl text-sm leading-6 text-white/65">Complete the registration form and pay the $20 tryout fee using DMV Attack Venmo. Include your athlete’s full name and division in the Venmo payment note. Payment is verified separately by staff.</p>
             </div>
-            <a href="https://venmo.com/code?user_id=4448738877638638119&created=1792019750.353775&printed=1" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 shrink-0 items-center justify-center rounded-full bg-lime-400 px-7 py-3 text-sm font-black uppercase text-black transition hover:bg-lime-300">Pay $20 via Venmo ↗</a>
+            <a href="https://venmo.com/code?user_id=4448738877638638119&created=1792019750.353775&printed=1" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 w-full shrink-0 items-center justify-center rounded-full bg-lime-400 sm:w-auto px-7 py-3 text-sm font-black uppercase text-black transition hover:bg-lime-300">Pay $20 via Venmo ↗</a>
           </div>
         </div>
       </section>
 
-      <section id="registration" className="mx-auto max-w-5xl scroll-mt-24 px-4 py-14 md:px-8 md:py-20">
-        <div className="mb-10">
+      <section id="registration" className="mx-auto max-w-5xl scroll-mt-24 px-4 py-8 md:px-8 md:py-16">
+        <div className="mb-7 md:mb-10">
           <div className="text-[10px] font-black uppercase tracking-[0.25em] text-lime-400">
             Athlete Registration
           </div>
 
-          <h2 className="mt-3 text-4xl font-black uppercase md:text-6xl">
+          <h2 className="mt-3 text-3xl font-black uppercase leading-tight sm:text-4xl md:text-6xl">
             Tell Us About Your Athlete.
           </h2>
 
           <p className="mt-5 max-w-3xl text-sm leading-7 text-white/55 md:text-base">
-            Please provide as much information as possible. This helps the DMV
-            Attack staff understand your athlete&apos;s age group, football
-            background, positions and current experience before tryouts.
+            Complete the details below so our coaches can prepare for your athlete&apos;s tryout.
           </p>
           <p className="mt-4 max-w-3xl border-l-2 border-lime-400/70 pl-4 text-xs leading-6 text-white/45">
             A parent or guardian should complete the registration. Fields marked
@@ -143,7 +110,7 @@ export default function TryoutsPage() {
           action="/api/tryouts/register"
           method="POST"
           encType="multipart/form-data"
-          className="space-y-6 md:space-y-8"
+          className="space-y-4 md:space-y-8"
         >
           <input
             type="hidden"
@@ -151,7 +118,7 @@ export default function TryoutsPage() {
             value="DMV Attack Tryout Registration"
           />
 
-          <div className="rounded-2xl border border-white/10 bg-white/[0.025] p-5 sm:p-6 md:p-8">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.025] p-4 sm:p-6 md:p-8">
             <div className="text-xs font-black uppercase tracking-[0.2em] text-lime-400">
               01 • Athlete Information
             </div>
@@ -167,7 +134,7 @@ export default function TryoutsPage() {
                 names, evaluations and roster decisions to the correct player.
               </p>
 
-              <label className="mt-5 flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/20 bg-black/40 px-6 py-10 text-center transition hover:border-lime-400/60">
+              <label className="mt-4 flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/20 bg-black/40 px-4 py-6 text-center transition hover:border-lime-400/60 sm:px-6 sm:py-10">
                 <span className="text-sm font-black uppercase tracking-[0.15em] text-white">
                   Upload Athlete Headshot
                 </span>
@@ -186,7 +153,7 @@ export default function TryoutsPage() {
               </label>
             </div>
 
-            <div className="mt-7 grid gap-5 md:grid-cols-2">
+            <div className="mt-5 grid gap-4 md:mt-7 md:grid-cols-2 md:gap-5">
               <label className="flex flex-col gap-2">
                 <span className={labelClass}>Athlete First Name *</span>
                 <input
@@ -306,12 +273,12 @@ export default function TryoutsPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-white/[0.025] p-5 sm:p-6 md:p-8">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.025] p-4 sm:p-6 md:p-8">
             <div className="text-xs font-black uppercase tracking-[0.2em] text-lime-400">
               02 • Football Information
             </div>
 
-            <div className="mt-7 grid gap-5 md:grid-cols-2">
+            <div className="mt-5 grid gap-4 md:mt-7 md:grid-cols-2 md:gap-5">
               <label className="flex flex-col gap-2">
                 <span className={labelClass}>Primary Position *</span>
                 <select
@@ -415,12 +382,12 @@ export default function TryoutsPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-white/[0.025] p-5 sm:p-6 md:p-8">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.025] p-4 sm:p-6 md:p-8">
             <div className="text-xs font-black uppercase tracking-[0.2em] text-lime-400">
               03 • Parent / Guardian
             </div>
 
-            <div className="mt-7 grid gap-5 md:grid-cols-2">
+            <div className="mt-5 grid gap-4 md:mt-7 md:grid-cols-2 md:gap-5">
               <label className="flex flex-col gap-2">
                 <span className={labelClass}>Parent / Guardian Name *</span>
                 <input
@@ -491,12 +458,12 @@ export default function TryoutsPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-white/[0.025] p-5 sm:p-6 md:p-8">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.025] p-4 sm:p-6 md:p-8">
             <div className="text-xs font-black uppercase tracking-[0.2em] text-lime-400">
               04 • Emergency + Additional Information
             </div>
 
-            <div className="mt-7 grid gap-5 md:grid-cols-2">
+            <div className="mt-5 grid gap-4 md:mt-7 md:grid-cols-2 md:gap-5">
               <label className="flex flex-col gap-2">
                 <span className={labelClass}>Emergency Contact *</span>
                 <input
@@ -608,7 +575,7 @@ export default function TryoutsPage() {
             </div>
           </div>
 
-          <div className="rounded-[32px] bg-lime-400 p-7 text-black md:p-10">
+          <div className="rounded-2xl bg-lime-400 p-5 text-black sm:p-7 md:rounded-[32px] md:p-10">
             <div className="text-[10px] font-black uppercase tracking-[0.25em] text-black/55">
               Final Step
             </div>
