@@ -104,6 +104,19 @@ export default function TryoutsPage() {
         </div>
       </section>
 
+      <section className="border-b border-lime-400/20 bg-lime-400/[0.06]">
+        <div className="mx-auto max-w-5xl px-4 py-8 md:px-8">
+          <div className="flex flex-col gap-5 rounded-2xl border border-lime-400/30 p-6 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-lime-400">Tryout Registration Fee</p>
+              <h2 className="mt-2 text-3xl font-black">$20 PER ATHLETE</h2>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-white/65">Complete the registration form and pay the $20 tryout fee using DMV Attack Venmo. Include your athlete’s full name and division in the Venmo payment note. Payment is verified separately by staff.</p>
+            </div>
+            <a href="https://venmo.com/code?user_id=4448738877638638119&created=1792019750.353775&printed=1" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 shrink-0 items-center justify-center rounded-full bg-lime-400 px-7 py-3 text-sm font-black uppercase text-black transition hover:bg-lime-300">Pay $20 via Venmo ↗</a>
+          </div>
+        </div>
+      </section>
+
       <section id="registration" className="mx-auto max-w-5xl scroll-mt-24 px-4 py-14 md:px-8 md:py-20">
         <div className="mb-10">
           <div className="text-[10px] font-black uppercase tracking-[0.25em] text-lime-400">
@@ -605,7 +618,7 @@ export default function TryoutsPage() {
             </h3>
 
             <p className="mt-4 max-w-2xl text-sm font-semibold leading-7 text-black/65">
-              After submitting, your athlete will be added directly to the DMV
+              The tryout fee is $20 per athlete, payable via Venmo. Payment is verified separately. After submitting, your athlete will be added directly to the DMV
               Attack tryout system and assigned a unique Tryout ID. Keep that ID
               for check-in and future tryout communication.
             </p>
