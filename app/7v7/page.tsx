@@ -5,14 +5,10 @@ import DmvPageHeader from "@/components/dmv-page-header";
 export const metadata = {
   title: "7v7 Football",
   description:
-    "DMV Attack 7v7 Football in Northern Virginia. Competitive teams from 8U through 18U focused on development, competition, exposure and preparing athletes for tackle football.",
+    "DMV Attack 7v7 Football in Northern Virginia. Competitive teams from 10U through 18U focused on development, competition, exposure and preparing athletes for tackle football.",
 };
 
 const divisions = [
-  {
-    label: "8U",
-    description: "Early development, confidence and competitive experience.",
-  },
   {
     label: "10U",
     description: "Fundamentals, football IQ and competitive development.",
