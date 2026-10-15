@@ -18,7 +18,16 @@ export async function GET() {
   const auth = await authorized();
   if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   const { data, error } = await auth.admin.from("tryout_payments").select("registration_id,status,payment_note,verified_at,updated_at");
-  if (error) return NextResponse.json({ error: "Payment tracker database migration may be missing" }, { status: 503 });
+  if (error) {
+    console.error("Tryout payments database query failed", { code: error.code, message: error.message, details: error.details });
+    const code = error.code ?? "UNKNOWN";
+    const message = code === "42P01" || code === "PGRST205"
+      ? "Payment table not found in the connected Supabase project"
+      : code === "42501"
+        ? "Payment tracker database permission denied"
+        : "Payment tracker database request failed";
+    return NextResponse.json({ error: `${message} (code: ${code})` }, { status: 503 });
+  }
   return NextResponse.json({ payments: data });
 }
 
