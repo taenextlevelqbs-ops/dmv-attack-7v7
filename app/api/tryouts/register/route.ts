@@ -323,6 +323,14 @@ export async function POST(request: Request) {
           roster_understanding: rosterUnderstanding,
         });
 
+    if (insertError?.code === "23505") {
+      await supabase.storage.from("tryout-headshots").remove([storagePath]);
+      return NextResponse.json(
+        { error: "This athlete is already registered. Please contact DMV Attack if you need to update their registration." },
+        { status: 409 }
+      );
+    }
+
     if (insertError) {
       console.error(
         "Registration insert error:",
