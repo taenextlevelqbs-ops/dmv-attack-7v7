@@ -1,5 +1,6 @@
 import Link from "next/link";
 import DmvPageHeader from "@/components/dmv-page-header";
+import GirlsFlagInterest from "@/components/girls-flag-interest";
 
 export const metadata = {
   title: "Girls Flag | DMV Attack",
@@ -25,6 +26,8 @@ export default function GirlsFlagPage() {
         eyebrow="Girls Flag Football"
         title="DMV Attack Girls Flag"
         description="Expanding development opportunities for girls flag football athletes throughout Northern Virginia and the DMV."
+        buttonText="Girls Flag Interest Form"
+        buttonHref="#interest"
       />
 
       <section className="border-b border-white/10">
@@ -106,7 +109,7 @@ export default function GirlsFlagPage() {
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
-                href="/contact"
+                href="#interest"
                 className="rounded-full bg-lime-400 px-7 py-4 text-center text-xs font-black uppercase tracking-[0.16em] text-black"
               >
                 Player Interest
@@ -124,6 +127,7 @@ export default function GirlsFlagPage() {
           </div>
         </div>
       </section>
+      <GirlsFlagInterest />
     </main>
   );
 }

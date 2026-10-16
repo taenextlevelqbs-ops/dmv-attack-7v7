@@ -15,7 +15,7 @@ const coaches = [
     image: "/normanwallace.jpeg",
     role: "O-Line Coach",
     background: "Fairmont State University • Offensive Line",
-    bio: "Former Fairmont State offensive lineman who appeared in 10 games and made seven starts at left guard in 2016. Wallace helped anchor a Falcons offense that set school records for total offense and first downs, bringing collegiate experience to offensive line development.",
+    bio: "Former Fairmont State offensive lineman who appeared in 10 games and made seven starts at left guard in 2016. Wallace was part of an offensive front that helped the Falcons set single-season school records for total offense, total first downs and passing first downs. That unit produced 4,690 yards of total offense, averaged nearly 30 points per game and ranked third in its conference in sacks allowed. He brings that collegiate perspective to DMV Attack’s offensive line development, helping athletes build the fundamentals and communication needed up front.",
     highlights: ["10 appearances • 7 starts at left guard in 2016", "Part of a record-setting Falcons offensive front", "Stance, footwork, hand placement and pass protection"],
   },
   {
