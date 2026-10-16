@@ -1,5 +1,6 @@
 import Link from "next/link";
 import DmvPageHeader from "@/components/dmv-page-header";
+import BigManSignup from "@/components/big-man-signup";
 
 export const metadata = {
   title: "Big Man 5v5",
@@ -31,8 +32,8 @@ export default function BigManPage() {
         eyebrow="DMV Attack • O Line + D Line"
         title="Big Man 5v5"
         description="Built for the trenches. Position-specific development and competition for offensive and defensive linemen at Independence High School."
-        buttonText="Ask About Big Man 5v5 →"
-        buttonHref="/contact"
+        buttonText="Sign Up For Big Man 5v5 →"
+        buttonHref="#signup"
       />
 
       <section aria-labelledby="program-details" className="border-b border-white/10">
@@ -40,7 +41,7 @@ export default function BigManPage() {
           <div className="rounded-3xl border border-lime-400/25 bg-lime-400/[0.06] p-7 md:p-10">
             <p className="text-[10px] font-black uppercase tracking-[0.25em] text-lime-400">Where We Work</p>
             <h2 id="program-details" className="mt-3 text-3xl font-black uppercase md:text-5xl">Independence High School</h2>
-            <p className="mt-4 max-w-3xl text-sm leading-7 text-white/65">Big Man 5v5 will be held at Independence High School. Contact our staff for participating age groups, session dates, arrival times and registration details.</p>
+            <p className="mt-4 max-w-3xl text-sm leading-7 text-white/65">Big Man 5v5 will be held at Independence High School. Use the signup form below to connect with our staff about participating age groups, session dates and arrival times.</p>
           </div>
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             {[
@@ -78,11 +79,13 @@ export default function BigManPage() {
         <div className="mt-10 flex flex-col items-start justify-between gap-6 rounded-3xl border border-white/10 p-7 sm:flex-row sm:items-center">
           <div>
             <h3 className="text-2xl font-black uppercase">Ready To Work?</h3>
-            <p className="mt-2 text-sm leading-7 text-white/60">Ask about availability and upcoming Big Man 5v5 sessions.</p>
+            <p className="mt-2 text-sm leading-7 text-white/60">Sign up for information about availability and upcoming Big Man 5v5 sessions.</p>
           </div>
-          <Link href="/contact" className="inline-flex shrink-0 rounded-full bg-lime-400 px-6 py-3 text-xs font-black uppercase tracking-wider text-black hover:bg-lime-300">Contact DMV Attack →</Link>
+          <Link href="#signup" className="inline-flex shrink-0 rounded-full bg-lime-400 px-6 py-3 text-xs font-black uppercase tracking-wider text-black hover:bg-lime-300">Sign Up For 5v5 →</Link>
         </div>
       </section>
+
+      <BigManSignup />
     </main>
   );
 }
