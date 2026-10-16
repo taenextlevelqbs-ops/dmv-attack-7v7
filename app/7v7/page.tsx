@@ -119,27 +119,13 @@ export default function SevenOnSevenPage() {
         </div>
       </section>
 
-      <section aria-labelledby="big-man-5v5" className="border-b border-white/10 bg-lime-400/[0.04]">
-        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-16 md:px-8 lg:grid-cols-2">
+      <section className="border-b border-white/10">
+        <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-10 md:px-8 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.25em] text-lime-400">Built For The Trenches</p>
-            <h2 id="big-man-5v5" className="mt-3 text-4xl font-black uppercase leading-none md:text-6xl">Big Man 5v5</h2>
-            <p className="mt-5 text-base leading-7 text-white/65">A place for the offensive and defensive lines. Big Man 5v5 puts O-line and D-line development in focus, with position-specific work that carries back to tackle football.</p>
-            <p className="mt-4 text-sm leading-7 text-white/55">Contact DMV Attack for participating age groups, availability, practice details and 5v5 event dates. The tournament map above shows the 7v7 circuit; Big Man 5v5 dates and locations are to be confirmed.</p>
-            <Link href="/contact" className="mt-6 inline-flex rounded-full bg-lime-400 px-6 py-3 text-xs font-black uppercase tracking-wider text-black hover:bg-lime-300">Ask About Big Man 5v5 →</Link>
+            <h2 className="text-2xl font-black uppercase">Looking For Big Man 5v5?</h2>
+            <p className="mt-2 text-sm leading-7 text-white/60">O-line and D-line development at Independence High School with Norman Wallace and Keionta Davis.</p>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {[
-              ["O Line", "Offensive Line", "Stance, footwork, hand placement, balance and pass protection fundamentals. Build communication and technique for working together up front."],
-              ["D Line", "Defensive Line", "Get-off, leverage, hand use and pass rush fundamentals. Develop controlled movement, technique and an understanding of responsibilities in the trenches."],
-            ].map(([label, title, text]) => (
-              <div key={label} className="rounded-3xl border border-lime-400/20 bg-black p-7">
-                <p className="text-3xl font-black uppercase text-lime-400">{label}</p>
-                <h3 className="mt-3 text-sm font-black uppercase">{title}</h3>
-                <p className="mt-4 text-sm leading-7 text-white/60">{text}</p>
-              </div>
-            ))}
-          </div>
+          <Link href="/big-man" className="inline-flex shrink-0 justify-center rounded-full bg-lime-400 px-6 py-3 text-xs font-black uppercase tracking-wider text-black hover:bg-lime-300">Explore Big Man 5v5 →</Link>
         </div>
       </section>
 
