@@ -3,9 +3,9 @@ import Link from "next/link";
 import DmvPageHeader from "@/components/dmv-page-header";
 
 export const metadata = {
-  title: "7v7 Football",
+  title: "Schedule",
   description:
-    "DMV Attack 7v7 Football in Northern Virginia. Competitive teams from 10U through 18U focused on development, competition, exposure and preparing athletes for tackle football.",
+    "Explore the DMV Attack tournament schedule, 7v7 program information and Big Man 5v5 for offensive and defensive linemen.",
 };
 
 const divisions = [
@@ -90,52 +90,58 @@ const included = [
 ];
 
 export default function SevenOnSevenPage() {
-  const tournamentSchedule = [
-    {
-      date: "FEB 27–28",
-      title: "Duel in the DMV",
-      location: "Upper Marlboro, MD",
-    },
-    {
-      date: "MAR 13–14",
-      title: "Music City Mayhem",
-      location: "Murfreesboro, TN",
-    },
-    {
-      date: "MAR 20–21",
-      title: "Football City Clash",
-      location: "Rock Hill, SC",
-    },
-    {
-      date: "APR 3–4",
-      title: "Virginia Frenzy",
-      location: "Gainesville, VA",
-    },
-    {
-      date: "APR 10–11",
-      title: "PA Classic",
-      location: "West Bradford Township, PA",
-    },
-    {
-      date: "MAY 1–2",
-      title: "National Championship",
-      location: "Indianapolis, IN",
-      note: "Qualification Required",
-    },
-  ];
-
-
-
-
   return (
     <main className="min-h-screen bg-black text-white">
       <RoadToNationals />
 
       <DmvPageHeader
         eyebrow="DMV Attack"
-        title="7v7 Football"
-        description="Development. Competition. Exposure. An environment built to prepare athletes for their school teams and beyond."
+        title="Schedule"
+        description="Plan your season. Explore our tournament stops, learn how 7v7 develops skill players, and discover Big Man 5v5 for the offensive and defensive lines."
       />
+
+      <section aria-labelledby="season-information" className="border-b border-white/10">
+        <div className="mx-auto max-w-7xl px-4 py-12 md:px-8 md:py-16">
+          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-lime-400">Before You Travel</p>
+          <h2 id="season-information" className="mt-3 text-3xl font-black uppercase md:text-4xl">Your Season, At A Glance.</h2>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            {[
+              ["Tournament weekends", "Use the tournament list and map above to explore dates and host cities. Dates and locations may change; confirm final event details with the coaching staff before booking travel."],
+              ["Practices & game times", "The tournament circuit is listed above. Confirm your team’s practice location, arrival time, game schedule and event requirements with your coach before each weekend."],
+              ["Travel & qualification", "Travel and hotel costs are not included in the program. National Championship participation requires qualification. Ask the staff which events apply to your athlete’s team."],
+            ].map(([title, text]) => (
+              <div key={title} className="rounded-2xl border border-white/10 bg-white/[0.025] p-6">
+                <h3 className="text-sm font-black uppercase tracking-wide text-lime-400">{title}</h3>
+                <p className="mt-3 text-sm leading-7 text-white/60">{text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="big-man-5v5" className="border-b border-white/10 bg-lime-400/[0.04]">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-16 md:px-8 lg:grid-cols-2">
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[0.25em] text-lime-400">Built For The Trenches</p>
+            <h2 id="big-man-5v5" className="mt-3 text-4xl font-black uppercase leading-none md:text-6xl">Big Man 5v5</h2>
+            <p className="mt-5 text-base leading-7 text-white/65">A place for the offensive and defensive lines. Big Man 5v5 puts O-line and D-line development in focus, with position-specific work that carries back to tackle football.</p>
+            <p className="mt-4 text-sm leading-7 text-white/55">Contact DMV Attack for participating age groups, availability, practice details and 5v5 event dates. The tournament map above shows the 7v7 circuit; Big Man 5v5 dates and locations are to be confirmed.</p>
+            <Link href="/contact" className="mt-6 inline-flex rounded-full bg-lime-400 px-6 py-3 text-xs font-black uppercase tracking-wider text-black hover:bg-lime-300">Ask About Big Man 5v5 →</Link>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {[
+              ["O Line", "Offensive Line", "Stance, footwork, hand placement, balance and pass protection fundamentals. Build communication and technique for working together up front."],
+              ["D Line", "Defensive Line", "Get-off, leverage, hand use and pass rush fundamentals. Develop controlled movement, technique and an understanding of responsibilities in the trenches."],
+            ].map(([label, title, text]) => (
+              <div key={label} className="rounded-3xl border border-lime-400/20 bg-black p-7">
+                <p className="text-3xl font-black uppercase text-lime-400">{label}</p>
+                <h3 className="mt-3 text-sm font-black uppercase">{title}</h3>
+                <p className="mt-4 text-sm leading-7 text-white/60">{text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* FEATURED AGE GROUPS */}
       <section className="border-b border-white/10">
