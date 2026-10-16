@@ -1,10 +1,26 @@
+import Image from "next/image";
+import Link from "next/link";
 import DmvPageHeader from "@/components/dmv-page-header";
 
 export const metadata = {
   title: "Coaching Staff",
 };
 
-const staff = [
+type Coach = {
+  number: string;
+  name: string;
+  title: string;
+  school: string;
+  photo: string;
+  instagram?: string;
+  url?: string;
+  bio: string;
+  playing: string[];
+  development: string[];
+  program?: string;
+};
+
+const staff: Coach[] = [
   {
     number: "01",
     name: "Tae Crews-Naylor",
@@ -125,6 +141,50 @@ const staff = [
       "Speed + Agility + Performance",
     ],
   },
+  {
+    number: "04",
+    name: "Norman Wallace",
+    title: "Big Man 5v5 | Offensive Line Development",
+    school: "Fairmont State University • Offensive Line",
+    photo: "/normanwallace.jpeg",
+    bio: "Former Fairmont State offensive lineman who appeared in 10 games and made seven starts at left guard in 2016. Wallace was part of an offensive front that helped the Falcons set single-season school records for total offense, total first downs and passing first downs. That unit produced 4,690 yards of total offense, averaged nearly 30 points per game and ranked third in its conference in sacks allowed. He brings that collegiate perspective to DMV Attack’s offensive line development, helping athletes build the fundamentals and communication needed up front.",
+    playing: [
+      "Fairmont State University • Offensive Line",
+      "2016 • 10 Games Played • 7 Starts at Left Guard",
+      "2016 Offensive Unit • School-Record 4,690 Total Yards",
+      "2016 Offensive Unit • School-Record 250 First Downs",
+      "2016 Offensive Front • Third in Conference in Sacks Allowed (1.83 per Game)",
+    ],
+    development: [
+      "DMV Attack Big Man 5v5 • O-Line Coach",
+      "Program Location • Independence High School",
+      "Stance, Footwork + Balance",
+      "Hand Placement + Pass Protection",
+      "Offensive Line Communication + Teamwork",
+    ],
+    program: "/big-man",
+  },
+  {
+    number: "05",
+    name: "Keionta Davis",
+    title: "Big Man 5v5 | Defensive Line Development",
+    school: "Chattanooga • New England Patriots",
+    photo: "/Keiontadavis.jpeg",
+    bio: "Former University of Tennessee at Chattanooga and New England Patriots defensive lineman with experience at both the college and NFL levels. Davis brings a defensive lineman’s perspective to DMV Attack’s Big Man 5v5 program, connecting the work at the line of scrimmage to the demands of tackle football. His development focus includes get-off, leverage, hand use and pass rush technique, helping athletes understand how movement and technique work together in the trenches.",
+    playing: [
+      "University of Tennessee at Chattanooga • Defensive Line",
+      "Chattanooga Mocs • NCAA Division I Football",
+      "New England Patriots • NFL Defensive Line",
+    ],
+    development: [
+      "DMV Attack Big Man 5v5 • D-Line Coach",
+      "Program Location • Independence High School",
+      "Get-Off + Leverage",
+      "Hand Use + Pass Rush Fundamentals",
+      "Controlled Movement + Defensive Line Responsibilities",
+    ],
+    program: "/big-man",
+  },
 ];
 
 export default function CoachingPage() {
@@ -153,10 +213,12 @@ export default function CoachingPage() {
 
                 <div className="relative min-h-[460px] overflow-hidden">
 
-                  <img
+                  <Image
                     src={coach.photo}
                     alt={coach.name}
-                    className="absolute inset-0 h-full w-full object-cover"
+                    fill
+                    sizes="(min-width: 1024px) 360px, 100vw"
+                    className="object-cover object-top"
                   />
 
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent" />
@@ -164,7 +226,7 @@ export default function CoachingPage() {
                   <div className="absolute inset-x-0 bottom-0 p-7">
 
                     <div className="text-[10px] font-black uppercase tracking-[0.2em] text-lime-400">
-                      Co-Founder
+                      {coach.program ? "Big Man 5v5 Coach" : "Co-Founder"}
                     </div>
 
                     <div className="mt-2 flex items-end justify-between">
@@ -195,7 +257,7 @@ export default function CoachingPage() {
                   </div>
 
 
-                  <a
+                  {coach.url && coach.instagram && <a
                     href={coach.url}
                     target="_blank"
                     rel="noreferrer"
@@ -206,7 +268,10 @@ export default function CoachingPage() {
                       {coach.instagram}
                     </span>
                     &nbsp;↗
-                  </a>
+                  </a>}
+                  {coach.program && (
+                    <Link href={coach.program} className="mt-5 inline-flex rounded-full border border-lime-400/30 bg-lime-400/10 px-4 py-2 text-xs font-black text-lime-400 transition hover:bg-lime-400 hover:text-black">Big Man 5v5 Program + Signup →</Link>
+                  )}
 
 
                   <p className="mt-6 max-w-3xl text-sm leading-7 text-white/60">
