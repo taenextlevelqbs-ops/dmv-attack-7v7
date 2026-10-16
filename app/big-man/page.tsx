@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import DmvPageHeader from "@/components/dmv-page-header";
 import BigManSignup from "@/components/big-man-signup";
@@ -11,6 +12,7 @@ export const metadata = {
 const coaches = [
   {
     name: "Norman Wallace",
+    image: "/normanwallace.jpeg",
     role: "O-Line Coach",
     background: "Fairmont State University • Offensive Line",
     bio: "Former Fairmont State offensive lineman who appeared in 10 games and made seven starts at left guard in 2016. Wallace helped anchor a Falcons offense that set school records for total offense and first downs, bringing collegiate experience to offensive line development.",
@@ -18,6 +20,7 @@ const coaches = [
   },
   {
     name: "Keionta Davis",
+    image: "/Keiontadavis.jpeg",
     role: "D-Line Coach",
     background: "Chattanooga • New England Patriots",
     bio: "Former Chattanooga and New England Patriots defensive lineman bringing college and NFL playing experience to DMV Attack. Davis leads defensive line development with a focus on the fundamentals athletes need to compete in the trenches.",
@@ -64,6 +67,15 @@ export default function BigManPage() {
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
           {coaches.map((coach) => (
             <article key={coach.name} className="rounded-3xl border border-white/10 bg-white/[0.025] p-7 md:p-9">
+              <div className="relative mb-6 aspect-[4/3] w-full overflow-hidden rounded-2xl border border-white/10 bg-white/5">
+                <Image
+                  src={coach.image}
+                  alt={`${coach.name} - ${coach.role}`}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover object-top"
+                />
+              </div>
               <p className="text-xs font-black uppercase tracking-[0.2em] text-lime-400">{coach.role}</p>
               <h3 className="mt-4 text-3xl font-black uppercase">{coach.name}</h3>
               <p className="mt-3 text-xs font-bold uppercase tracking-wide text-white/45">{coach.background}</p>
