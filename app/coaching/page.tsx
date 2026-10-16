@@ -171,11 +171,14 @@ const staff: Coach[] = [
     title: "Big Man 5v5 | Defensive Line Development",
     school: "Chattanooga • New England Patriots",
     photo: "/Keiontadavis.jpeg",
-    bio: "Former University of Tennessee at Chattanooga and New England Patriots defensive lineman with experience at both the college and NFL levels. Davis brings a defensive lineman’s perspective to DMV Attack’s Big Man 5v5 program, connecting the work at the line of scrimmage to the demands of tackle football. His development focus includes get-off, leverage, hand use and pass rush technique, helping athletes understand how movement and technique work together in the trenches.",
+    bio: "Super Bowl LIII champion and former New England Patriots defensive lineman. Davis played college football at the University of Tennessee at Chattanooga before joining the Patriots as an undrafted free agent in 2017. He appeared in NFL games during the 2018 season and was a member of New England’s Super Bowl LIII championship team. He brings experience from the college game and an NFL championship organization to DMV Attack’s Big Man 5v5 program, helping defensive linemen develop get-off, leverage, hand use and pass rush technique. His focus is on building the fundamentals, controlled movement and understanding of responsibilities athletes need at the line of scrimmage.",
     playing: [
       "University of Tennessee at Chattanooga • Defensive Line",
       "Chattanooga Mocs • NCAA Division I Football",
       "New England Patriots • NFL Defensive Line",
+      "Super Bowl LIII Champion • New England Patriots",
+      "Joined New England as an Undrafted Free Agent • 2017",
+      "NFL Game Appearances • 2018 Season",
     ],
     development: [
       "DMV Attack Big Man 5v5 • D-Line Coach",

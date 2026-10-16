@@ -23,8 +23,8 @@ const coaches = [
     image: "/Keiontadavis.jpeg",
     role: "D-Line Coach",
     background: "Chattanooga • New England Patriots",
-    bio: "Former Chattanooga and New England Patriots defensive lineman bringing college and NFL playing experience to DMV Attack. Davis leads defensive line development with a focus on the fundamentals athletes need to compete in the trenches.",
-    highlights: ["University of Tennessee at Chattanooga • Defensive Line", "New England Patriots • NFL", "Get-off, leverage, hand use and pass rush fundamentals"],
+    bio: "Super Bowl LIII champion and former New England Patriots defensive lineman. Davis played college football at the University of Tennessee at Chattanooga before joining the Patriots as an undrafted free agent in 2017. He appeared in NFL games during the 2018 season and was a member of New England’s Super Bowl LIII championship team. He brings experience from the college game and an NFL championship organization to DMV Attack’s Big Man 5v5 program, helping defensive linemen develop get-off, leverage, hand use and pass rush technique. His focus is on building the fundamentals, controlled movement and understanding of responsibilities athletes need at the line of scrimmage.",
+    highlights: ["Super Bowl LIII Champion • New England Patriots", "University of Tennessee at Chattanooga • Defensive Line", "Joined New England as an Undrafted Free Agent • 2017", "NFL Game Appearances • 2018 Season", "Get-off, leverage, hand use and pass rush fundamentals"],
   },
 ];
 
