@@ -47,7 +47,7 @@ const coaches = [
   },
   {
     name: "Dante Absher",
-    role: "Co-Founder • WR Development",
+    role: "Co-Founder • WR Development • Speed & Performance",
     school: "Independence High School • Coach",
     image: "/CoachDante.jpeg",
     instagram: "@dasp_training",

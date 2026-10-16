@@ -65,7 +65,7 @@ const staff: Coach[] = [
     name: "Dante Absher",
 
     title:
-      "Co-Founder | WR Development",
+      "Co-Founder | WR Development | Speed & Performance",
 
     school:
       "Coach • Independence High School",
@@ -80,7 +80,7 @@ const staff: Coach[] = [
       "https://www.instagram.com/dasp_training/",
 
     bio:
-      "Former collegiate and professional wide receiver bringing position development, competition, mentorship and athletic development to DMV Attack athletes.",
+      "Former collegiate and professional wide receiver bringing position development, speed development, agility and athletic performance training, competition and mentorship to DMV Attack athletes.",
 
     playing: [
       "Park View High School",
@@ -99,6 +99,7 @@ const staff: Coach[] = [
       "DMV Attack Co-Founder",
       "Next Up NOVA",
       "Wide Receiver Development",
+      "Speed + Agility + Performance",
     ],
   },
 
