@@ -74,7 +74,7 @@ export default async function SchedulePage() {
             href="/admin"
             className="text-xs font-black uppercase tracking-[0.12em] text-white/40 transition hover:text-lime-400"
           >
-            ← Command Center
+            Command Center
           </Link>
         </div>
 
@@ -151,9 +151,7 @@ export default async function SchedulePage() {
               <h3 className="font-black uppercase">
                 Teams + Rosters
               </h3>
-              <span className="text-white/25 transition group-hover:text-lime-400">
-                →
-              </span>
+
             </div>
           </Link>
 

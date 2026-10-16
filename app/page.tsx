@@ -116,8 +116,8 @@ export default function HomePage() {
             </h1>
             <p className="mt-7 max-w-lg text-base leading-8 text-white/65 md:text-lg">Build your game. Find your people. Compete with purpose. Football development for the next generation of DMV athletes—on the field and beyond it.</p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link href="/tryouts" className="inline-flex items-center justify-center gap-5 rounded-full bg-lime-400 px-7 py-4 text-xs font-black uppercase tracking-wider text-black transition hover:bg-lime-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lime-400">Find Your Team <span aria-hidden="true">↗</span></Link>
-              <Link href="#programs" className="inline-flex items-center justify-center gap-5 rounded-full border border-white/25 px-7 py-4 text-xs font-black uppercase tracking-wider transition hover:bg-white/10">Explore Programs <span aria-hidden="true">↓</span></Link>
+              <Link href="/tryouts" className="inline-flex items-center justify-center gap-5 rounded-full bg-lime-400 px-7 py-4 text-xs font-black uppercase tracking-wider text-black transition hover:bg-lime-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lime-400">Find Your Team </Link>
+              <Link href="#programs" className="inline-flex items-center justify-center gap-5 rounded-full border border-white/25 px-7 py-4 text-xs font-black uppercase tracking-wider transition hover:bg-white/10">Explore Programs </Link>
             </div>
             <div className="mt-10 flex flex-wrap gap-x-5 gap-y-2 border-t border-white/15 pt-5 text-[10px] font-bold uppercase tracking-[0.15em] text-white/45">
               <span>7v7 Football</span><span>Big Man 5v5</span><span>Position Development</span>
@@ -130,7 +130,7 @@ export default function HomePage() {
             <div className="absolute inset-x-0 bottom-0 p-6 md:p-10">
               <p className="text-[10px] font-black uppercase tracking-[0.25em] text-lime-400">The Work Brings Us Together</p>
               <p className="mt-3 text-3xl font-black uppercase leading-none sm:text-4xl">More Than A Jersey.<br />A Place To Belong.</p>
-              <Link href="/coaching" className="mt-5 inline-flex items-center gap-3 text-xs font-black uppercase tracking-wider text-white/80 hover:text-lime-400">Meet The Coaches <span aria-hidden="true">↗</span></Link>
+              <Link href="/coaching" className="mt-5 inline-flex items-center gap-3 text-xs font-black uppercase tracking-wider text-white/80 hover:text-lime-400">Meet The Coaches </Link>
             </div>
           </div>
         </div>
@@ -147,7 +147,7 @@ export default function HomePage() {
             <Link key={item.number} href={item.href} className="group flex items-center gap-4 px-4 py-7 transition hover:bg-lime-400/[0.06] md:px-8">
               <span className="text-xs font-black text-lime-400/60">{item.number}</span>
               <div className="flex-1"><h2 className="text-sm font-black uppercase tracking-wide group-hover:text-lime-400">{item.title}</h2><p className="mt-2 text-xs leading-5 text-white/50">{item.text}</p></div>
-              <span aria-hidden="true" className="text-xl text-lime-400 transition group-hover:translate-x-1">↗</span>
+
             </Link>
           ))}
         </div>
@@ -210,7 +210,7 @@ export default function HomePage() {
                   </p>
 
                   <div className="mt-5 text-xs font-black uppercase tracking-[0.18em] text-white transition group-hover:text-lime-400">
-                    {program.action} →
+                    {program.action}
                   </div>
 
                 </div>
@@ -249,7 +249,7 @@ export default function HomePage() {
               href="/7v7"
               className="text-xs font-black uppercase tracking-[0.18em] text-white/60 hover:text-lime-400"
             >
-              View The Schedule →
+              View The Schedule
             </Link>
 
           </div>
@@ -369,7 +369,7 @@ export default function HomePage() {
                     rel="noreferrer"
                     className="mt-6 inline-flex rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-black text-white/70 transition hover:border-lime-400/40 hover:text-lime-400"
                   >
-                    {coach.instagram} ↗
+                    {coach.instagram}
                   </a>
 
                 </div>
@@ -386,7 +386,7 @@ export default function HomePage() {
               href="/coaching"
               className="inline-flex rounded-full bg-lime-400 px-7 py-4 text-xs font-black uppercase tracking-[0.18em] text-black"
             >
-              Full Coaching Staff →
+              Full Coaching Staff
             </Link>
 
           </div>
@@ -494,7 +494,7 @@ export default function HomePage() {
               href="/foundation"
               className="mt-8 inline-flex rounded-full bg-lime-400 px-7 py-4 text-xs font-black uppercase tracking-[0.18em] text-black"
             >
-              Explore The Foundation →
+              Explore The Foundation
             </Link>
 
           </div>
@@ -534,7 +534,7 @@ export default function HomePage() {
                   href="/tryouts"
                   className="rounded-full bg-lime-400 px-8 py-4 text-center text-xs font-black uppercase tracking-[0.18em] text-black"
                 >
-                  Register For Tryouts →
+                  Register For Tryouts
                 </Link>
 
                 <a
@@ -543,7 +543,7 @@ export default function HomePage() {
                   rel="noreferrer"
                   className="rounded-full border border-white/15 bg-black/20 px-8 py-4 text-center text-xs font-black uppercase tracking-[0.18em] text-white"
                 >
-                  @dmvattack_7on7 ↗
+                  @dmvattack_7on7
                 </a>
 
 

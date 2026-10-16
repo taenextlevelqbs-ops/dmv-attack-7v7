@@ -268,10 +268,10 @@ export default function CoachingPage() {
                     <span className="text-lime-400">
                       {coach.instagram}
                     </span>
-                    &nbsp;↗
+
                   </a>}
                   {coach.program && (
-                    <Link href={coach.program} className="mt-5 inline-flex rounded-full border border-lime-400/30 bg-lime-400/10 px-4 py-2 text-xs font-black text-lime-400 transition hover:bg-lime-400 hover:text-black">Big Man 5v5 Program + Signup →</Link>
+                    <Link href={coach.program} className="mt-5 inline-flex rounded-full border border-lime-400/30 bg-lime-400/10 px-4 py-2 text-xs font-black text-lime-400 transition hover:bg-lime-400 hover:text-black">Big Man 5v5 Program + Signup</Link>
                   )}
 
 

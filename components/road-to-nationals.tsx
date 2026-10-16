@@ -32,14 +32,14 @@ export default function RoadToNationals() {
                   <span className="mt-0.5 block text-sm font-black uppercase sm:text-base">{event.title}</span>
                   <span className="block text-xs text-white/50">{event.location}</span>
                 </span>
-                <span className="shrink-0 text-lime-400" aria-hidden="true">{selected === index ? "●" : "→"}</span>
+                <span className="shrink-0 text-lime-400" aria-hidden="true">{selected === index ? "●" : ""}</span>
               </button>
             ))}
           </div>
           <div className="flex min-h-[390px] flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#111] sm:min-h-[470px]">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 px-4 py-3">
               <div><p className="text-xs font-black uppercase">{stop.title}</p><p className="text-xs text-white/50">{stop.location}</p></div>
-              <a href={`https://www.google.com/maps/search/?api=1&query=${query}`} target="_blank" rel="noopener noreferrer" className="rounded-full bg-lime-400 px-4 py-2 text-xs font-black uppercase text-black hover:bg-lime-300">View Full Map ↗</a>
+              <a href={`https://www.google.com/maps/search/?api=1&query=${query}`} target="_blank" rel="noopener noreferrer" className="rounded-full bg-lime-400 px-4 py-2 text-xs font-black uppercase text-black hover:bg-lime-300">View Full Map</a>
             </div>
             <iframe key={stop.location} title={`Google Map of ${stop.location}`} src={`https://maps.google.com/maps?q=${query}&z=11&output=embed`} loading="lazy" referrerPolicy="no-referrer-when-downgrade" className="min-h-[330px] w-full flex-1 border-0 sm:min-h-[410px]" allowFullScreen />
           </div>

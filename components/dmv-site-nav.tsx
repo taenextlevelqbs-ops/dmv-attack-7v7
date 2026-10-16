@@ -123,7 +123,7 @@ export default function DmvSiteNav() {
                     }`}
                   >
                     <span>{item.label}</span>
-                    <span>→</span>
+
                   </Link>
                 );
               })}
@@ -134,7 +134,7 @@ export default function DmvSiteNav() {
               onClick={() => setOpen(false)}
               className="mt-4 flex w-full items-center justify-center rounded-xl bg-lime-400 px-5 py-4 text-xs font-black uppercase tracking-[0.16em] text-black"
             >
-              Register For Tryouts →
+              Register For Tryouts
             </Link>
           </nav>
         </div>

@@ -219,7 +219,7 @@ export default async function AdminPage() {
                   </div>
 
                   <div className="text-lg text-white/25 transition group-hover:translate-x-1 group-hover:text-lime-400">
-                    →
+
                   </div>
                 </div>
 
@@ -392,7 +392,7 @@ function CompactLink({
       </div>
 
       <div className="shrink-0 text-base text-white/20 transition group-hover:translate-x-1 group-hover:text-lime-400">
-        →
+
       </div>
     </Link>
   );

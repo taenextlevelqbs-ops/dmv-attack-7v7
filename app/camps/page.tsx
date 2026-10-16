@@ -107,7 +107,7 @@ export default function CampsPage() {
               </p>
 
               <div className="mt-7 text-xs font-black uppercase tracking-[0.18em]">
-                Contact DMV Attack →
+                Contact DMV Attack
               </div>
             </Link>
 
@@ -129,7 +129,7 @@ export default function CampsPage() {
               </p>
 
               <div className="mt-7 text-xs font-black uppercase tracking-[0.18em]">
-                Explore Training →
+                Explore Training
               </div>
             </Link>
           </div>

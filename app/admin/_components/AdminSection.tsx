@@ -25,7 +25,7 @@ export default function AdminSection({
           href="/admin"
           className="text-[10px] font-black uppercase tracking-[0.2em] text-lime-400"
         >
-          ← Admin Dashboard
+          Admin Dashboard
         </Link>
 
         <div className="mt-10 max-w-3xl">
@@ -62,7 +62,7 @@ export default function AdminSection({
 
                 {card.href && (
                   <div className="mt-6 text-[10px] font-black uppercase tracking-[0.16em] text-lime-400">
-                    Open →
+                    Open
                   </div>
                 )}
               </>

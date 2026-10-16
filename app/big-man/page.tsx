@@ -35,7 +35,7 @@ export default function BigManPage() {
         eyebrow="DMV Attack • O Line + D Line"
         title="Big Man 5v5"
         description="Built for the trenches. Position-specific development and competition for offensive and defensive linemen at Independence High School."
-        buttonText="Sign Up For Big Man 5v5 →"
+        buttonText="Sign Up For Big Man 5v5"
         buttonHref="#signup"
       />
 
@@ -82,7 +82,7 @@ export default function BigManPage() {
               <p className="mt-6 text-sm leading-7 text-white/65">{coach.bio}</p>
               <ul className="mt-6 space-y-3 border-t border-white/10 pt-6">
                 {coach.highlights.map((highlight) => (
-                  <li key={highlight} className="flex gap-3 text-sm leading-6 text-white/65"><span aria-hidden="true" className="text-lime-400">→</span>{highlight}</li>
+                  <li key={highlight} className="flex gap-3 text-sm leading-6 text-white/65"><span aria-hidden="true" className="text-lime-400">•</span>{highlight}</li>
                 ))}
               </ul>
             </article>
@@ -93,7 +93,7 @@ export default function BigManPage() {
             <h3 className="text-2xl font-black uppercase">Ready To Work?</h3>
             <p className="mt-2 text-sm leading-7 text-white/60">Sign up for information about availability and upcoming Big Man 5v5 sessions.</p>
           </div>
-          <Link href="#signup" className="inline-flex shrink-0 rounded-full bg-lime-400 px-6 py-3 text-xs font-black uppercase tracking-wider text-black hover:bg-lime-300">Sign Up For 5v5 →</Link>
+          <Link href="#signup" className="inline-flex shrink-0 rounded-full bg-lime-400 px-6 py-3 text-xs font-black uppercase tracking-wider text-black hover:bg-lime-300">Sign Up For 5v5</Link>
         </div>
       </section>
 

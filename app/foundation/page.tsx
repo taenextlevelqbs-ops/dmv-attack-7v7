@@ -80,7 +80,7 @@ export default function FoundationPage() {
                 href="mailto:dmvattackfoundation@gmail.com"
                 className="mt-8 inline-flex rounded-full bg-lime-400 px-7 py-4 text-xs font-black uppercase tracking-[0.16em] text-black transition hover:scale-[1.02]"
               >
-                Email The Foundation →
+                Email The Foundation
               </a>
             </div>
           </div>
@@ -155,7 +155,7 @@ export default function FoundationPage() {
                     key={item}
                     className="rounded-2xl border border-white/10 bg-black/40 px-5 py-4 text-sm font-bold text-white/70"
                   >
-                    <span className="mr-3 text-lime-400">→</span>
+                    <span className="mr-3 text-lime-400">•</span>
                     {item}
                   </div>
                 ))}
@@ -193,7 +193,7 @@ export default function FoundationPage() {
                 href="/camps"
                 className="rounded-full border border-black/20 px-7 py-4 text-center text-xs font-black uppercase tracking-[0.16em] text-black"
               >
-                View Camps →
+                View Camps
               </Link>
             </div>
           </div>

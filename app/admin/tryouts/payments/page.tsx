@@ -40,7 +40,7 @@ export default function TryoutPayments() {
     } catch(e){setError(e instanceof Error?e.message:"Unable to save")} finally{setSaving("")}
   }
   return <main className="min-h-screen bg-black px-4 py-10 text-white md:px-8"><div className="mx-auto max-w-6xl">
-    <Link href="/admin/tryouts" className="text-sm font-bold text-lime-400">← Tryout Command Center</Link>
+    <Link href="/admin/tryouts" className="text-sm font-bold text-lime-400">Tryout Command Center</Link>
     <h1 className="mt-5 text-4xl font-black uppercase">Tryout Payments</h1>
     <p className="mt-2 text-white/60">Venmo payments must be checked manually before marking PAID. $20 per athlete.</p>
     <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">{[["Registered",registrations.length],["Paid",paid],["Pending",pending],["Outstanding",registrations.length-paid]].map(([label,value])=><div key={label} className="rounded-xl border border-white/15 p-4"><div className="text-xs uppercase text-white/50">{label}</div><div className="mt-2 text-3xl font-black">{value}</div></div>)}</div>

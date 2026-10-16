@@ -78,7 +78,7 @@ export default function BigManSignup() {
               <textarea id="big-man-questions" name="questions" rows={3} maxLength={600} className={inputClass} />
             </label>
           </div>
-          <button type="submit" className="mt-6 w-full rounded-xl bg-lime-400 px-6 py-4 text-xs font-black uppercase tracking-wider text-black transition hover:bg-lime-300">Prepare Signup Email →</button>
+          <button type="submit" className="mt-6 w-full rounded-xl bg-lime-400 px-6 py-4 text-xs font-black uppercase tracking-wider text-black transition hover:bg-lime-300">Prepare Signup Email</button>
           {emailPrepared && <p role="status" className="mt-4 text-sm leading-6 text-lime-400">Finish your signup by pressing Send in your email app. If it didn’t open, email your details to dmvattack@gmail.com. Your signup has not been submitted through this website.</p>}
         </form>
       </div>

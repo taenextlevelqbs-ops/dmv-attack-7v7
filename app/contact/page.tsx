@@ -26,7 +26,7 @@ export default function ContactPage() {
             </div>
 
             <div className="mt-5 text-sm text-white/45 transition group-hover:text-white/70">
-              Send us a message →
+              Send us a message
             </div>
           </a>
 
@@ -43,7 +43,7 @@ export default function ContactPage() {
             </div>
 
             <div className="mt-5 text-sm text-white/45 transition group-hover:text-white/70">
-              Email DMV Attack →
+              Email DMV Attack
             </div>
           </a>
         </div>

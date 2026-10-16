@@ -125,7 +125,7 @@ export default function SevenOnSevenPage() {
             <h2 className="text-2xl font-black uppercase">Looking For Big Man 5v5?</h2>
             <p className="mt-2 text-sm leading-7 text-white/60">O-line and D-line development at Independence High School with Norman Wallace and Keionta Davis.</p>
           </div>
-          <Link href="/big-man" className="inline-flex shrink-0 justify-center rounded-full bg-lime-400 px-6 py-3 text-xs font-black uppercase tracking-wider text-black hover:bg-lime-300">Explore Big Man 5v5 →</Link>
+          <Link href="/big-man" className="inline-flex shrink-0 justify-center rounded-full bg-lime-400 px-6 py-3 text-xs font-black uppercase tracking-wider text-black hover:bg-lime-300">Explore Big Man 5v5</Link>
         </div>
       </section>
 
@@ -361,7 +361,7 @@ export default function SevenOnSevenPage() {
                     key={item}
                     className="rounded-2xl border border-white/10 bg-black/40 px-5 py-4 text-sm font-bold text-white/70"
                   >
-                    <span className="mr-3 text-lime-400">→</span>
+                    <span className="mr-3 text-lime-400">•</span>
                     {item}
                   </div>
                 ))}
@@ -426,7 +426,7 @@ export default function SevenOnSevenPage() {
               </p>
 
               <div className="mt-7 text-xs font-black uppercase tracking-[0.18em] text-white transition group-hover:text-lime-400">
-                Coaching Staff →
+                Coaching Staff
               </div>
             </Link>
 
@@ -448,7 +448,7 @@ export default function SevenOnSevenPage() {
               </p>
 
               <div className="mt-7 text-xs font-black uppercase tracking-[0.18em] text-white transition group-hover:text-lime-400">
-                Training →
+                Training
               </div>
             </Link>
 
@@ -483,7 +483,7 @@ export default function SevenOnSevenPage() {
                 href="/tryouts"
                 className="mt-8 inline-flex rounded-full bg-black px-8 py-4 text-xs font-black uppercase tracking-[0.18em] text-white transition hover:scale-[1.02]"
               >
-                Register For Tryouts →
+                Register For Tryouts
               </Link>
             </div>
 

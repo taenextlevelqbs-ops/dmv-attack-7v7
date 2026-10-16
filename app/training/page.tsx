@@ -79,7 +79,7 @@ export default function TrainingPage() {
     rel="noopener noreferrer"
     className="text-zinc-400 transition hover:text-[#a6ff00]"
   >
-    CoachTaeQB.com →
+    CoachTaeQB.com
   </a>
 </div>
             </div>
@@ -101,7 +101,7 @@ export default function TrainingPage() {
             </div>
 
             <div className="mt-5 text-xs text-white/40">
-              @dasp_training →
+              @dasp_training
             </div>
           </a>
 
@@ -121,7 +121,7 @@ export default function TrainingPage() {
             </div>
 
             <div className="mt-5 text-xs text-white/40">
-              @r.a.m_training →
+              @r.a.m_training
             </div>
           </a>
 

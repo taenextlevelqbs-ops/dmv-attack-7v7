@@ -36,7 +36,7 @@ export default function ApparelPage() {
             rel="noopener noreferrer"
             className="mt-7 inline-flex rounded-xl bg-lime-400 px-6 py-3 text-xs font-black uppercase tracking-wider text-black"
           >
-            Shop DMV Attack Apparel ↗
+            Shop DMV Attack Apparel
           </a>
 
         </div>
