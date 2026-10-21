@@ -5,6 +5,12 @@ import { randomUUID } from "node:crypto";
 import Stripe from "stripe";
 import { PGlite } from "@electric-sql/pglite";
 import { syncCheckoutState } from "../lib/finance/stripe-sync.mjs";
+import { isLiveStripeKey } from "../lib/finance/stripe-key.mjs";
+
+test("restricted live keys work while test and publishable keys stay outside live mode", () => {
+  for (const key of ["rk_live_fixture", "sk_live_fixture"]) assert.equal(isLiveStripeKey(key), true);
+  for (const key of [undefined, "", "rk_test_fixture", "sk_test_fixture", "pk_live_fixture", "rk_live_"]) assert.equal(isLiveStripeKey(key), false);
+});
 
 test("Stripe signatures reject modified and stale payloads", () => {
   const stripe = new Stripe("sk_test_fixture_only");

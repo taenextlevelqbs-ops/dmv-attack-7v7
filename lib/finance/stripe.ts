@@ -1,10 +1,11 @@
+import { isLiveStripeKey } from "./stripe-key.mjs";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 
 export function stripeClient() {
   const key = process.env.STRIPE_SECRET_KEY;
   if (!key) throw new Error("Stripe is not configured");
-  if (process.env.VERCEL_ENV === "production" && !key.startsWith("sk_live_"))
+  if (process.env.VERCEL_ENV === "production" && !isLiveStripeKey(key))
     throw new Error("Production requires a live Stripe key; test in a separate preview database");
   return new Stripe(key, { maxNetworkRetries: 2, timeout: 20000 });
 }
@@ -17,5 +18,5 @@ export function stripeDatabase() {
 
 import { syncCheckoutState } from "./stripe-sync.mjs";
 export async function syncCheckout(stripe: Stripe, sessionId: string) {
-  return syncCheckoutState(stripe, stripeDatabase(), sessionId, Boolean(process.env.STRIPE_SECRET_KEY?.startsWith("sk_live_")));
+  return syncCheckoutState(stripe, stripeDatabase(), sessionId, isLiveStripeKey(process.env.STRIPE_SECRET_KEY));
 }

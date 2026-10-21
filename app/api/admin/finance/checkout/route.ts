@@ -1,3 +1,4 @@
+import { isLiveStripeKey } from "@/lib/finance/stripe-key.mjs";
 import { ownerApi, privateHeaders, sameOrigin } from "@/lib/admin/api";
 import { stripeClient } from "@/lib/finance/stripe";
 import { moneyToCents, summarizeAccount } from "@/lib/finance/money.mjs";
@@ -15,8 +16,8 @@ export async function GET() {
       .order("created_at", { ascending: false }).range(start, end));
     if (result.error) return response({ error: "Stripe checkout needs its database setup.", setup_required: true }, 503);
     return response({ configured: Boolean(process.env.STRIPE_SECRET_KEY && process.env.STRIPE_WEBHOOK_SECRET &&
-      (process.env.VERCEL_ENV !== "production" || process.env.STRIPE_SECRET_KEY.startsWith("sk_live_"))),
-      mode: process.env.STRIPE_SECRET_KEY?.startsWith("sk_live_") ? "LIVE" : "TEST", checkouts: result.data });
+      (process.env.VERCEL_ENV !== "production" || isLiveStripeKey(process.env.STRIPE_SECRET_KEY))),
+      mode: isLiveStripeKey(process.env.STRIPE_SECRET_KEY) ? "LIVE" : "TEST", checkouts: result.data });
   } catch {
     return response({ error: "Unable to load Stripe payments." }, 503);
   }
