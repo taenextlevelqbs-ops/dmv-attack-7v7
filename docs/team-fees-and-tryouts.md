@@ -15,7 +15,7 @@ The agreed team price is **not included in the public source, public pages, or p
 
 To correct an agreed fee or scholarship, expand **Adjust fee, scholarship or due date** in the athlete's history. A reason is required; before/after values are retained. Payments are never deleted or edited. A refund records money actually returned and cannot exceed recorded net payments.
 
-The tracker is a manual accounting ledger. It does not collect money, automatically reconcile Venmo, send invoices, or send payment reminders. No historical payment is automatically inferred or imported.
+Manual accounting works without Stripe. Optional private Stripe checkout links and automatic confirmed-payment/refund updates require the additional [Stripe setup](stripe-setup.md). The tracker does not automatically reconcile Venmo, send invoices, or send payment reminders. No historical payment is automatically inferred or imported.
 
 ## Security and reliability
 

@@ -3,6 +3,7 @@ import { requestJson } from "@/lib/http.mjs";
 import Link from "next/link";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { formatMoney } from "@/lib/finance/money.mjs";
+import StripePayments from "./stripe-payments";
 type Account = {
   id: string;
   registration_id: string;
@@ -544,6 +545,7 @@ export default function FeeLedger() {
                       ?.athlete_last_name
                   }
                 </h2>
+                <StripePayments key={current.id} accountId={current.id} balance={current.balance_cents} onUpdated={() => void load()} />
                 <p className="my-2 text-sm text-white/60">
                   Current balance: {formatMoney(current.balance_cents)}. Each
                   entry stays in the history. Use a unique Venmo transaction ID

@@ -62,6 +62,7 @@ await db.exec(
 await db.exec(
   fs.readFileSync("supabase/migrations/20261014_tryout_payments.sql", "utf8"),
 );
+await db.exec(fs.readFileSync("supabase/migrations/20261021_stripe_checkout.sql", "utf8"));
 let uploads = 0,
   removed = 0,
   idCount = 0;
@@ -223,6 +224,7 @@ const fixture = createServer(async (req, res) => {
       "team_fee_transactions",
       "team_fee_settings",
       "team_fee_adjustments",
+      "team_fee_checkouts",
       "tryout_payments",
     ];
     if (!allowed.includes(table)) throw new Error("Unexpected table " + table);
@@ -363,6 +365,9 @@ try {
     403,
   );
   assert.equal((await (await guest.request.get(origin+"/api/status")).json()).service,"DMV Attack");
+  assert.equal((await guest.request.get(origin + "/api/admin/finance/checkout")).status(), 403);
+  assert.equal((await guest.request.get(origin + "/api/admin/finance/checkout/setup")).status(), 403);
+  assert.equal((await guest.request.post(origin + "/api/stripe/webhook", { data: {} })).status(), 503);
   await guest.goto(origin + "/admin/tryouts");
   await guest.waitForURL("**/login");
   for (const id of [admin, parent]) {
@@ -413,6 +418,11 @@ try {
     .getByRole("button", { name: "Payments & history", exact: true })
     .click();
   const payment = page.getByRole("region", { name: "Record team payment" });
+  await payment.getByText("Stripe checkout is not enabled.", { exact: false }).waitFor();
+  assert.equal(await payment.getByRole("button", { name: "Create private payment link", exact: true }).isDisabled(), true);
+  const stripeSetup = await context.request.get(origin + "/api/admin/finance/checkout/setup");
+  assert.equal(stripeSetup.status(), 200);
+  assert.ok((await stripeSetup.text()).includes("reserve_team_fee_checkout"));
   await payment.locator('[name="amount"]').fill("250");
   await payment.locator('[name="reference"]').fill("fixture-deposit-001");
   await payment.locator('[name="verified"]').check();
