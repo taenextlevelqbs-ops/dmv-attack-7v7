@@ -16,28 +16,11 @@ export async function GET() {
       );
     }
 
-    console.log("=== ROUTE USER DEBUG ===");
-    console.log("Authenticated user ID:", user.id);
-    console.log("Authenticated email:", user.email);
-
     const { data: profile, error } = await supabase
       .from("profiles")
       .select("role,first_name,last_name")
       .eq("id", user.id)
       .single();
-
-    console.log("Profile returned:", profile);
-    console.log(
-      "Profile error:",
-      error
-        ? {
-            message: error.message,
-            code: error.code,
-            details: error.details,
-            hint: error.hint,
-          }
-        : null
-    );
 
     if (error || !profile) {
       return NextResponse.json(
@@ -50,8 +33,7 @@ export async function GET() {
 
     if (
       profile.role === "OWNER" ||
-      profile.role === "ADMIN" ||
-      profile.role === "COACH"
+      profile.role === "ADMIN"
     ) {
       destination = "/admin";
     }
@@ -59,6 +41,8 @@ export async function GET() {
     if (profile.role === "PARENT") {
       destination = "/portal";
     }
+
+    if (destination === "/login") return NextResponse.json({error:"This account does not have an enabled DMV Attack workspace. Contact the owner for access."},{status:403});
 
     return NextResponse.json({
       destination,

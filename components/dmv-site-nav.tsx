@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const navItems = [
   { href: "/", label: "Home" },
@@ -21,11 +21,9 @@ const navItems = [
 
 export default function DmvSiteNav() {
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
+  const [menu, setMenu] = useState({path:pathname,open:false});
+  const open=menu.path===pathname && menu.open;
+  function setOpen(value:boolean|((current:boolean)=>boolean)){setMenu({path:pathname,open:typeof value==='function'?value(open):value});}
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-black/95 text-white backdrop-blur">

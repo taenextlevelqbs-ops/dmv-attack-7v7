@@ -22,12 +22,12 @@ export default async function FamiliesPage() {
       cards={[
         {
           title: "Families",
-          value: familyCount ?? 0,
+          value: familyCount ?? "Unavailable",
           description: "Official DMV Attack family records.",
         },
         {
           title: "Athletes",
-          value: athleteCount ?? 0,
+          value: athleteCount ?? "Unavailable",
           description: "Athletes currently connected to family records.",
           href: "/admin/athletes",
         },

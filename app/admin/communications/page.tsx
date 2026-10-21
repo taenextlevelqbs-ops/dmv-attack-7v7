@@ -27,13 +27,13 @@ export default async function CommunicationsPage() {
       cards={[
         {
           title: "Families",
-          value: familyCount ?? 0,
+          value: familyCount ?? "Unavailable",
           description:
             "Family accounts available for organization communication.",
         },
         {
           title: "Athletes",
-          value: athleteCount ?? 0,
+          value: athleteCount ?? "Unavailable",
           description:
             "Official athletes currently available for team communication.",
         },

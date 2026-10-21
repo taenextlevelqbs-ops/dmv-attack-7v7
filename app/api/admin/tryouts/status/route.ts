@@ -1,3 +1,4 @@
+import { sameOrigin } from "@/lib/admin/api";
 import { NextResponse } from "next/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { createClient as createServerClient } from "@/lib/supabase/server";
@@ -14,6 +15,7 @@ const allowedStatuses = new Set([
 ]);
 
 export async function PATCH(request: Request) {
+  if (!sameOrigin(request)) return NextResponse.json({error:"Request origin rejected"},{status:403});
   try {
     const authClient = await createServerClient();
 

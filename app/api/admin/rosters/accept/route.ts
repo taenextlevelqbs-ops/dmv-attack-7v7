@@ -1,3 +1,4 @@
+import { sameOrigin } from "@/lib/admin/api";
 import { NextResponse } from "next/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
@@ -45,6 +46,7 @@ function cleanEmail(value: string | null | undefined) {
 }
 
 export async function POST(request: Request) {
+  if (!sameOrigin(request)) return NextResponse.json({error:"Request origin rejected"},{status:403});
   try {
     const staff = await authorizeStaff();
 
@@ -136,6 +138,8 @@ export async function POST(request: Request) {
     // --------------------------------------------------
     // 3. Validate roster assignment
     // --------------------------------------------------
+
+    if(submission.age_group!==team.age_group)return NextResponse.json({error:"Athlete division must match the team"},{status:400});
 
     const { data: assignment, error: assignmentError } =
       await admin
@@ -352,22 +356,17 @@ export async function POST(request: Request) {
     let parentLinked = false;
 
     if (parentUser) {
-      const { error: profileError } = await admin
-        .from("profiles")
-        .upsert(
-          {
-            id: parentUser.id,
-            first_name:
-              submission.parent_guardian_name ?? null,
-            role: "PARENT",
-            updated_at: now,
-          },
-          {
-            onConflict: "id",
-          }
-        );
-
-      if (profileError) throw profileError;
+      // Existing owners/admins may also be guardians. Never demote their role.
+      const { data: existingProfile, error: profileLookupError } = await admin
+        .from("profiles").select("id,role").eq("id",parentUser.id).maybeSingle();
+      if (profileLookupError) throw profileLookupError;
+      if (!existingProfile) {
+        const { error: profileError } = await admin.from("profiles").insert({
+          id:parentUser.id,first_name:submission.parent_guardian_name ?? null,
+          role:"PARENT",updated_at:now,
+        });
+        if (profileError) throw profileError;
+      }
 
       const { data: existingMembership, error: memberLookupError } =
         await admin
@@ -430,7 +429,7 @@ export async function POST(request: Request) {
       {
         error:
           error instanceof Error
-            ? error.message
+            ? "Unable to accept roster offer. Please retry or review the athlete’s existing family connection."
             : "Unable to accept roster offer",
       },
       { status: 500 }

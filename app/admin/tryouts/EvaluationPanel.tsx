@@ -1,6 +1,7 @@
 "use client";
+import {requestJson} from "@/lib/http.mjs";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type Evaluation = {
   id: string;
@@ -85,27 +86,9 @@ export default function EvaluationPanel({
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
 
-  async function loadEvaluations() {
-    try {
-      setLoading(true);
-
-      const response = await fetch(
-        `/api/admin/tryouts/evaluations?tryout=${encodeURIComponent(
-          tryoutSubmissionId
-        )}`,
-        {
-          cache: "no-store",
-        }
-      );
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          result.error || "Unable to load evaluations"
-        );
-      }
-
+  const loadEvaluations = useCallback((signal?:AbortSignal) => {
+    return requestJson(`/api/admin/tryouts/evaluations?tryout=${encodeURIComponent(tryoutSubmissionId)}`,{cache:"no-store",signal}).then(result=>{
+      if(signal?.aborted)return;
       const loaded = result.evaluations ?? [];
 
       setEvaluations(loaded);
@@ -138,20 +121,15 @@ export default function EvaluationPanel({
       } else {
         setForm(blankForm);
       }
-    } catch (error) {
-      setMessage(
-        error instanceof Error
-          ? error.message
-          : "Unable to load evaluations"
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
+
+    }).catch((error:unknown)=>{if(!signal?.aborted)setMessage(error instanceof Error?error.message:"Unable to load evaluations");}).finally(()=>{if(!signal?.aborted)setLoading(false);});
+  },[tryoutSubmissionId]);
 
   useEffect(() => {
-    loadEvaluations();
-  }, [tryoutSubmissionId]);
+    const controller=new AbortController();
+    loadEvaluations(controller.signal);
+    return()=>controller.abort();
+  }, [loadEvaluations]);
 
   async function saveEvaluation() {
     try {

@@ -27,13 +27,13 @@ export default async function AthletesPage() {
       cards={[
         {
           title: "Athletes",
-          value: athleteCount ?? 0,
+          value: athleteCount ?? "Unavailable",
           description:
             "Official athlete records created after players enter the DMV Attack program.",
         },
         {
           title: "Families",
-          value: familyCount ?? 0,
+          value: familyCount ?? "Unavailable",
           description:
             "Family accounts connected to athletes and the parent portal.",
         },

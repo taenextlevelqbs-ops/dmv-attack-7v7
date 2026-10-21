@@ -1,4 +1,5 @@
 "use client";
+import {requestJson} from "@/lib/http.mjs";
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -40,33 +41,12 @@ export default function TryoutCheckInPage() {
 
   const [updating, setUpdating] = useState("");
 
-  async function loadRegistrations() {
-    try {
-      setLoading(true);
-
-      const response = await fetch("/api/admin/tryouts", {
-        cache: "no-store",
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          result.error || "Unable to load registrations"
-        );
-      }
-
+  function loadRegistrations() {
+    return requestJson("/api/admin/tryouts",{cache:"no-store"}).then(result=>{
       setRegistrations(result.registrations ?? []);
       setError("");
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Unable to load registrations"
-      );
-    } finally {
-      setLoading(false);
-    }
+
+    }).catch((error:unknown)=>{setError(error instanceof Error?error.message:"Unable to load records");}).finally(()=>setLoading(false));
   }
 
   useEffect(() => {

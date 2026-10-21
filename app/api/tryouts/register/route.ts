@@ -1,3 +1,4 @@
+import { validBirthDate, imageMatchesType } from "@/lib/tryout-validation.mjs";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
@@ -17,10 +18,11 @@ const allowedImageTypes = new Set([
   "image/webp",
 ]);
 
-const maxImageSize = 5 * 1024 * 1024;
+const maxImageSize = 4 * 1024 * 1024;
 
 function getText(form: FormData, name: string) {
-  return String(form.get(name) ?? "").trim();
+  const value = form.get(name);
+  return typeof value === "string" ? value.trim() : "";
 }
 
 function getOptionalInteger(value: string) {
@@ -33,6 +35,8 @@ function getOptionalInteger(value: string) {
 
 export async function POST(request: Request) {
   try {
+    const declaredSize=Number(request.headers.get("content-length")||0);
+    if(declaredSize>4500000)return NextResponse.json({error:"Registration upload is too large. Use a headshot under 4MB."},{status:413});
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseSecret = process.env.SUPABASE_SECRET_KEY;
 
@@ -94,6 +98,11 @@ export async function POST(request: Request) {
       );
     }
 
+    const today = new Intl.DateTimeFormat("en-CA", {timeZone:"America/New_York"}).format(new Date());
+    if (!validBirthDate(dateOfBirth, today)) return NextResponse.json({error:"Please enter a valid athlete date of birth in the past."}, {status:400});
+    for (const [key,value] of form.entries()) {
+      if (typeof value === "string" && value.length > 5000) return NextResponse.json({error:`${key} is too long. Please shorten it.`}, {status:400});
+    }
     const emailIsValid =
       /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(parentEmail);
 
@@ -148,10 +157,13 @@ export async function POST(request: Request) {
 
     if (headshot.size > maxImageSize) {
       return NextResponse.json(
-        { error: "Headshot must be 5MB or smaller." },
+        { error: "Headshot must be 4MB or smaller." },
         { status: 400 }
       );
     }
+
+    const imageBytes = await headshot.arrayBuffer();
+    if (!imageMatchesType(new Uint8Array(imageBytes), headshot.type)) return NextResponse.json({error:"The uploaded file is not a valid JPG, PNG or WEBP image."},{status:400});
 
     const { data: generatedId, error: idError } =
       await supabase.rpc(
@@ -187,8 +199,6 @@ export async function POST(request: Request) {
 
     const storagePath =
       `${ageGroup}/${tryoutId}/${crypto.randomUUID()}.${extension}`;
-
-    const imageBytes = await headshot.arrayBuffer();
 
     const { error: uploadError } =
       await supabase.storage
@@ -359,7 +369,7 @@ export async function POST(request: Request) {
     );
     confirmationUrl.searchParams.set("division", ageGroup);
 
-    return NextResponse.redirect(confirmationUrl, 303);
+    return new NextResponse(null, {status:303,headers:{Location:confirmationUrl.pathname+confirmationUrl.search}});
   } catch (error) {
     console.error(
       "Tryout registration error:",

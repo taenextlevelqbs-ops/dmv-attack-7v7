@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -14,12 +14,16 @@ export default function LoginPage() {
   const [checking, setChecking] = useState(true);
   const [message, setMessage] = useState("");
 
-  async function routeUser() {
+  const routeUser = useCallback(async () => {
     const response = await fetch("/api/auth/route-user", {
       cache: "no-store",
     });
 
-    if (!response.ok) return false;
+    if (!response.ok) {
+      if(response.status===401)return false;
+      const problem=await response.json().catch(()=>null);
+      throw new Error(problem?.error||"Unable to load your DMV Attack workspace.");
+    }
 
     const result = await response.json();
 
@@ -29,7 +33,7 @@ export default function LoginPage() {
     router.refresh();
 
     return true;
-  }
+  }, [router]);
 
   useEffect(() => {
     async function checkSession() {
@@ -45,13 +49,15 @@ export default function LoginPage() {
 
           if (routed) return;
         }
+      } catch {
+        setMessage("Unable to verify your session. Please sign in again.");
       } finally {
         setChecking(false);
       }
     }
 
     checkSession();
-  }, []);
+  }, [routeUser]);
 
   async function handleLogin(
     event: FormEvent<HTMLFormElement>

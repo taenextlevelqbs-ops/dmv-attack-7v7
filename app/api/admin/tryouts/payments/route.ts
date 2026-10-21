@@ -1,3 +1,4 @@
+import { sameOrigin } from "@/lib/admin/api";
 import { NextResponse } from "next/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { createClient as createServerClient } from "@/lib/supabase/server";
@@ -32,6 +33,7 @@ export async function GET() {
 }
 
 export async function PATCH(request: Request) {
+  if (!sameOrigin(request)) return NextResponse.json({error:"Request origin rejected"},{status:403});
   const auth = await authorized();
   if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   const body = await request.json().catch(() => null);

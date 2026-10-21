@@ -22,7 +22,7 @@ const modules: Module[] = [
   {
     title: "Athletes",
     description:
-      "Search and manage every DMV Attack athlete profile across programs and seasons.",
+      "Athlete and family counts, with access to tryout profiles and team rosters.",
     href: "/admin/athletes",
   },
   {
@@ -34,56 +34,56 @@ const modules: Module[] = [
   {
     title: "Families",
     description:
-      "Parent accounts, guardians, contact information and athlete-family relationships.",
+      "Family and athlete counts, account relationships and parent portal access.",
     href: "/admin/families",
   },
   {
     title: "Communication",
     description:
-      "Organization announcements, team messages, email and SMS communication.",
+      "Family counts and communication planning. Messaging tools are coming soon.",
     href: "/admin/communications",
   },
   {
     title: "Schedule",
     description:
-      "Practices, tournaments, camps, tryouts and organization events.",
+      "Event planning overview. Schedule management tools are coming soon.",
     href: "/admin/schedule",
   },
   {
     title: "Forms & Waivers",
     description:
-      "Required documents, signatures, releases and completion tracking.",
+      "Forms and waiver planning. Signature and completion tracking are coming soon.",
     href: "/admin/forms",
   },
   {
     title: "Camps",
     description:
-      "Camp registration, attendance, athlete information and staff management.",
+      "Camp operations overview. Registration and attendance management are coming soon.",
     href: "/admin/camps",
   },
   {
     title: "Girls Flag",
     description:
-      "Registration, players, teams, schedules and program communication.",
+      "Girls flag program overview. Roster and event management are coming soon.",
     href: "/admin/girls-flag",
   },
   {
     title: "Foundation",
     description:
-      "Foundation camps, programs, participants and community initiatives.",
+      "Foundation planning overview. Participant tracking tools are coming soon.",
     href: "/admin/foundation",
   },
   {
     title: "Finance",
     description:
-      "Organization revenue, balances, collections and financial reporting.",
+      "Private team-fee balances, verified collections and scholarship adjustments.",
     href: "/admin/finance",
     ownerOnly: true,
   },
   {
     title: "Payments",
     description:
-      "Family balances, payment plans, transactions, receipts and outstanding amounts.",
+      "Record verified deposits, installments and refunds. Review paid and owed totals.",
     href: "/admin/payments",
     ownerOnly: true,
   },
@@ -193,7 +193,7 @@ export default async function AdminPage() {
 
         <section className="mt-5 grid grid-cols-3 gap-2 sm:gap-3">
           <MiniStat label="Season" value="2027" />
-          <MiniStat label="System" value="Active" highlight />
+          <MiniStat label="Workspace" value="Staff" highlight />
           <MiniStat
             label="Access"
             value={isOwner ? "Owner" : "Admin"}

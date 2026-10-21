@@ -87,7 +87,7 @@ export async function GET() {
       ),
     ];
 
-    let athletes: any[] = [];
+    let athletes: {id:string;tryout_id:string;athlete_first_name:string;athlete_last_name:string;age_group:string;primary_position:string|null;secondary_position:string|null;school:string|null;grade:string|null;headshot_url:string|null;status:string}[] = [];
 
     if (athleteIds.length) {
       const { data, error } = await admin

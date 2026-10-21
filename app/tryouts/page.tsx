@@ -1,3 +1,4 @@
+import TryoutForm from "@/components/tryout-form";
 import DmvPageHeader from "@/components/dmv-page-header";
 
 export const metadata = {
@@ -106,12 +107,7 @@ export default function TryoutsPage() {
           </p>
         </div>
 
-        <form
-          action="/api/tryouts/register"
-          method="POST"
-          encType="multipart/form-data"
-          className="space-y-4 md:space-y-8"
-        >
+        <TryoutForm>
           <input
             type="hidden"
             name="Form Type"
@@ -140,7 +136,7 @@ export default function TryoutsPage() {
                 </span>
 
                 <span className="mt-2 text-xs text-white/40">
-                  JPG, PNG or WEBP • Maximum 5MB
+                  JPG, PNG or WEBP • Maximum 4MB
                 </span>
 
                 <input
@@ -597,7 +593,7 @@ export default function TryoutsPage() {
               Register Athlete
             </button>
           </div>
-        </form>
+        </TryoutForm>
       </section>
     </main>
   );

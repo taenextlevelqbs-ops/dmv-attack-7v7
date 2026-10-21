@@ -1,3 +1,4 @@
+export const metadata={robots:{index:false,follow:false}};
 import Link from "next/link";
 
 type SuccessPageProps = {

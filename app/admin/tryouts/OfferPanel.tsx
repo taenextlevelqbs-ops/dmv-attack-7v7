@@ -54,18 +54,14 @@ export default function OfferPanel({
       (team) => team.age_group === ageGroup
     );
 
-    return matching.length ? matching : teams;
+    return matching;
   }, [teams, ageGroup]);
 
-  useEffect(() => {
-    if (!teamId && choices.length === 1) {
-      setTeamId(choices[0].id);
-    }
-  }, [choices, teamId]);
+  const selectedTeamId=choices.some(t=>t.id===teamId)?teamId:choices.length===1?choices[0].id:"";
 
   async function makeOffer() {
     const team = teams.find(
-      (item) => item.id === teamId
+      (item) => item.id === selectedTeamId
     );
 
     if (!team) {
@@ -94,7 +90,7 @@ export default function OfferPanel({
           },
           body: JSON.stringify({
             tryout_submission_id: athleteId,
-            team_id: teamId,
+            team_id: selectedTeamId,
           }),
         }
       );
@@ -139,7 +135,7 @@ export default function OfferPanel({
       </p>
 
       <select
-        value={teamId}
+        value={selectedTeamId}
         disabled={loading}
         onChange={(event) =>
           setTeamId(event.target.value)
@@ -164,7 +160,7 @@ export default function OfferPanel({
 
       <button
         type="button"
-        disabled={sending || !teamId}
+        disabled={sending || !selectedTeamId}
         onClick={makeOffer}
         className="mt-4 w-full rounded-2xl bg-lime-400 px-6 py-4 text-sm font-black uppercase tracking-[0.14em] text-black disabled:opacity-40"
       >

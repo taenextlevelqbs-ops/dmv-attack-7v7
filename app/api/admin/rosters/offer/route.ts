@@ -1,3 +1,4 @@
+import { sameOrigin } from "@/lib/admin/api";
 import { NextResponse } from "next/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
@@ -41,6 +42,7 @@ function adminClient() {
 }
 
 export async function POST(request: Request) {
+  if (!sameOrigin(request)) return NextResponse.json({error:"Request origin rejected"},{status:403});
   try {
     const user = await staffUser();
 
@@ -81,6 +83,14 @@ export async function POST(request: Request) {
         { status: 404 }
       );
     }
+
+    const { data: submission, error: submissionError }=await admin.from("tryout_submissions").select("id,age_group").eq("id",tryoutId).maybeSingle();
+    if(submissionError)throw submissionError;
+    if(!submission)return NextResponse.json({error:"Athlete not found"},{status:404});
+    if(submission.age_group!==team.age_group)return NextResponse.json({error:"Athlete division must match the team"},{status:400});
+    const {data:existingOffer,error:existingError}=await admin.from("roster_assignments").select("roster_status").eq("tryout_submission_id",tryoutId).eq("team_id",teamId).maybeSingle();
+    if(existingError)throw existingError;
+    if(existingOffer && ["ACCEPTED","ACTIVE"].includes(existingOffer.roster_status))return NextResponse.json({error:"Athlete has already accepted this team offer"},{status:409});
 
     const now = new Date().toISOString();
 

@@ -1,4 +1,5 @@
 "use client";
+import {requestJson} from "@/lib/http.mjs";
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -57,37 +58,12 @@ export default function TeamsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  async function loadRosters() {
-    try {
-      setLoading(true);
-
-      const response = await fetch(
-        "/api/admin/rosters",
-        {
-          cache: "no-store",
-        }
-      );
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          result.error ||
-            "Unable to load rosters"
-        );
-      }
-
+  function loadRosters() {
+    return requestJson("/api/admin/rosters",{cache:"no-store"}).then(result=>{
       setTeams(result.teams ?? []);
       setError("");
-    } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Unable to load rosters"
-      );
-    } finally {
-      setLoading(false);
-    }
+
+    }).catch((error:unknown)=>{setError(error instanceof Error?error.message:"Unable to load records");}).finally(()=>setLoading(false));
   }
 
   useEffect(() => {
