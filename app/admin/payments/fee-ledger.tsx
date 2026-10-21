@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { formatMoney } from "@/lib/finance/money.mjs";
 import StripePayments from "./stripe-payments";
+import StripeStatus from "./stripe-status";
 type Account = {
   id: string;
   registration_id: string;
@@ -215,6 +216,7 @@ export default function FeeLedger() {
         >
           View $20 tryout payments →
         </Link>
+        <StripeStatus />
         {loading && (
           <p role="status" className="py-8">
             Loading fee records…

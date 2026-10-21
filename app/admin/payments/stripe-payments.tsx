@@ -17,7 +17,7 @@ export default function StripePayments({ accountId, balance, onUpdated }: { acco
   useEffect(() => { void load(); }, [load]);
   return <div className="my-6 rounded-xl border border-white/20 p-4">
     <h3 className="text-lg font-bold">Private Stripe payment links</h3>
-    {configured && <p className="my-2 font-bold text-amber-200">{mode === "LIVE" ? "Live payments" : "TEST MODE · no real money"}</p>}
+    {configured && <p className="my-2 font-bold text-amber-200">{mode === "LIVE" ? "Live credentials saved · payment delivery requires verification" : "TEST MODE · no real money"}</p>}
     <p className="my-3 text-sm text-white/65">Create a full-payment or installment link for this family. Share it privately. Stripe confirms payments automatically; pending bank payments do not count as paid. Links expire after about 24 hours. Existing links keep their original amount even if you change the balance; expire unused links in Stripe before issuing replacements.</p>
     <p className="my-3 text-sm text-white/65">For Stripe payments, issue refunds in Stripe and let them sync here. Do not also record those payments or refunds manually. Processing fees are shown in Stripe; families receive credit for the full amount paid.</p>
     {loading && <p role="status">Loading Stripe payments…</p>}

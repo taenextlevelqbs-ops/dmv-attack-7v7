@@ -367,6 +367,7 @@ try {
   assert.equal((await (await guest.request.get(origin+"/api/status")).json()).service,"DMV Attack");
   assert.equal((await guest.request.get(origin + "/api/admin/finance/checkout")).status(), 403);
   assert.equal((await guest.request.get(origin + "/api/admin/finance/checkout/setup")).status(), 403);
+  assert.equal((await guest.request.get(origin + "/api/admin/finance/stripe-status")).status(), 403);
   assert.equal((await guest.request.post(origin + "/api/stripe/webhook", { data: {} })).status(), 503);
   await guest.goto(origin + "/admin/tryouts");
   await guest.waitForURL("**/login");
@@ -376,6 +377,7 @@ try {
     const response = await context.request.get(origin + "/api/admin/finance");
     assert.equal(response.status(), 403);
     assert.equal((await response.text()).includes("default_fee_cents"), false);
+    assert.equal((await context.request.get(origin + "/api/admin/finance/stripe-status")).status(), 403);
     await context.close();
   }
   const context = await browser.newContext({
@@ -404,6 +406,17 @@ try {
   const savedDefault = await post({ action: "set_default_fee", fee: "1000" });
   assert.equal(savedDefault.status(), 200, await savedDefault.text());
   await page.goto(origin + "/admin/payments");
+  const connection = page.getByRole("region", { name: "Stripe connection checks" });
+  await connection.getByText("Stripe tracking database: Passed", { exact: true }).waitFor();
+  await connection.getByText("Server payment key saved: Needs attention", { exact: true }).waitFor();
+  const readiness = await context.request.get(origin + "/api/admin/finance/stripe-status");
+  assert.equal(readiness.status(), 200);
+  const diagnostics = await readiness.json();
+  assert.equal(diagnostics.payment_delivery_verified, false);
+  assert.equal(diagnostics.checks.credentials, false);
+  assert.equal((await db.query("select count(*)::int n from team_fee_accounts")).rows[0].n, 0);
+  assert.equal((await db.query("select count(*)::int n from team_fee_checkouts")).rows[0].n, 0);
+  assert.equal((await db.query("select count(*)::int n from team_fee_transactions")).rows[0].n, 0);
   await page.getByText("Set up an athlete’s team fee", { exact: true }).click();
   await page.locator('[name="registration_id"]').selectOption(registration);
   await page.locator('[name="team_id"]').selectOption(team);

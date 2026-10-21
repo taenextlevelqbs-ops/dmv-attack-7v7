@@ -15,6 +15,8 @@ Use a separate Preview deployment **and separate test database**, with sandbox S
 
 ## Accounting behavior and limits
 
+Owner → Payments includes a connection panel even with zero athlete fee accounts. It checks table access, configured credentials and read-only Stripe API access without creating financial records or transactions. It does not verify Checkout write permissions, enabled payment methods, webhook event selection or event delivery; those still need sandbox validation. The restricted key does not grant webhook-management access, so the application cannot enumerate its configured webhook subscriptions.
+
 - A return-page visit never marks a fee paid. Only a signed webhook, current Stripe session state, exact USD amount and local account/session match can credit payment. Pending ACH remains pending. Failed ledger writes return non-2xx for Stripe retries.
 - Payment and cumulative successful refunds append atomically to the existing ledger. Duplicate events and older refund totals cannot duplicate credit. Families receive the gross payment credit; processing fees and payout/net amounts remain in Stripe and are not yet imported into this ledger.
 - Refund Stripe payments **in Stripe**, not through the manual ledger form. Successful refunds sync automatically. Do not also record Stripe payments or refunds manually.
