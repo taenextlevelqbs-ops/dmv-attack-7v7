@@ -18,7 +18,7 @@ async function authorized() {
 export async function GET() {
   const auth = await authorized();
   if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-  const { data, error } = await auth.admin.from("tryout_payments").select("registration_id,status,payment_note,verified_at,updated_at");
+  const { data, error } = await auth.admin.from("tryout_payments").select("*");
   if (error) {
     console.error("Tryout payments database query failed", { code: error.code, message: error.message, details: error.details });
     const code = error.code ?? "UNKNOWN";
@@ -44,12 +44,11 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Invalid payment update" }, { status: 400 });
   const { data: registration } = await auth.admin.from("tryout_submissions").select("id").eq("id", id).maybeSingle();
   if (!registration) return NextResponse.json({ error: "Registration not found" }, { status: 404 });
-  const { error } = await auth.admin.from("tryout_payments").upsert({
-    registration_id: id, status, amount_cents: 2000, payment_note: note,
-    verified_at: status === "PAID" ? new Date().toISOString() : null,
-    verified_by: status === "PAID" ? auth.user.id : null,
-    updated_at: new Date().toISOString()
-  }, { onConflict: "registration_id" });
-  if (error) return NextResponse.json({ error: "Unable to save payment" }, { status: 500 });
+  const {data:existing,error:paymentError}=await auth.admin.from("tryout_payments").select("*").eq("registration_id",id).maybeSingle();
+  if(paymentError)return NextResponse.json({error:"Unable to verify payment record"},{status:503});
+  if(existing?.source==="STRIPE")return NextResponse.json({error:"Stripe payments are managed by verified webhooks. Issue refunds in Stripe."},{status:409});
+  const {data:changed,error}=await auth.admin.rpc("set_manual_tryout_payment",{p_registration_id:id,p_status:status,p_note:note,p_user_id:auth.user.id});
+  if(error)return NextResponse.json({error:"Unable to save manual payment. Confirm the registration payment migration is applied."},{status:503});
+  if(!changed)return NextResponse.json({error:"Stripe now owns this payment. Refresh before making changes."},{status:409});
   return NextResponse.json({ success: true });
 }

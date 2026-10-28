@@ -117,6 +117,9 @@ export default function TeamsPage() {
         );
       }
 
+      if(result.payment_portal_url && result.payment_notification_sent===false) {
+        window.alert(`Acceptance is saved, but the family email was not delivered. Send the family this portal URL and check email delivery settings: ${result.payment_portal_url}`);
+      }
       await loadRosters();
     } catch (error) {
       setError(

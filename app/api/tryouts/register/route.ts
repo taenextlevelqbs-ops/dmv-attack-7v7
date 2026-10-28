@@ -1,3 +1,4 @@
+import { enabled, checkoutOrder, newToken, hashToken, cookieName, cookieOptions, paymentAccess } from "@/lib/payments/server";
 import { validBirthDate, imageMatchesType } from "@/lib/tryout-validation.mjs";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
@@ -237,7 +238,7 @@ export async function POST(request: Request) {
           ? false
           : null;
 
-    const { error: insertError } =
+    const { data: savedRegistration, error: insertError } =
       await supabase
         .from("tryout_submissions")
         .insert({
@@ -331,10 +332,18 @@ export async function POST(request: Request) {
           information_confirmed: informationConfirmed,
           communication_consent: communicationConsent,
           roster_understanding: rosterUnderstanding,
-        });
+        }).select("id,tryout_id").single();
 
     if (insertError?.code === "23505") {
       await supabase.storage.from("tryout-headshots").remove([storagePath]);
+      if (enabled()) {
+        const escapePattern=(value:string)=>value.replace(/[\\%_]/g,"\\$&");
+        const {data:existing}=await supabase.from("tryout_submissions").select("id")
+          .ilike("athlete_first_name",escapePattern(firstName)).ilike("athlete_last_name",escapePattern(lastName)).eq("date_of_birth",dateOfBirth).maybeSingle();
+        if(existing && await paymentAccess(existing.id,"TRYOUT")) {
+          return NextResponse.json({redirect_url:`/tryouts/payment?registration=${existing.id}`});
+        }
+      }
       return NextResponse.json(
         { error: "This athlete is already registered. Please contact DMV Attack if you need to update their registration." },
         { status: 409 }
@@ -358,6 +367,19 @@ export async function POST(request: Request) {
         },
         { status: 500 }
       );
+    }
+
+    if(enabled() && savedRegistration) {
+      const token=newToken();
+      const {data:order,error:orderError}=await supabase.from("registration_payment_orders").insert({
+        registration_id:savedRegistration.id,purpose:"TRYOUT",amount_cents:2000,access_token_hash:hashToken(token),
+      }).select("id").single();
+      if(orderError || !order) return NextResponse.json({error:"Registration is saved, but online payment needs staff assistance. Do not register again."},{status:503});
+      let url:string|null=null;
+      try {url=await checkoutOrder(order.id,null);} catch {console.error("Registration saved; Stripe checkout needs retry",{registrationId:savedRegistration.id});}
+      const response=NextResponse.json({url,redirect_url:`/tryouts/payment?registration=${savedRegistration.id}`});
+      response.cookies.set(cookieName(savedRegistration.id),token,cookieOptions);
+      return response;
     }
 
     const confirmationUrl = new URL("/tryouts/success", request.url);

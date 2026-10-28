@@ -1,3 +1,4 @@
+import { enabled, paymentOrigin } from "@/lib/payments/server";
 import { sameOrigin } from "@/lib/admin/api";
 import { NextResponse } from "next/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
@@ -348,10 +349,27 @@ export async function POST(request: Request) {
 
     if (usersError) throw usersError;
 
-    const parentUser = users.find(
+    let parentUser = users.find(
       (candidate) =>
         cleanEmail(candidate.email) === parentEmail
     );
+
+    let paymentNotificationSent=false;
+    if(enabled()) {
+      // Preserve existing adjusted fee accounts; never silently reset a discount or history.
+      const {error:feeError}=await admin.from("team_fee_accounts").upsert({
+        registration_id:tryoutId,team_id:team.id,season:String(team.season),fee_cents:75000,created_by:staff.id,
+      },{onConflict:"registration_id,team_id,season",ignoreDuplicates:true});
+      if(feeError)throw feeError;
+      if(!parentUser) {
+        const invite=await admin.auth.admin.inviteUserByEmail(parentEmail,{redirectTo:`${paymentOrigin()}/set-password`,data:{first_name:submission.parent_guardian_name||"Parent",athlete_name:`${submission.athlete_first_name} ${submission.athlete_last_name}`,team_name:team.name}});
+        parentUser=invite.data.user||undefined;
+        paymentNotificationSent=!invite.error;
+      } else if(!assignment.accepted_at) {
+        const notification=await admin.auth.signInWithOtp({email:parentEmail,options:{shouldCreateUser:false,emailRedirectTo:`${paymentOrigin()}/auth/callback?next=/portal/payments`}});
+        paymentNotificationSent=!notification.error;
+      }
+    }
 
     let parentLinked = false;
 
@@ -413,6 +431,8 @@ export async function POST(request: Request) {
       athlete_id: athleteId,
       family_id: familyId,
       parent_email: parentEmail,
+      payment_notification_sent: paymentNotificationSent,
+      payment_portal_url: enabled() ? `${paymentOrigin()}/portal/payments` : null,
       parent_account_linked: parentLinked,
       parent_account_required: !parentLinked,
       team: {

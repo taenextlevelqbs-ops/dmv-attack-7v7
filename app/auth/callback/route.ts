@@ -5,7 +5,8 @@ export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
 
   const code = requestUrl.searchParams.get("code");
-  const next = requestUrl.searchParams.get("next") || "/admin/tryouts";
+  const requestedNext = requestUrl.searchParams.get("next");
+  const next = requestedNext && ["/portal/payments", "/portal", "/set-password", "/admin/tryouts"].includes(requestedNext) ? requestedNext : "/admin/tryouts";
 
   if (code) {
     const supabase = await createClient();

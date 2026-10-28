@@ -41,6 +41,12 @@ export default function TryoutForm({
             return;
           }
           const result = await response.json().catch(() => null);
+          if(response.ok && (result?.url || result?.redirect_url)) {
+            const destination=new URL(result.url||result.redirect_url,window.location.origin);
+            if(destination.origin!==window.location.origin && !(destination.protocol==="https:" && destination.hostname==="checkout.stripe.com")) throw Error("Invalid payment destination");
+            window.location.assign(destination.href);
+            return;
+          }
           throw new Error(
             result?.error ||
               "Unable to submit registration. Please retry. Your form is still here.",

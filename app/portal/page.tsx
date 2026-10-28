@@ -159,6 +159,8 @@ export default function FamilyPortal() {
           </p>
         )}
 
+        <Link href="/portal/payments" className="mt-6 inline-flex rounded-full bg-lime-400 px-6 py-3 text-sm font-black text-black">Registration payments and team offers</Link>
+
         {!data.family ? (
           <section className="mt-8 rounded-[30px] border border-lime-400/20 bg-lime-400/[0.05] p-7">
             <div className="text-xl font-black uppercase">

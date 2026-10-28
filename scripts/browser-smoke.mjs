@@ -13,7 +13,8 @@ const owner = "11111111-1111-4111-8111-111111111111",
   parent = "11111111-1111-4111-8111-111111111113",
   registration = "22222222-2222-4222-8222-222222222222",
   team = "33333333-3333-4333-8333-333333333333";
-const roles = { [owner]: "OWNER", [admin]: "ADMIN", [parent]: "PARENT" };
+const stranger = "11111111-1111-4111-8111-111111111114";
+const roles = { [owner]: "OWNER", [admin]: "ADMIN", [parent]: "PARENT", [stranger]: "PARENT" };
 const registrations = [
   {
     id: registration,
@@ -63,6 +64,8 @@ await db.exec(
   fs.readFileSync("supabase/migrations/20261014_tryout_payments.sql", "utf8"),
 );
 await db.exec(fs.readFileSync("supabase/migrations/20261021_stripe_checkout.sql", "utf8"));
+await db.exec("alter table tryout_submissions add column status text default 'REGISTERED';create table roster_assignments(id uuid primary key,tryout_submission_id uuid,team_id uuid,roster_status text);");
+await db.exec(fs.readFileSync("supabase/migrations/20261028_registration_stripe.sql", "utf8"));
 let uploads = 0,
   removed = 0,
   idCount = 0;
@@ -99,7 +102,8 @@ const fixture = createServer(async (req, res) => {
       return roles[id]
         ? send(200, {
             id,
-            email: "fixture@example.invalid",
+            email: id === stranger ? "other@example.invalid" : "fixture@example.invalid",
+            email_confirmed_at: "2026-01-01T00:00:00Z",
             aud: "authenticated",
             role: "authenticated",
             app_metadata: {},
@@ -164,6 +168,7 @@ const fixture = createServer(async (req, res) => {
             body.p_recorded_by,
           ],
         );
+      else if(name==="set_manual_tryout_payment") result=await db.query("select set_manual_tryout_payment($1,$2,$3,$4) as id",[body.p_registration_id,body.p_status,body.p_note,body.p_user_id]);
       else throw new Error("Unexpected RPC");
       return send(200, result.rows[0].id);
     }
@@ -216,7 +221,8 @@ const fixture = createServer(async (req, res) => {
         );
         return send(200, null);
       }
-      const result = id ? rows.filter((r) => r.id === id) : rows;
+      let result = id ? rows.filter((r) => r.id === id) : rows;
+      for (const [key,value] of url.searchParams) if(value.startsWith("eq.")) result=result.filter(r=>String(r[key])===value.slice(3));
       return send(200, single ? result[0] || null : result);
     }
     const allowed = [
@@ -226,6 +232,9 @@ const fixture = createServer(async (req, res) => {
       "team_fee_adjustments",
       "team_fee_checkouts",
       "tryout_payments",
+      "registration_payment_orders",
+      "registration_payment_attempts",
+      "stripe_webhook_events",
     ];
     if (!allowed.includes(table)) throw new Error("Unexpected table " + table);
     if (req.method === "GET") {
@@ -286,6 +295,9 @@ const env = {
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "fixture-public",
   SUPABASE_SECRET_KEY: "fixture-service",
   NEXT_TELEMETRY_DISABLED: "1",
+  STRIPE_SECRET_KEY: "",
+  STRIPE_WEBHOOK_SECRET: "",
+  STRIPE_REGISTRATION_ENABLED: "false",
 };
 let server, browser;
 let logs = "";
@@ -629,6 +641,37 @@ try {
     await guest.goto(origin + route);
     assert.equal((await guest.content()).includes("$1,000.00"), false);
   }
+  // New payment routes use verified Supabase identity and never trust return URL flags.
+  const outsider = await browser.newContext();
+  await identity(outsider,stranger);
+  const outsiderList=await outsider.request.get(origin+"/api/payments/family");
+  assert.equal(outsiderList.status(),200);
+  assert.equal((await outsiderList.json()).registrations.length,0);
+  assert.equal((await outsider.request.get(origin+`/api/payments/status?registration=${registration}&purpose=TRYOUT`)).status(),403);
+  assert.equal((await outsider.request.post(origin+"/api/payments/checkout",{headers:{Origin:origin},data:{registration_id:registration,purpose:"TEAM"}})).status(),403);
+  assert.equal((await outsider.request.post(origin+"/api/payments/checkout",{headers:{Origin:"https://other.invalid"},data:{registration_id:registration,purpose:"TRYOUT"}})).status(),403);
+  const family = await browser.newContext();
+  await identity(family,parent);
+  assert.equal((await family.request.get(origin+`/api/payments/status?registration=${registration}&purpose=TRYOUT`)).status(),200);
+  const familyList=await family.request.get(origin+"/api/payments/family");
+  assert.equal(familyList.status(),200);
+  assert.ok((await familyList.json()).registrations.some(r=>r.id===registration));
+  const report=await context.request.get(origin+"/api/admin/payments/registrations");
+  assert.equal(report.status(),200,await report.text());
+  assert.equal((await family.request.get(origin+"/api/admin/payments/registrations")).status(),403);
+  const guestPayment=await anonymous.newPage();
+  await guestPayment.setViewportSize({width:390,height:844});
+  await guestPayment.goto(origin+`/tryouts/payment?registration=${registration}&session_id=cs_fake_paid`);
+  await guestPayment.getByRole("alert").waitFor();
+  assert.equal(await guestPayment.getByText("Payment confirmed",{exact:true}).count(),0);
+  assert.equal(await guestPayment.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+  await guestPayment.goto(origin+"/portal/payments");
+  await guestPayment.getByRole("button",{name:"Email a sign-in link"}).waitFor();
+  assert.equal(await guestPayment.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+  await guestPayment.goto(origin+"/tryouts");
+  assert.equal((await guestPayment.locator("body").innerText()).includes("$750"),false);
+  await outsider.close();await family.close();
+  console.log("PAYMENT ROUTES PASS: verified family isolation, cross-family denial, CSRF rejection, owner-only report, fake success URL rejection, mobile payment pages and no public team price.");
   assert.deepEqual(pageErrors, []);
   assert.deepEqual(databaseErrors, []);
   console.log(
