@@ -128,3 +128,9 @@ After securely supplying the configured keys and both price IDs to the appropria
 - `scripts/verify-registration-stripe.mjs`
 - `supabase/migrations/20261028_registration_stripe.sql`
 - `tests/registration-payments.test.mjs`
+
+## Direct production setup (no additional test runs)
+
+At the owner's later explicit request, `scripts/go-live-stripe.sh` provides a production setup/deploy path without running the test suite. It pauses for the required Supabase SQL and Stripe live webhook setup, preserves existing production secrets, prompts through Vercel for missing keys, enables the registration flag, pushes the integrated code to main, then invokes a production Vercel deployment. It requires the correct existing Vercel project and production Supabase variables. Database and webhook setup remain real prerequisites; the shell cannot invent those credentials. The new side-by-side payment selection and deployment script have not received additional tests/builds in this session, per that request. Real Stripe end-to-end validation remains unverified.
+
+Venmo remains visible on the tryout page. Registration now saves an order and opens the payment-choice page **before** creating a Stripe session. Parents can choose card or Venmo; paid Venmo is confirmed manually by staff. Existing in-progress Stripe checkouts must be closed before switching payment methods. The script does not create or configure the $750 team Price ID; team Checkout remains unavailable until that ID is supplied.

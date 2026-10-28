@@ -81,9 +81,9 @@ export default function TryoutsPage() {
             <div>
               <p className="text-xs font-black uppercase tracking-[0.2em] text-lime-400">Tryout Registration Fee</p>
               <h2 className="mt-2 text-2xl font-black sm:text-3xl">$20 PER ATHLETE</h2>
-              <p className="mt-2 max-w-xl text-sm leading-6 text-white/65">{enabled() ? "Complete the registration form, then pay the $20 tryout fee securely through Stripe Checkout. Your athlete’s registration is saved if checkout is canceled or needs a retry." : "Complete the registration form and pay the $20 tryout fee using DMV Attack Venmo. Include your athlete’s full name and division in the Venmo payment note. Payment is verified separately by staff."}</p>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-white/65">{enabled() ? "Complete registration, then choose a secure $20 card payment through Stripe or pay with Venmo. Pay once, using only one method. Venmo payments are verified by staff." : "Complete the registration form and pay the $20 tryout fee using DMV Attack Venmo. Include your athlete’s full name and division in the Venmo payment note. Payment is verified separately by staff."}</p>
             </div>
-            {!enabled() && <a href="https://venmo.com/code?user_id=4448738877638638119&created=1792019750.353775&printed=1" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 w-full shrink-0 items-center justify-center rounded-full bg-lime-400 sm:w-auto px-7 py-3 text-sm font-black uppercase text-black transition hover:bg-lime-300">Pay $20 via Venmo</a>}
+            <a href="https://venmo.com/code?user_id=4448738877638638119&created=1792019750.353775&printed=1" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 w-full shrink-0 items-center justify-center rounded-full bg-lime-400 sm:w-auto px-7 py-3 text-sm font-black uppercase text-black transition hover:bg-lime-300">Pay $20 via Venmo</a>
           </div>
         </div>
       </section>
@@ -582,7 +582,7 @@ export default function TryoutsPage() {
             </h3>
 
             <p className="mt-4 max-w-2xl text-sm font-semibold leading-7 text-black/65">
-              The tryout fee is $20 per athlete, payable via Venmo. Payment is verified separately. After submitting, your athlete will be added directly to the DMV
+              {enabled() ? "The tryout fee is $20 per athlete. After registration, choose Stripe card checkout or Venmo. Use one payment method only. Venmo is verified separately by staff." : "The tryout fee is $20 per athlete, payable via Venmo. Payment is verified separately."} After submitting, your athlete will be added directly to the DMV
               Attack tryout system and assigned a unique Tryout ID. Keep that ID
               for check-in and future tryout communication.
             </p>

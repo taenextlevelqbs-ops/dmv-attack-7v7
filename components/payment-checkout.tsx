@@ -99,8 +99,16 @@ export default function PaymentCheckout({
         >
           {busy
             ? "Opening secure checkout…"
-            : `Continue to secure checkout — $${purpose === "TRYOUT" ? "20" : "750"}`}
+            : `Pay $${purpose === "TRYOUT" ? "20" : "750"} by card`}
         </button>
+      )}
+      {purpose === "TRYOUT" && !paid && !closed && status && (
+        <div className="mt-5 rounded-2xl border border-white/15 p-5">
+          <p className="text-sm leading-7 text-white/65">Prefer Venmo? Include your athlete’s name, division and Tryout ID {tryoutId || "from your registration"} in the payment note. Staff verifies Venmo separately. Pay only once; do not pay by card if you have already paid with Venmo.</p>
+          {status === "UNPAID" || status === "EXPIRED" || status === "FAILED" ? (
+            <a href="https://venmo.com/code?user_id=4448738877638638119&created=1792019750.353775&printed=1" target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex min-h-12 rounded-full border border-lime-400/40 px-6 py-3 text-sm font-black text-lime-400">Pay $20 via Venmo</a>
+          ) : <p className="mt-3 text-xs leading-6 text-white/55">A Stripe checkout has already started. Contact staff before switching methods so the existing checkout can be closed.</p>}
+        </div>
       )}
       <div className="mt-6 flex flex-wrap gap-5 text-sm text-lime-400">
         <button onClick={() => void refresh()}>Refresh status</button>

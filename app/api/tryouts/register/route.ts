@@ -1,4 +1,4 @@
-import { enabled, checkoutOrder, newToken, hashToken, cookieName, cookieOptions, paymentAccess } from "@/lib/payments/server";
+import { enabled, newToken, hashToken, cookieName, cookieOptions, paymentAccess } from "@/lib/payments/server";
 import { validBirthDate, imageMatchesType } from "@/lib/tryout-validation.mjs";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
@@ -375,9 +375,8 @@ export async function POST(request: Request) {
         registration_id:savedRegistration.id,purpose:"TRYOUT",amount_cents:2000,access_token_hash:hashToken(token),
       }).select("id").single();
       if(orderError || !order) return NextResponse.json({error:"Registration is saved, but online payment needs staff assistance. Do not register again."},{status:503});
-      let url:string|null=null;
-      try {url=await checkoutOrder(order.id,null);} catch {console.error("Registration saved; Stripe checkout needs retry",{registrationId:savedRegistration.id});}
-      const response=NextResponse.json({url,redirect_url:`/tryouts/payment?registration=${savedRegistration.id}`});
+      // Let the parent select Stripe or Venmo before reserving a Stripe attempt.
+      const response=NextResponse.json({redirect_url:`/tryouts/payment?registration=${savedRegistration.id}`});
       response.cookies.set(cookieName(savedRegistration.id),token,cookieOptions);
       return response;
     }
