@@ -3,51 +3,8 @@ import { requireStaff } from "@/lib/admin/auth";
 
 export const dynamic = "force-dynamic";
 
-const tournaments = [
-  {
-    month: "FEB",
-    dates: "27–28",
-    title: "Duel in the DMV",
-    location: "Upper Marlboro, MD",
-    type: "Tournament",
-  },
-  {
-    month: "MAR",
-    dates: "13–14",
-    title: "Music City Mayhem",
-    location: "Murfreesboro, TN",
-    type: "Tournament",
-  },
-  {
-    month: "MAR",
-    dates: "20–21",
-    title: "Football City Clash",
-    location: "Rock Hill, SC",
-    type: "Tournament",
-  },
-  {
-    month: "APR",
-    dates: "3–4",
-    title: "Virginia Frenzy",
-    location: "Gainesville, VA",
-    type: "Tournament",
-  },
-  {
-    month: "APR",
-    dates: "10–11",
-    title: "PA Classic",
-    location: "West Bradford Township, PA",
-    type: "Tournament",
-  },
-  {
-    month: "MAY",
-    dates: "1–2",
-    title: "National Championship",
-    location: "Indianapolis, IN",
-    type: "Qualification Required",
-    championship: true,
-  },
-];
+import { tournaments } from "@/lib/dmv-schedule.mjs";
+
 
 export default async function SchedulePage() {
   await requireStaff();
