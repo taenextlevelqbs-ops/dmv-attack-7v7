@@ -1,3 +1,5 @@
+import Image from "next/image";
+import TryoutEvents from "@/components/tryout-events";
 import RoadToNationals from "@/components/road-to-nationals";
 import Link from "next/link";
 import DmvPageHeader from "@/components/dmv-page-header";
@@ -93,6 +95,7 @@ export default function SevenOnSevenPage() {
   return (
     <main className="min-h-screen bg-black text-white">
       <RoadToNationals />
+      <TryoutEvents compact />
 
       <DmvPageHeader
         eyebrow="DMV Attack"
@@ -142,7 +145,7 @@ export default function SevenOnSevenPage() {
               Compete. Develop. Attack.
             </h2>
 
-            <p className="mt-5 text-sm leading-7 text-white/55 md:text-base">
+            <p className="mt-5 text-sm leading-7 text-white/70 md:text-base">
               DMV Attack provides athletes with competitive 7v7 opportunities
               while keeping player development at the center of everything we do.
               Our goal is simple: help players become more confident, more
@@ -156,9 +159,11 @@ export default function SevenOnSevenPage() {
                 key={group.label}
                 className="group relative min-h-[420px] overflow-hidden rounded-3xl border border-white/10"
               >
-                <img
+                <Image
                   src={group.image}
                   alt={`DMV Attack ${group.label}`}
+                  fill
+                  sizes="(min-width: 768px) 33vw, 100vw"
                   className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105"
                 />
 
@@ -193,7 +198,7 @@ export default function SevenOnSevenPage() {
               Built At Every Level.
             </h2>
 
-            <p className="mt-5 max-w-2xl text-sm leading-7 text-white/55 md:text-base">
+            <p className="mt-5 max-w-2xl text-sm leading-7 text-white/70 md:text-base">
               DMV Attack fields teams across multiple age groups so athletes can
               continue developing inside the program as they grow.
             </p>
@@ -213,7 +218,7 @@ export default function SevenOnSevenPage() {
                   <div className="h-3 w-3 rounded-full bg-lime-400" />
                 </div>
 
-                <p className="mt-5 text-sm leading-7 text-white/55">
+                <p className="mt-5 text-sm leading-7 text-white/70">
                   {division.description}
                 </p>
               </div>
@@ -243,7 +248,7 @@ export default function SevenOnSevenPage() {
                 key={pillar.number}
                 className="rounded-3xl border border-white/10 bg-white/[0.025] p-7 md:p-9"
               >
-                <div className="flex items-start justify-between gap-6">
+                <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
                     <div className="text-[10px] font-black uppercase tracking-[0.22em] text-lime-400">
                       DMV Attack
@@ -259,7 +264,7 @@ export default function SevenOnSevenPage() {
                   </div>
                 </div>
 
-                <p className="mt-6 max-w-xl text-sm leading-7 text-white/55">
+                <p className="mt-6 max-w-xl text-sm leading-7 text-white/70">
                   {pillar.text}
                 </p>
               </div>
@@ -284,7 +289,7 @@ export default function SevenOnSevenPage() {
                 What&apos;s Included.
               </h2>
 
-              <p className="mt-6 max-w-xl text-sm leading-7 text-white/55 md:text-base">
+              <p className="mt-6 max-w-xl text-sm leading-7 text-white/70 md:text-base">
                 The DMV Attack experience is designed to cover more than tournament
                 entry. Athletes receive coaching, practice opportunities, team gear,
                 media and support throughout the season.
@@ -333,14 +338,14 @@ export default function SevenOnSevenPage() {
                   Football Comes First.
                 </h2>
 
-                <p className="mt-6 text-sm leading-7 text-white/55 md:text-base">
+                <p className="mt-6 text-sm leading-7 text-white/70 md:text-base">
                   7v7 gives athletes valuable space, coverage and one-on-one reps,
                   but the goal is not to create athletes who are only good at 7v7.
                   DMV Attack uses the format to develop skills that transfer back
                   to tackle football.
                 </p>
 
-                <p className="mt-4 text-sm leading-7 text-white/55 md:text-base">
+                <p className="mt-4 text-sm leading-7 text-white/70 md:text-base">
                   Quarterbacks work on processing, timing and ball placement.
                   Receivers develop releases, route detail and coverage recognition.
                   Defensive backs work leverage, footwork, vision and ball skills.
@@ -390,9 +395,11 @@ export default function SevenOnSevenPage() {
                 key={image}
                 className="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-white/10"
               >
-                <img
+                <Image
                   src={image}
                   alt="DMV Attack athlete"
+                    fill
+                    sizes="(min-width: 1024px) 33vw, 50vw"
                   className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105"
                 />
               </div>
@@ -420,7 +427,7 @@ export default function SevenOnSevenPage() {
                 Meet The Coaches.
               </h3>
 
-              <p className="mt-4 max-w-xl text-sm leading-7 text-white/55">
+              <p className="mt-4 max-w-xl text-sm leading-7 text-white/70">
                 Learn more about the playing experience, coaching backgrounds and
                 development programs behind the DMV Attack staff.
               </p>
@@ -442,7 +449,7 @@ export default function SevenOnSevenPage() {
                 Train Year Round.
               </h3>
 
-              <p className="mt-4 max-w-xl text-sm leading-7 text-white/55">
+              <p className="mt-4 max-w-xl text-sm leading-7 text-white/70">
                 Quarterback, receiver, defensive back, speed and performance
                 development are available outside the 7v7 season.
               </p>
@@ -462,7 +469,6 @@ export default function SevenOnSevenPage() {
 
           <div className="relative overflow-hidden rounded-[36px] border border-lime-400/25 bg-lime-400 p-8 text-black md:p-12">
 
-            <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full border-[40px] border-black/5" />
 
             <div className="relative">
               <div className="text-[10px] font-black uppercase tracking-[0.25em] text-black/55">

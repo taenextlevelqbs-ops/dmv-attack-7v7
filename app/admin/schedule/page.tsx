@@ -1,3 +1,4 @@
+import {TRYOUT_EVENTS,TRYOUT_TIME,TRYOUT_LOCATION} from "@/lib/tryouts.mjs";
 import Link from "next/link";
 import { requireStaff } from "@/lib/admin/auth";
 
@@ -35,7 +36,8 @@ export default async function SchedulePage() {
           </Link>
         </div>
 
-        <section className="mt-6 grid grid-cols-3 gap-2">
+        <section aria-labelledby="admin-tryouts" className="mx-auto max-w-7xl px-4 py-8 md:px-8"><h2 id="admin-tryouts" className="text-2xl font-black uppercase">Confirmed Tryouts</h2><div className="mt-4 grid gap-4 md:grid-cols-2">{TRYOUT_EVENTS.map(event=><article key={event.id} className="rounded-2xl border border-white/15 p-5"><h3 className="font-black">{event.name} · {event.divisions.join(" / ")}</h3><p className="mt-2 text-sm text-white/70">{event.dateLabel}</p><p className="mt-2 font-bold text-lime-400">{TRYOUT_TIME} EST</p><p className="mt-2 text-xs text-white/70">{TRYOUT_LOCATION.name}, {TRYOUT_LOCATION.street}, {TRYOUT_LOCATION.city}, VA {TRYOUT_LOCATION.postalCode}</p></article>)}</div></section>
+      <section className="mt-6 grid grid-cols-3 gap-2">
           <Stat label="Events" value="6" />
           <Stat label="States" value="6" />
           <Stat label="Season" value="2027" />

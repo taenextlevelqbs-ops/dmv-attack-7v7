@@ -1,13 +1,19 @@
 "use client";
 import { useRef, useState } from "react";
+import {useRouter} from "next/navigation";
+import { CONFIRMATION_STORAGE_KEY, validConfirmation } from "@/lib/tryouts.mjs";
+import { imageMatchesType } from "@/lib/tryout-validation.mjs";
 export default function TryoutForm({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const router=useRouter();
   const [error, setError] = useState(""),
     [submitting, setSubmitting] = useState(false);
   const alert = useRef<HTMLDivElement>(null);
+  const inFlight = useRef(false);
+  const [selectedFile, setSelectedFile] = useState("");
   return (
     <form
       action="/api/tryouts/register"
@@ -15,9 +21,24 @@ export default function TryoutForm({
       encType="multipart/form-data"
       className="space-y-4 md:space-y-8"
       aria-busy={submitting}
+      onChange={(e) => {
+        const target = e.target;
+        if (
+          target instanceof HTMLInputElement &&
+          target.name === "Athlete Headshot"
+        ) {
+          const file = target.files?.[0];
+          setSelectedFile(
+            file
+              ? `Headshot selected: ${file.name} (${Math.ceil(file.size / 1024)} KB)`
+              : "",
+          );
+        }
+      }}
       onSubmit={async (e) => {
         e.preventDefault();
-        if (submitting) return;
+        if (inFlight.current) return;
+        inFlight.current = true;
         const form = e.currentTarget;
         const values = new FormData(form);
         setSubmitting(true);
@@ -28,8 +49,18 @@ export default function TryoutForm({
             throw new Error(
               "Headshot must be 4MB or smaller. Please choose a smaller photo.",
             );
+          if (
+            image instanceof File &&
+            (!["image/jpeg", "image/png", "image/webp"].includes(image.type) ||
+              !imageMatchesType(
+                new Uint8Array(await image.arrayBuffer()),
+                image.type,
+              ))
+          )
+            throw new Error("Please upload a valid JPG, PNG or WEBP headshot.");
           const response = await fetch("/api/tryouts/register", {
             method: "POST",
+            headers: { Accept: "application/json" },
             body: values,
           });
           if (
@@ -41,6 +72,20 @@ export default function TryoutForm({
             return;
           }
           const result = await response.json().catch(() => null);
+          if (response.ok && validConfirmation(result?.confirmation)) {
+            try {
+              sessionStorage.setItem(
+                CONFIRMATION_STORAGE_KEY,
+                JSON.stringify(result.confirmation),
+              );
+            } catch {
+              // Session storage may be blocked; use the non-sensitive fallback rather than drop registration.
+              router.push(`/tryouts/success?id=${encodeURIComponent(result.confirmation.id)}&division=${encodeURIComponent(result.confirmation.division)}`);
+              return;
+            }
+            router.push("/tryouts/success");
+            return;
+          }
           throw new Error(
             result?.error ||
               "Unable to submit registration. Please retry. Your form is still here.",
@@ -53,6 +98,7 @@ export default function TryoutForm({
           );
           requestAnimationFrame(() => alert.current?.focus());
         } finally {
+          inFlight.current = false;
           setSubmitting(false);
         }
       }}
@@ -69,6 +115,11 @@ export default function TryoutForm({
       >
         {error}
       </div>
+      {selectedFile && (
+        <p role="status" className="text-xs leading-6 text-white/70">
+          {selectedFile}
+        </p>
+      )}
       <fieldset
         disabled={submitting}
         className="min-w-0 space-y-4 md:space-y-8"

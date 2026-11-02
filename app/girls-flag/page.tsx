@@ -3,7 +3,7 @@ import DmvPageHeader from "@/components/dmv-page-header";
 import GirlsFlagInterest from "@/components/girls-flag-interest";
 
 export const metadata = {
-  title: "Girls Flag | DMV Attack",
+  title: "Girls Flag",
   description:
     "DMV Attack Girls Flag Football development opportunities in Northern Virginia. More program details coming soon.",
 };
@@ -63,13 +63,13 @@ export default function GirlsFlagPage() {
                 Built To Grow The Game.
               </h2>
 
-              <p className="mt-6 text-sm leading-7 text-white/55 md:text-base">
+              <p className="mt-6 text-sm leading-7 text-white/70 md:text-base">
                 DMV Attack wants to create an environment where girls can learn
                 the game, improve position skills, compete and continue developing
                 as flag football continues to grow.
               </p>
 
-              <p className="mt-4 text-sm leading-7 text-white/55 md:text-base">
+              <p className="mt-4 text-sm leading-7 text-white/70 md:text-base">
                 The focus will remain the same as the rest of DMV Attack:
                 development, competition, confidence, football IQ and meaningful
                 opportunities for athletes.
@@ -102,7 +102,7 @@ export default function GirlsFlagPage() {
               Interested In Girls Flag?
             </h2>
 
-            <p className="mt-5 max-w-2xl text-sm leading-7 text-white/55 md:text-base">
+            <p className="mt-5 max-w-2xl text-sm leading-7 text-white/70 md:text-base">
               Follow DMV Attack and send us your athlete&apos;s information so you
               can stay connected as additional girls flag details are announced.
             </p>

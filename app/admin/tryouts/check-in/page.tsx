@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import {requestJson} from "@/lib/http.mjs";
 
 import Link from "next/link";
@@ -377,7 +378,7 @@ export default function TryoutCheckInPage() {
                     <div className="flex gap-4 p-4">
                       <div className="h-24 w-20 shrink-0 overflow-hidden rounded-2xl bg-white/5">
                         {registration.headshot_url ? (
-                          <img
+                          <Image unoptimized width={640} height={800}
                             src={
                               registration.headshot_url
                             }

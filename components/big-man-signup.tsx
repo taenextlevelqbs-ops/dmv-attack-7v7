@@ -44,7 +44,7 @@ export default function BigManSignup() {
 
         <form onSubmit={handleSubmit} className="rounded-3xl border border-white/10 bg-black p-6 md:p-8">
           <p className="mb-6 text-xs text-white/50">All fields are required except questions.</p>
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="grid min-w-0 grid-cols-1 gap-5 sm:grid-cols-2">
             <label className="text-sm font-bold" htmlFor="big-man-athlete">Athlete Name
               <input id="big-man-athlete" name="athleteName" required maxLength={100} autoComplete="off" className={inputClass} />
             </label>

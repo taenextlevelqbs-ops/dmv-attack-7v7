@@ -1,8 +1,9 @@
+import Image from "next/image";
 import Link from "next/link";
 import DmvPageHeader from "@/components/dmv-page-header";
 
 export const metadata = {
-  title: "Foundation | DMV Attack",
+  title: "Foundation",
   description:
     "The DMV Attack Foundation supports youth athletes throughout Northern Virginia and the DMV through equipment, travel assistance, camps, mentorship, training and community opportunities.",
 };
@@ -47,9 +48,11 @@ export default function FoundationPage() {
         <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
           <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
             <div className="relative min-h-[420px] overflow-hidden rounded-[32px] border border-white/10">
-              <img
+              <Image
                 src="/DMVAttackFoundation.jpeg"
                 alt="DMV Attack Foundation"
+                fill
+                sizes="(min-width: 1024px) 50vw, 100vw"
                 className="absolute inset-0 h-full w-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/15 to-transparent" />
@@ -113,7 +116,7 @@ export default function FoundationPage() {
                   {item.title}
                 </h3>
 
-                <p className="mt-4 text-sm leading-7 text-white/55">
+                <p className="mt-4 text-sm leading-7 text-white/70">
                   {item.text}
                 </p>
               </div>
@@ -135,7 +138,7 @@ export default function FoundationPage() {
                   More Than The Game.
                 </h2>
 
-                <p className="mt-5 text-sm leading-7 text-white/55 md:text-base">
+                <p className="mt-5 text-sm leading-7 text-white/70 md:text-base">
                   Football can open doors, build confidence and create lifelong
                   relationships. The Foundation exists to help make sure more
                   young athletes have access to those experiences.
@@ -186,7 +189,7 @@ export default function FoundationPage() {
                 href="mailto:dmvattackfoundation@gmail.com"
                 className="rounded-full bg-black px-7 py-4 text-center text-xs font-black uppercase tracking-[0.16em] text-white"
               >
-                dmvattackfoundation@gmail.com
+                Email The Foundation
               </a>
 
               <Link

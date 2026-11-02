@@ -1,8 +1,6 @@
 import DmvPageHeader from "@/components/dmv-page-header";
 
-export const metadata = {
-  title: "Apparel | DMV Attack",
-};
+export const metadata = {title: "Apparel", description: "Shop official DMV Attack apparel and team gear through the existing DMV Attack online store."};
 
 export default function ApparelPage() {
   return (
@@ -26,7 +24,7 @@ export default function ApparelPage() {
             DMV Attack Gear
           </h2>
 
-          <p className="mt-5 max-w-2xl text-sm leading-7 text-white/55">
+          <p className="mt-5 max-w-2xl text-sm leading-7 text-white/70">
             Shop official DMV Attack apparel, team gear, and new drops in our online store.
           </p>
 

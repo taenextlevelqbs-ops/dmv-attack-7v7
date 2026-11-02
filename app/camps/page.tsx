@@ -2,7 +2,7 @@ import Link from "next/link";
 import DmvPageHeader from "@/components/dmv-page-header";
 
 export const metadata = {
-  title: "Camps | DMV Attack",
+  title: "Camps",
   description:
     "DMV Attack football camps for athletes throughout Northern Virginia and the DMV. Spring and summer camps hosted by the DMV Attack coaching staff. Dates and registration details coming soon.",
 };
@@ -71,7 +71,7 @@ export default function CampsPage() {
               <li>Competitive drills, teamwork and football IQ.</li>
               <li>Mentorship from the DMV Attack coaching staff.</li>
             </ul>
-            <p className="mt-5 border-t border-white/10 pt-5 text-xs leading-6 text-white/45">The coaching lineup and position groups for each camp will be announced with its registration details.</p>
+            <p className="mt-5 border-t border-white/10 pt-5 text-xs leading-6 text-white/65">The coaching lineup and position groups for each camp will be announced with its registration details.</p>
           </div>
         </div>
       </section>
@@ -87,7 +87,7 @@ export default function CampsPage() {
               Learn. Compete. Develop.
             </h2>
 
-            <p className="mt-5 max-w-3xl text-sm leading-7 text-white/55 md:text-base">
+            <p className="mt-5 max-w-3xl text-sm leading-7 text-white/70 md:text-base">
               DMV Attack camps bring athletes together for football instruction,
               competition, mentorship and access to coaches with college and
               professional playing experience.
@@ -123,7 +123,7 @@ export default function CampsPage() {
                 Camp Updates
               </h3>
 
-              <p className="mt-4 text-sm leading-7 text-white/55">
+              <p className="mt-4 text-sm leading-7 text-white/70">
                 Connect with DMV Attack to stay updated when camp dates and
                 registration become available.
               </p>
@@ -145,7 +145,7 @@ export default function CampsPage() {
                 Training
               </h3>
 
-              <p className="mt-4 text-sm leading-7 text-white/55">
+              <p className="mt-4 text-sm leading-7 text-white/70">
                 Looking for development before the next camp? Explore DMV Attack
                 quarterback, receiver, defensive back and performance training.
               </p>

@@ -102,14 +102,19 @@ export async function GET() {
           secondary_position,
           school,
           grade,
-          headshot_url,
+          headshot_path,
           status
         `)
         .in("id", athleteIds);
 
       if (error) throw error;
 
-      athletes = data ?? [];
+      athletes = await Promise.all((data ?? []).map(async athlete=>{
+        const {headshot_path,...fields}=athlete;
+        let headshot_url:string|null=null;
+        if(headshot_path){const {data:signed}=await admin.storage.from("tryout-headshots").createSignedUrl(headshot_path,60*60);headshot_url=signed?.signedUrl??null;}
+        return {...fields,headshot_url};
+      }));
     }
 
     const athleteMap = new Map(

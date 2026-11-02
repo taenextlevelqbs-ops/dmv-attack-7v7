@@ -21,9 +21,14 @@ const navItems = [
 
 export default function DmvSiteNav() {
   const pathname = usePathname();
-  const [menu, setMenu] = useState({path:pathname,open:false});
-  const open=menu.path===pathname && menu.open;
-  function setOpen(value:boolean|((current:boolean)=>boolean)){setMenu({path:pathname,open:typeof value==='function'?value(open):value});}
+  const [menu, setMenu] = useState({ path: pathname, open: false });
+  const open = menu.path === pathname && menu.open;
+  function setOpen(value: boolean | ((current: boolean) => boolean)) {
+    setMenu({
+      path: pathname,
+      open: typeof value === "function" ? value(open) : value,
+    });
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-black/95 text-white backdrop-blur">
@@ -34,6 +39,7 @@ export default function DmvSiteNav() {
               src="/DMVAttackLOGO.jpeg"
               alt="DMV Attack logo"
               fill
+              sizes="44px"
               className="object-cover"
             />
           </div>
@@ -49,7 +55,7 @@ export default function DmvSiteNav() {
           </div>
         </Link>
 
-        <nav className="hidden xl:block">
+        <nav aria-label="Main navigation" className="hidden xl:block">
           <div className="flex items-center gap-1">
             {navItems.map((item) => {
               const active =
@@ -61,6 +67,7 @@ export default function DmvSiteNav() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  aria-current={active ? "page" : undefined}
                   className={`rounded-full px-3 py-2 text-[10px] font-black uppercase tracking-[0.12em] transition ${
                     active
                       ? "bg-lime-400 text-black"
@@ -78,6 +85,10 @@ export default function DmvSiteNav() {
           type="button"
           onClick={() => setOpen((value) => !value)}
           aria-expanded={open}
+          aria-controls="mobile-navigation"
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setOpen(false);
+          }}
           aria-label="Toggle navigation menu"
           className="flex h-11 w-11 flex-col items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] xl:hidden"
         >
@@ -101,7 +112,11 @@ export default function DmvSiteNav() {
 
       {open && (
         <div className="border-t border-white/10 bg-black xl:hidden">
-          <nav className="mx-auto max-w-7xl px-4 py-4 md:px-8">
+          <nav
+            id="mobile-navigation"
+            aria-label="Mobile navigation"
+            className="mx-auto max-h-[calc(100dvh-5rem)] max-w-7xl overflow-y-auto px-4 py-4 md:px-8"
+          >
             <div className="grid gap-2 sm:grid-cols-2">
               {navItems.map((item) => {
                 const active =
@@ -113,6 +128,7 @@ export default function DmvSiteNav() {
                   <Link
                     key={item.href}
                     href={item.href}
+                    aria-current={active ? "page" : undefined}
                     onClick={() => setOpen(false)}
                     className={`flex items-center justify-between rounded-xl border px-4 py-4 text-xs font-black uppercase tracking-[0.14em] transition ${
                       active
@@ -121,7 +137,6 @@ export default function DmvSiteNav() {
                     }`}
                   >
                     <span>{item.label}</span>
-
                   </Link>
                 );
               })}

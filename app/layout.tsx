@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://dmvattack.com"),
+  metadataBase: new URL("https://www.dmvattack.com"),
   title: {
     default: "DMV Attack 7v7",
     template: "%s | DMV Attack",
@@ -55,7 +55,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body><a href="#main-content" className="sr-only z-[100] rounded-xl bg-lime-400 px-6 py-3 font-black text-black focus:not-sr-only focus:fixed focus:left-4 focus:top-4">Skip to content</a>{children}</body>
     </html>
   );
 }

@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import {requestJson} from "@/lib/http.mjs";
 
 import Link from "next/link";
@@ -346,7 +347,7 @@ export default function AdminTryoutsPage() {
               >
                 <div className="relative aspect-[16/10] bg-white/5">
                   {registration.headshot_url ? (
-                    <img
+                    <Image unoptimized width={640} height={800}
                       src={registration.headshot_url}
                       alt={`${registration.athlete_first_name} ${registration.athlete_last_name}`}
                       className="h-full w-full object-cover"
@@ -464,9 +465,9 @@ export default function AdminTryoutsPage() {
               <div className="border-b border-white/10 p-5 lg:border-b-0 lg:border-r lg:p-7">
                 <div className="overflow-hidden rounded-3xl bg-white/5">
                   {selected.headshot_url ? (
-                    <img
+                    <Image unoptimized width={640} height={800}
                       src={selected.headshot_url}
-                      alt=""
+                      alt={`${selected.athlete_first_name} ${selected.athlete_last_name}`}
                       className="aspect-[4/5] w-full object-cover"
                     />
                   ) : (

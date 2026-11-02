@@ -1,13 +1,21 @@
 import TryoutForm from "@/components/tryout-form";
 import DmvPageHeader from "@/components/dmv-page-header";
+import TryoutEvents from "@/components/tryout-events";
+import TryoutPayments from "@/components/tryout-payments";
+import DivisionSelect from "@/components/tryout-division-select";
+import {
+  TRYOUT_DESCRIPTION,
+  TRYOUT_LOCATION,
+  TRYOUT_JSON_LD,
+} from "@/lib/tryouts.mjs";
 
 export const metadata = {
-  title: "Tryout Registration | DMV Attack",
-  description:
-    "Register your athlete for upcoming DMV Attack 7v7 tryouts. 2027 DMV Attack 7v7 tryouts will be held at Independence High School in Brambleton, Virginia. Official tryout times will be announced soon.",
+  title: "Tryout Registration",
+  description: TRYOUT_DESCRIPTION,
+  alternates: { canonical: "https://www.dmvattack.com/tryouts" },
+  openGraph:{title:"2027 DMV Attack Tryouts",description:TRYOUT_DESCRIPTION,url:"https://www.dmvattack.com/tryouts",images:["/DMVAttackLOGO.jpeg"]},
+  twitter:{card:"summary_large_image",title:"2027 DMV Attack Tryouts",description:TRYOUT_DESCRIPTION,images:["/DMVAttackLOGO.jpeg"]},
 };
-
-const divisions = ["10U", "12U", "14U", "15U", "18U"];
 
 const positions = [
   "Quarterback",
@@ -20,74 +28,70 @@ const positions = [
 ];
 
 const inputClass =
-  "min-h-12 rounded-xl border border-white/10 bg-black px-4 py-3 text-base text-white outline-none transition placeholder:text-white/25 focus:border-lime-400 focus-visible:ring-2 focus-visible:ring-lime-400/60";
+  "min-h-12 min-w-0 w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-base text-white outline-none transition placeholder:text-white/50 focus:border-lime-400 focus-visible:ring-2 focus-visible:ring-lime-400/60";
 
 const selectClass =
-  "min-h-12 rounded-xl border border-white/10 bg-black px-4 py-3 text-base text-white outline-none transition focus:border-lime-400 focus-visible:ring-2 focus-visible:ring-lime-400/60";
+  "min-h-12 min-w-0 w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-base text-white outline-none transition focus:border-lime-400 focus-visible:ring-2 focus-visible:ring-lime-400/60";
 
 const labelClass =
-  "text-xs font-black uppercase tracking-[0.15em] text-white/55";
+  "text-xs font-black uppercase tracking-[0.15em] text-white/70";
 
 export default function TryoutsPage() {
   return (
     <main className="min-h-screen bg-black text-white">
       <DmvPageHeader
         eyebrow="DMV Attack 7v7"
-        title="Tryout Registration"
-        description="2027 tryouts at Independence High School in Brambleton, VA. Register your athlete and get updates when times are announced."
+        title="2027 Season Tryouts"
+        description="Your next season starts here. Join DMV Attack for youth and high school tryouts this November. Register your athlete, save your Tryout ID, then choose Stripe or Venmo for the $20 fee."
         buttonText="Register your athlete"
         buttonHref="#registration"
       />
 
-      <section className="border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:py-8 md:px-8 md:py-12">
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {[
-              ["Youth Tryout", "Sunday, November 8"],
-              ["High School Tryout", "Sunday, November 22"],
-              ["Location", "Independence High School • Brambleton, VA"],
-            ].map(([title, value]) => (
-              <div
-                key={title}
-                className="rounded-2xl border border-lime-400/20 bg-lime-400/[0.07] p-4 sm:p-5"
-              >
-                <div className="text-[10px] font-black uppercase tracking-[0.22em] text-lime-400">
-                  {title}
-                </div>
-
-                <div className="mt-2 text-lg font-black uppercase leading-snug sm:text-xl">
-                  {value}
-                </div>
-              </div>
-            ))}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(TRYOUT_JSON_LD).replace(/</g, "\u003c"),
+        }}
+      />
+      <TryoutEvents />
+      <section
+        aria-labelledby="tryout-location"
+        className="border-b border-white/10"
+      >
+        <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-9 md:px-8 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="site-eyebrow">Both Tryouts · One Location</p>
+            <h2
+              id="tryout-location"
+              className="mt-3 text-2xl font-black uppercase"
+            >
+              {TRYOUT_LOCATION.name}
+            </h2>
+            <address className="mt-2 text-sm not-italic leading-7 text-white/70">
+              {TRYOUT_LOCATION.street}
+              <br />
+              {TRYOUT_LOCATION.city}, {TRYOUT_LOCATION.state}{" "}
+              {TRYOUT_LOCATION.postalCode}
+            </address>
           </div>
-
-          <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.025] px-4 py-4 sm:px-6">
-            <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-white/70">
-              <span><span className="text-lime-400">Nov 8:</span> 10U • 12U • 14U</span>
-              <span><span className="text-lime-400">Nov 22:</span> 15U • 18U</span>
-            </div>
-            <p className="mt-3 text-sm leading-6 text-white/55">
-              Exact times will be announced. Families who register will receive updates. A December makeup date may be added for high school athletes still in postseason play.
-            </p>
-          </div>
+          <a
+            href={TRYOUT_LOCATION.directions}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="site-button site-button-outline"
+          >
+            Get Directions
+          </a>
         </div>
       </section>
+      <div className="mx-auto max-w-7xl px-4 py-12 md:px-8 md:py-16">
+        <TryoutPayments />
+      </div>
 
-      <section className="border-b border-lime-400/20 bg-lime-400/[0.06]">
-        <div className="mx-auto max-w-5xl px-4 py-5 md:px-8 md:py-8">
-          <div className="flex flex-col gap-4 rounded-2xl border border-lime-400/30 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.2em] text-lime-400">Tryout Registration Fee</p>
-              <h2 className="mt-2 text-2xl font-black sm:text-3xl">$20 PER ATHLETE</h2>
-              <p className="mt-2 max-w-xl text-sm leading-6 text-white/65">Register your athlete, then pay the $20 tryout fee using Stripe or Venmo. For Stripe, use the same parent name as your registration. For Venmo, include the athlete’s full name, division, and Tryout ID in the payment note. Payment is verified separately by staff.</p>
-            </div>
-            <div className="flex w-full flex-col gap-3 sm:w-auto">\n              <a href="https://buy.stripe.com/5kQfZa9Op1yj2Cq0yt3F600" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 w-full items-center justify-center rounded-full bg-white px-7 py-3 text-sm font-black uppercase text-black transition hover:bg-white/90">Pay $20 with Stripe</a>\n            <a href="https://venmo.com/code?user_id=4448738877638638119&created=1792019750.353775&printed=1" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 w-full shrink-0 items-center justify-center rounded-full bg-lime-400 sm:w-auto px-7 py-3 text-sm font-black uppercase text-black transition hover:bg-lime-300">Pay $20 via Venmo</a>\n            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="registration" className="mx-auto max-w-5xl scroll-mt-24 px-4 py-8 md:px-8 md:py-16">
+      <section
+        id="registration"
+        className="mx-auto max-w-5xl scroll-mt-24 px-4 py-8 md:px-8 md:py-16"
+      >
         <div className="mb-7 md:mb-10">
           <div className="text-[10px] font-black uppercase tracking-[0.25em] text-lime-400">
             Athlete Registration
@@ -97,8 +101,9 @@ export default function TryoutsPage() {
             Tell Us About Your Athlete.
           </h2>
 
-          <p className="mt-5 max-w-3xl text-sm leading-7 text-white/55 md:text-base">
-            Complete the details below so our coaches can prepare for your athlete&apos;s tryout.
+          <p className="mt-5 max-w-3xl text-sm leading-7 text-white/70 md:text-base">
+            Complete the details below so our coaches can prepare for your
+            athlete&apos;s tryout.
           </p>
           <p className="mt-4 max-w-3xl border-l-2 border-lime-400/70 pl-4 text-xs leading-6 text-white/45">
             A parent or guardian should complete the registration. Fields marked
@@ -124,7 +129,7 @@ export default function TryoutsPage() {
                 Athlete Headshot • Required
               </div>
 
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-white/55">
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-white/70">
                 Upload a clear, recent photo of the athlete. This will appear on
                 the athlete&apos;s tryout profile so our staff can quickly match
                 names, evaluations and roster decisions to the correct player.
@@ -149,8 +154,8 @@ export default function TryoutsPage() {
               </label>
             </div>
 
-            <div className="mt-5 grid gap-4 md:mt-7 md:grid-cols-2 md:gap-5">
-              <label className="flex flex-col gap-2">
+            <div className="mt-5 grid min-w-0 grid-cols-1 gap-4 md:mt-7 md:grid-cols-2 md:gap-5">
+              <label className="flex min-w-0 flex-col gap-2">
                 <span className={labelClass}>Athlete First Name *</span>
                 <input
                   name="Athlete First Name"
@@ -160,7 +165,7 @@ export default function TryoutsPage() {
                 />
               </label>
 
-              <label className="flex flex-col gap-2">
+              <label className="flex min-w-0 flex-col gap-2">
                 <span className={labelClass}>Athlete Last Name *</span>
                 <input
                   name="Athlete Last Name"
@@ -170,17 +175,20 @@ export default function TryoutsPage() {
                 />
               </label>
 
-              <label className="flex flex-col gap-2">
+              <label className="flex min-w-0 flex-col gap-2">
                 <span className={labelClass}>Date of Birth *</span>
                 <input
                   type="date"
+                  max={new Intl.DateTimeFormat("en-CA", {
+                    timeZone: "America/New_York",
+                  }).format(new Date())}
                   name="Date of Birth"
                   required
                   className={inputClass}
                 />
               </label>
 
-              <label className="flex flex-col gap-2">
+              <label className="flex min-w-0 flex-col gap-2">
                 <span className={labelClass}>Current Age *</span>
                 <input
                   type="number"
@@ -193,23 +201,12 @@ export default function TryoutsPage() {
                 />
               </label>
 
-              <label className="flex flex-col gap-2">
+              <label className="flex min-w-0 flex-col gap-2">
                 <span className={labelClass}>Tryout Division *</span>
-                <select
-                  name="Tryout Division"
-                  required
-                  className={selectClass}
-                >
-                  <option value="">Select age group</option>
-                  {divisions.map((division) => (
-                    <option key={division} value={division}>
-                      {division}
-                    </option>
-                  ))}
-                </select>
+                <DivisionSelect className={selectClass} />
               </label>
 
-              <label className="flex flex-col gap-2">
+              <label className="flex min-w-0 flex-col gap-2">
                 <span className={labelClass}>Graduation Year</span>
                 <input
                   type="number"
@@ -221,7 +218,7 @@ export default function TryoutsPage() {
                 />
               </label>
 
-              <label className="flex flex-col gap-2">
+              <label className="flex min-w-0 flex-col gap-2">
                 <span className={labelClass}>School *</span>
                 <input
                   name="School"
@@ -231,7 +228,7 @@ export default function TryoutsPage() {
                 />
               </label>
 
-              <label className="flex flex-col gap-2">
+              <label className="flex min-w-0 flex-col gap-2">
                 <span className={labelClass}>Grade *</span>
                 <select name="Grade" required className={selectClass}>
                   <option value="">Select grade</option>
@@ -249,7 +246,7 @@ export default function TryoutsPage() {
                 </select>
               </label>
 
-              <label className="flex flex-col gap-2">
+              <label className="flex min-w-0 flex-col gap-2">
                 <span className={labelClass}>Height</span>
                 <input
                   name="Height"
@@ -258,7 +255,7 @@ export default function TryoutsPage() {
                 />
               </label>
 
-              <label className="flex flex-col gap-2">
+              <label className="flex min-w-0 flex-col gap-2">
                 <span className={labelClass}>Weight</span>
                 <input
                   name="Weight"
@@ -274,8 +271,8 @@ export default function TryoutsPage() {
               02 • Football Information
             </div>
 
-            <div className="mt-5 grid gap-4 md:mt-7 md:grid-cols-2 md:gap-5">
-              <label className="flex flex-col gap-2">
+            <div className="mt-5 grid min-w-0 grid-cols-1 gap-4 md:mt-7 md:grid-cols-2 md:gap-5">
+              <label className="flex min-w-0 flex-col gap-2">
                 <span className={labelClass}>Primary Position *</span>
                 <select
                   name="Primary Position"
@@ -289,7 +286,7 @@ export default function TryoutsPage() {
                 </select>
               </label>
 
-              <label className="flex flex-col gap-2">
+              <label className="flex min-w-0 flex-col gap-2">
                 <span className={labelClass}>Secondary Position</span>
                 <select name="Secondary Position" className={selectClass}>
                   <option value="">Select position</option>
@@ -299,7 +296,7 @@ export default function TryoutsPage() {
                 </select>
               </label>
 
-              <label className="flex flex-col gap-2">
+              <label className="flex min-w-0 flex-col gap-2">
                 <span className={labelClass}>Current / Most Recent Team</span>
                 <input
                   name="Current Team"
@@ -308,7 +305,7 @@ export default function TryoutsPage() {
                 />
               </label>
 
-              <label className="flex flex-col gap-2">
+              <label className="flex min-w-0 flex-col gap-2">
                 <span className={labelClass}>Years Playing Football *</span>
                 <input
                   type="number"
@@ -321,7 +318,7 @@ export default function TryoutsPage() {
                 />
               </label>
 
-              <label className="flex flex-col gap-2">
+              <label className="flex min-w-0 flex-col gap-2">
                 <span className={labelClass}>Previous 7v7 Experience *</span>
                 <select
                   name="Previous 7v7 Experience"
@@ -334,7 +331,7 @@ export default function TryoutsPage() {
                 </select>
               </label>
 
-              <label className="flex flex-col gap-2">
+              <label className="flex min-w-0 flex-col gap-2">
                 <span className={labelClass}>Previous 7v7 Organization</span>
                 <input
                   name="Previous 7v7 Organization"
@@ -343,7 +340,7 @@ export default function TryoutsPage() {
                 />
               </label>
 
-              <label className="flex flex-col gap-2 md:col-span-2">
+              <label className="flex min-w-0 flex-col gap-2 md:col-span-2">
                 <span className={labelClass}>Highlight Link</span>
                 <input
                   type="url"
@@ -353,7 +350,7 @@ export default function TryoutsPage() {
                 />
               </label>
 
-              <label className="flex flex-col gap-2 md:col-span-2">
+              <label className="flex min-w-0 flex-col gap-2 md:col-span-2">
                 <span className={labelClass}>
                   Athlete Social Media / Recruiting Profile
                 </span>
@@ -364,7 +361,7 @@ export default function TryoutsPage() {
                 />
               </label>
 
-              <label className="flex flex-col gap-2 md:col-span-2">
+              <label className="flex min-w-0 flex-col gap-2 md:col-span-2">
                 <span className={labelClass}>
                   Football Background / Accomplishments
                 </span>
@@ -383,8 +380,8 @@ export default function TryoutsPage() {
               03 • Parent / Guardian
             </div>
 
-            <div className="mt-5 grid gap-4 md:mt-7 md:grid-cols-2 md:gap-5">
-              <label className="flex flex-col gap-2">
+            <div className="mt-5 grid min-w-0 grid-cols-1 gap-4 md:mt-7 md:grid-cols-2 md:gap-5">
+              <label className="flex min-w-0 flex-col gap-2">
                 <span className={labelClass}>Parent / Guardian Name *</span>
                 <input
                   name="Parent Guardian Name"
@@ -395,7 +392,7 @@ export default function TryoutsPage() {
                 />
               </label>
 
-              <label className="flex flex-col gap-2">
+              <label className="flex min-w-0 flex-col gap-2">
                 <span className={labelClass}>Relationship To Athlete *</span>
                 <input
                   name="Relationship To Athlete"
@@ -405,7 +402,7 @@ export default function TryoutsPage() {
                 />
               </label>
 
-              <label className="flex flex-col gap-2">
+              <label className="flex min-w-0 flex-col gap-2">
                 <span className={labelClass}>Parent Email *</span>
                 <input
                   type="email"
@@ -417,7 +414,7 @@ export default function TryoutsPage() {
                 />
               </label>
 
-              <label className="flex flex-col gap-2">
+              <label className="flex min-w-0 flex-col gap-2">
                 <span className={labelClass}>Parent Phone *</span>
                 <input
                   type="tel"
@@ -430,7 +427,7 @@ export default function TryoutsPage() {
                 />
               </label>
 
-              <label className="flex flex-col gap-2">
+              <label className="flex min-w-0 flex-col gap-2">
                 <span className={labelClass}>City *</span>
                 <input
                   name="City"
@@ -441,7 +438,7 @@ export default function TryoutsPage() {
                 />
               </label>
 
-              <label className="flex flex-col gap-2">
+              <label className="flex min-w-0 flex-col gap-2">
                 <span className={labelClass}>State *</span>
                 <input
                   name="State"
@@ -459,8 +456,8 @@ export default function TryoutsPage() {
               04 • Emergency + Additional Information
             </div>
 
-            <div className="mt-5 grid gap-4 md:mt-7 md:grid-cols-2 md:gap-5">
-              <label className="flex flex-col gap-2">
+            <div className="mt-5 grid min-w-0 grid-cols-1 gap-4 md:mt-7 md:grid-cols-2 md:gap-5">
+              <label className="flex min-w-0 flex-col gap-2">
                 <span className={labelClass}>Emergency Contact *</span>
                 <input
                   name="Emergency Contact"
@@ -470,7 +467,7 @@ export default function TryoutsPage() {
                 />
               </label>
 
-              <label className="flex flex-col gap-2">
+              <label className="flex min-w-0 flex-col gap-2">
                 <span className={labelClass}>Emergency Phone *</span>
                 <input
                   type="tel"
@@ -481,7 +478,7 @@ export default function TryoutsPage() {
                 />
               </label>
 
-              <label className="flex flex-col gap-2 md:col-span-2">
+              <label className="flex min-w-0 flex-col gap-2 md:col-span-2">
                 <span className={labelClass}>
                   Medical Conditions / Allergies / Important Information
                 </span>
@@ -493,8 +490,10 @@ export default function TryoutsPage() {
                 />
               </label>
 
-              <label className="flex flex-col gap-2 md:col-span-2">
-                <span className={labelClass}>How Did You Hear About DMV Attack?</span>
+              <label className="flex min-w-0 flex-col gap-2 md:col-span-2">
+                <span className={labelClass}>
+                  How Did You Hear About DMV Attack?
+                </span>
                 <select name="Referral Source" className={selectClass}>
                   <option value="">Select</option>
                   <option>Current DMV Attack Player / Parent</option>
@@ -508,7 +507,7 @@ export default function TryoutsPage() {
                 </select>
               </label>
 
-              <label className="flex flex-col gap-2 md:col-span-2">
+              <label className="flex min-w-0 flex-col gap-2 md:col-span-2">
                 <span className={labelClass}>Additional Comments</span>
                 <textarea
                   name="Additional Comments"
@@ -549,9 +548,11 @@ export default function TryoutsPage() {
                 />
 
                 <span className="text-sm leading-6 text-white/65">
-                  I understand that official tryout times and additional event details
-                  have not yet been announced and I authorize DMV Attack to
-                  contact me with tryout and program information.
+                  I understand that youth tryouts (10U, 12U, 14U) are November
+                  8, 2026, and high school tryouts (15U, 18U) are November 22,
+                  2026, both 3:00–4:30 PM EST at Independence High School. I
+                  authorize DMV Attack to contact me with tryout and program
+                  information.
                 </span>
               </label>
 
@@ -581,9 +582,11 @@ export default function TryoutsPage() {
             </h3>
 
             <p className="mt-4 max-w-2xl text-sm font-semibold leading-7 text-black/65">
-              The tryout fee is $20 per athlete, payable via Stripe or Venmo. Payment is verified separately. After submitting, your athlete will be added directly to the DMV
-              Attack tryout system and assigned a unique Tryout ID. Keep that ID
-              for check-in and future tryout communication.
+              The tryout fee is $20 per athlete. Register first, then choose
+              Stripe or Venmo on your confirmation page. Staff verifies payment
+              separately. After submitting, your athlete will be added directly
+              to the DMV Attack tryout system and assigned a unique Tryout ID.
+              Keep that ID for check-in and future tryout communication.
             </p>
 
             <button

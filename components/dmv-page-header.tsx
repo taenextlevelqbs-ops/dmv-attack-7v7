@@ -16,10 +16,8 @@ export default function DmvPageHeader({
   buttonHref,
 }: Props) {
   return (
-    <section className="border-b border-white/10 bg-gradient-to-b from-lime-400/[0.08] to-transparent">
-
-      <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
-
+    <section className="border-b border-white/10 bg-[#0a0d07]">
+      <div className="mx-auto max-w-7xl px-4 py-12 md:px-8 md:py-16">
         <div className="text-[10px] font-black uppercase tracking-[0.28em] text-lime-400">
           {eyebrow}
         </div>
@@ -28,30 +26,18 @@ export default function DmvPageHeader({
           {title}
         </h1>
 
-        <p className="mt-6 max-w-2xl text-sm leading-7 text-white/55 md:text-base">
+        <p className="mt-6 max-w-2xl text-sm leading-7 text-white/70 md:text-base">
           {description}
         </p>
 
-        {buttonText &&
-        buttonHref ? (
+        {buttonText && buttonHref ? (
           <div className="mt-8">
-
-            <Link
-              href={
-                buttonHref
-              }
-              className="inline-flex rounded-xl bg-lime-400 px-6 py-3 text-xs font-black uppercase tracking-wider text-black transition hover:bg-lime-300"
-            >
-              {
-                buttonText
-              }
+            <Link href={buttonHref} className="site-button site-button-primary">
+              {buttonText}
             </Link>
-
           </div>
         ) : null}
-
       </div>
-
     </section>
   );
 }

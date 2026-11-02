@@ -2,9 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import DmvPageHeader from "@/components/dmv-page-header";
 
-export const metadata = {
-  title: "Coaching Staff",
-};
+export const metadata = {title: "Coaches", description: "Meet the DMV Attack coaching staff for quarterback, receiver, defensive back, line and performance development."};
 
 type Coach = {
   number: string;
@@ -256,7 +254,7 @@ export default function CoachingPage() {
                     {coach.title}
                   </div>
 
-                  <div className="mt-2 text-xs font-bold uppercase tracking-wider text-white/40">
+                  <div className="mt-2 text-xs font-bold uppercase tracking-wider text-white/65">
                     {coach.school}
                   </div>
 
@@ -287,7 +285,7 @@ export default function CoachingPage() {
 
                     <div>
 
-                      <div className="text-[10px] font-black uppercase tracking-[0.2em] text-white/35">
+                      <div className="text-[10px] font-black uppercase tracking-[0.2em] text-white/65">
                         Playing Career
                       </div>
 
@@ -311,7 +309,7 @@ export default function CoachingPage() {
 
                     <div>
 
-                      <div className="text-[10px] font-black uppercase tracking-[0.2em] text-white/35">
+                      <div className="text-[10px] font-black uppercase tracking-[0.2em] text-white/65">
                         Coaching + Development
                       </div>
 

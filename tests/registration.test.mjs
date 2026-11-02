@@ -34,3 +34,10 @@ test("headshot bytes must agree with claimed image type", () => {
     false,
   );
 });
+
+import {safeReturnPath} from "../lib/http.mjs";
+test("authentication callback rejects external or malformed return targets",()=>{
+ for(const target of ["https://outside.invalid","//outside.invalid","/\\outside.invalid","javascript:alert(1)","/\n/outside.invalid",null])assert.equal(safeReturnPath(target),"/admin/tryouts");
+ assert.equal(safeReturnPath("/portal?tab=family"),"/portal?tab=family");
+ assert.equal(safeReturnPath("/set-password"),"/set-password");
+});

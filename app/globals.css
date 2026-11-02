@@ -24,3 +24,23 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Shared public-site controls keep payment, navigation and program actions consistent. */
+@layer components {
+  .site-eyebrow { @apply text-[10px] font-black uppercase tracking-[0.22em] text-lime-400; }
+  .site-button { @apply inline-flex min-h-12 items-center justify-center rounded-xl px-6 py-3 text-center text-xs font-black uppercase tracking-wider transition-colors; }
+  .site-button-primary { @apply border border-lime-400 bg-lime-400 text-black hover:border-lime-300 hover:bg-lime-300; }
+  .site-button-outline { @apply border border-white/25 bg-transparent text-white hover:border-lime-400/60 hover:bg-white/5; }
+}
+html { color-scheme: dark; scroll-padding-top: 6rem; }
+body { background: #050505; color: #fff; }
+:focus-visible { outline: 2px solid #a3e635; outline-offset: 4px; }
+input, select, textarea { min-width: 0; max-width: 100%; }
+input[type="date"] { min-width: 0; appearance: none; }
+input[type="date"]::-webkit-date-and-time-value { text-align: left; }
+button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+button:disabled { cursor: wait; }
+::selection { background: #a3e635; color: #050505; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}

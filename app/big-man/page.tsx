@@ -78,7 +78,7 @@ export default function BigManPage() {
               </div>
               <p className="text-xs font-black uppercase tracking-[0.2em] text-lime-400">{coach.role}</p>
               <h3 className="mt-4 text-3xl font-black uppercase">{coach.name}</h3>
-              <p className="mt-3 text-xs font-bold uppercase tracking-wide text-white/45">{coach.background}</p>
+              <p className="mt-3 text-xs font-bold uppercase tracking-wide text-white/65">{coach.background}</p>
               <p className="mt-6 text-sm leading-7 text-white/65">{coach.bio}</p>
               <ul className="mt-6 space-y-3 border-t border-white/10 pt-6">
                 {coach.highlights.map((highlight) => (

@@ -1,5 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
+import TryoutEvents from "@/components/tryout-events";
+import {TRYOUT_DESCRIPTION} from "@/lib/tryouts.mjs";
+export const metadata={title:{absolute:"DMV Attack 7v7 | Northern Virginia Football"},description:TRYOUT_DESCRIPTION};
 
 const programs = [
   {
@@ -42,7 +45,7 @@ export default function HomePage() {
 
       {/* HERO */}
       <section aria-labelledby="home-heading" className="relative isolate overflow-hidden border-b border-white/10 bg-[#080a06]">
-        <div aria-hidden="true" className="pointer-events-none absolute -left-40 top-0 h-96 w-96 rounded-full bg-lime-400/10 blur-[100px]" />
+
         <div className="relative mx-auto grid max-w-7xl lg:min-h-[690px] lg:grid-cols-[1fr_1fr]">
           <div className="relative z-10 px-4 pb-12 pt-12 sm:pt-16 md:px-8 lg:py-20">
             <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] text-lime-400">
@@ -91,6 +94,7 @@ export default function HomePage() {
         </div>
       </section>
 
+      <TryoutEvents compact />
       {/* PROGRAMS */}
       <section id="programs" className="scroll-mt-24 border-b border-white/10">
 

@@ -1,3 +1,4 @@
+export const metadata = {title: "Contact", description: "Contact DMV Attack about tryouts, football development, camps, teams and community opportunities in Northern Virginia."};
 import DmvPageHeader from "@/components/dmv-page-header";
 
 export default function ContactPage() {
@@ -21,11 +22,11 @@ export default function ContactPage() {
               Instagram
             </div>
 
-            <div className="mt-4 text-2xl font-black text-white">
+            <div className="mt-4 break-words text-xl font-black text-white sm:text-2xl">
               @dmvattack_7on7
             </div>
 
-            <div className="mt-5 text-sm text-white/45 transition group-hover:text-white/70">
+            <div className="mt-5 text-sm text-white/65 transition group-hover:text-white/70">
               Send us a message
             </div>
           </a>
@@ -38,11 +39,11 @@ export default function ContactPage() {
               Email
             </div>
 
-            <div className="mt-4 text-2xl font-black text-white">
+            <div className="mt-4 break-words text-xl font-black text-white sm:text-2xl">
               dmvattack@gmail.com
             </div>
 
-            <div className="mt-5 text-sm text-white/45 transition group-hover:text-white/70">
+            <div className="mt-5 text-sm text-white/65 transition group-hover:text-white/70">
               Email DMV Attack
             </div>
           </a>

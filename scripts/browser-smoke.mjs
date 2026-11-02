@@ -30,7 +30,7 @@ const registrations = [
     primary_position: "Quarterback",
     status: "REGISTERED",
     submitted_at: new Date().toISOString(),
-    headshot_path: null,
+    headshot_path: "fixture.png",
   },
 ];
 const teams = [
@@ -94,6 +94,9 @@ const fixture = createServer(async (req, res) => {
     body = raw;
   }
   try {
+    if(req.method==="GET" && url.pathname==="/storage/v1/object/sign/tryout-headshots/fixture.png" && url.searchParams.get("token")==="fixture-headshot"){
+      res.writeHead(200,{"Content-Type":"image/png"});return res.end(Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9ZlGkAAAAASUVORK5CYII=","base64"));
+    }
     if (url.pathname === "/auth/v1/user") {
       const id = userFrom(req);
       return roles[id]
@@ -126,6 +129,7 @@ const fixture = createServer(async (req, res) => {
         aud: "authenticated",
       });
     if (url.pathname.startsWith("/storage/")) {
+      if(req.method==="POST" && url.pathname.includes("/object/sign/"))return send(200,{signedURL:"/object/sign/tryout-headshots/fixture.png?token=fixture-headshot"});
       if (req.method === "POST") uploads++;
       if (req.method === "DELETE") removed++;
       return send(200, { Key: "fixture", signedURL: "/object/signed/fixture" });
@@ -187,6 +191,7 @@ const fixture = createServer(async (req, res) => {
     }
     if (["tryout_submissions", "teams"].includes(table)) {
       const rows = table === "teams" ? teams : registrations;
+      if(table==="tryout_submissions" && url.searchParams.get("select")?.includes("headshot_url"))return send(400,{code:"42703",message:"headshot_url is not a database column"});
       if (req.method === "POST") {
         if (
           registrations.some(
@@ -208,7 +213,8 @@ const fixture = createServer(async (req, res) => {
         });
         return send(201, null);
       }
-      const id = url.searchParams.get("id")?.replace("eq.", "");
+      const idFilter=url.searchParams.get("id");
+      const id=idFilter?.startsWith("eq.")?idFilter.slice(3):undefined;
       if (req.method === "PATCH") {
         Object.assign(
           rows.find((r) => r.id === id),
@@ -216,7 +222,8 @@ const fixture = createServer(async (req, res) => {
         );
         return send(200, null);
       }
-      const result = id ? rows.filter((r) => r.id === id) : rows;
+      let result = id ? rows.filter((r) => r.id === id) : rows;
+      if(idFilter?.startsWith("in.(")){const ids=new Set(idFilter.slice(4,-1).split(","));result=result.filter(r=>ids.has(r.id));}
       return send(200, single ? result[0] || null : result);
     }
     const allowed = [
@@ -286,6 +293,8 @@ const env = {
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "fixture-public",
   SUPABASE_SECRET_KEY: "fixture-service",
   NEXT_TELEMETRY_DISABLED: "1",
+  STRIPE_SECRET_KEY: "",
+  STRIPE_WEBHOOK_SECRET: "",
 };
 let server, browser;
 let logs = "";
@@ -607,7 +616,15 @@ try {
   await guest
     .getByRole("button", { name: "Register Athlete", exact: true })
     .click();
-  await guest.waitForURL("**/tryouts/success?**");
+  await guest.waitForURL(origin+"/tryouts/success");
+  assert.equal(new URL(guest.url()).search, "");
+  await guest.getByRole("heading",{name:"Test Registrant",exact:true}).waitFor();
+  assert.equal(await guest.getByText("Payment confirmed",{exact:true}).count(),0);
+  await guest.getByRole("link",{name:"Pay $20 with Stripe",exact:true}).waitFor();
+  assert.equal(await guest.getByRole("link",{name:"Pay $20 with Stripe",exact:true}).getAttribute("href"),"https://buy.stripe.com/5kQfZa9Op1yj2Cq0yt3F600");
+  assert.equal(await guest.getByRole("link",{name:"Pay $20 with Venmo",exact:true}).getAttribute("href"),"https://venmo.com/code?user_id=4448738877638638119&created=1792019750.353775&printed=1");
+  await guest.reload();
+  await guest.getByRole("heading",{name:"Test Registrant",exact:true}).waitFor();
   assert.ok(
     (await guest.locator("h1").textContent()).includes("Registration Complete"),
   );
@@ -629,6 +646,71 @@ try {
     await guest.goto(origin + route);
     assert.equal((await guest.content()).includes("$1,000.00"), false);
   }
+  const rosterRead=await context.request.get(origin+"/api/admin/rosters");
+  assert.equal(rosterRead.status(),200,await rosterRead.text());
+  assert.ok((await rosterRead.json()).teams[0].assignments[0].athlete.headshot_url.includes("/storage/v1/object/sign/"));
+  for(const route of ["/admin/teams","/admin/tryouts","/admin/tryouts/check-in"]){
+    await page.setViewportSize({width:390,height:844});await page.goto(origin+route,{waitUntil:"networkidle"});
+    const photo=page.getByRole("img",{name:"Sam Example",exact:true}).first();await photo.waitFor();await photo.evaluate(img=>img.decode());
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,route+" admin mobile overflow");
+  }
+  console.log("ADMIN PHOTOS PASS: roster API uses existing headshot_path, returns signed URLs, and protected roster/tryout/check-in images decode at mobile width.");
+  // Full public-site audit: real local production pages, synthetic registration/provider data.
+  const publicRoutes=["/","/tryouts","/7v7","/about","/coaching","/training","/big-man","/camps","/girls-flag","/foundation","/apparel","/contact"];
+  const audit=await anonymous.newPage();
+  const consoleErrors=[];
+  audit.on("pageerror",e=>pageErrors.push(e.message));
+  audit.on("console",message=>{if(message.type()==="error")consoleErrors.push(message.text())});
+  // Network policy blocks third-party map traffic; map selection is tested below, not map-provider delivery.
+  await audit.route(/^https:\/\/(maps\.google\.com|www\.google\.com)\//,route=>route.fulfill({contentType:"text/html",body:"<!doctype html><title>Map provider excluded from isolated browser tests</title>"}));
+  const internalLinks=new Set();
+  const results=[];
+  for(const width of [320,390,768,1440]){
+    await audit.setViewportSize({width,height:900});
+    for(const route of publicRoutes){
+      const response=await audit.goto(origin+route,{waitUntil:"networkidle"});
+      assert.equal(response.status(),200,route);
+      assert.equal(await audit.locator("main h1").count(),1,route+" must have one main heading");
+      assert.equal(await audit.locator("a a").count(),0,route+" nested links");
+      assert.equal(await audit.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,route+" overflow at "+width);
+      const text=await audit.locator("body").innerText();
+      assert.equal(text.includes("\\n"),false,route+" stray escaped newline");
+      assert.equal(/times (will be|are) announced|times.*not yet been announced/i.test(text),false,route+" stale time copy");
+      assert.equal(/[→↗↓←↑]/.test(text),false,route+" decorative arrow");
+      const images=audit.locator("main img");
+      for(let index=0;index<await images.count();index++){
+        const image=images.nth(index);await image.scrollIntoViewIfNeeded();
+        await image.evaluate(img=>img.decode());
+        assert.equal(await image.evaluate(img=>img.naturalWidth>0),true,route+" broken image");
+      }
+      assert.equal((await audit.title()).split("DMV Attack").length<=2,true,route+" duplicate brand title");
+      for(const href of await audit.locator('a[href^="/"]').evaluateAll(links=>links.map(a=>a.getAttribute("href"))))internalLinks.add(href.split("#")[0].split("?")[0]||"/");
+      results.push({route,width,status:response.status(),images:await images.count()});
+    }
+    await audit.goto(origin+"/tryouts",{waitUntil:"networkidle"});
+    const events=audit.locator('article[aria-labelledby^="event-"]');assert.equal(await events.count(),2);
+    for(const [index,date]of [[0,"Sunday, November 8, 2026"],[1,"Sunday, November 22, 2026"]]){
+      assert.ok((await events.nth(index).innerText()).includes(date));
+      assert.ok((await events.nth(index).innerText()).includes("3:00–4:30 PM"));
+    }
+    const stripeButton=audit.getByRole("link",{name:"Pay $20 with Stripe",exact:true}),venmoButton=audit.getByRole("link",{name:"Pay $20 with Venmo",exact:true});
+    const sb=await stripeButton.boundingBox(),vb=await venmoButton.boundingBox();assert.ok(Math.abs(sb.height-vb.height)<1,"equal payment button heights");assert.ok(Math.abs(sb.width-vb.width)<1,"equal payment button widths");
+    for(const button of [stripeButton,venmoButton]){assert.equal(await button.getAttribute("target"),"_blank");assert.match(await button.getAttribute("rel"),/noopener/);}
+    if(width>=768)assert.ok(Math.abs(sb.y-vb.y)<1,"aligned payment buttons");
+    await audit.locator('[name="Tryout Division"]').selectOption("18U");
+    await audit.getByText("Sunday, November 22, 2026 · 3:00–4:30 PM EST",{exact:true}).waitFor();
+    await audit.evaluate(()=>window.scrollTo(0,0));
+    const directory=process.env.DMV_TEST_LOG_DIR||path.join(os.tmpdir(),"dmv-smoke");fs.mkdirSync(directory,{recursive:true});
+    await audit.screenshot({path:path.join(directory,`tryouts-${width}.png`),fullPage:true});
+  }
+  for(const route of internalLinks){const response=await anonymous.request.get(origin+route);assert.ok(response.status()<400,route+" broken internal destination");}
+  await audit.goto(origin+"/7v7");await audit.getByRole("button",{name:/Music City Mayhem/}).click();assert.match(await audit.locator("iframe").getAttribute("src"),/Murfreesboro/);
+  await audit.setViewportSize({width:390,height:844});await audit.goto(origin+"/tryouts");await audit.getByRole("button",{name:"Toggle navigation menu"}).click();await audit.getByRole("navigation",{name:"Mobile navigation"}).getByRole("link",{name:"Coaches",exact:true}).click();await audit.waitForURL(origin+"/coaching");
+  assert.equal(await audit.getByRole("button",{name:"Toggle navigation menu"}).getAttribute("aria-expanded"),"false");
+  await audit.goto(origin+"/tryouts/success?id=DMV-LEGACY&athlete=Legacy%20Athlete&division=15U");await audit.getByRole("heading",{name:"Legacy Athlete",exact:true}).waitFor();await audit.waitForURL(origin+"/tryouts/success");
+  assert.deepEqual(consoleErrors,[]);
+  fs.writeFileSync(path.join(process.env.DMV_TEST_LOG_DIR||path.join(os.tmpdir(),"dmv-smoke"),"public-audit.json"),JSON.stringify({results,internalLinks:[...internalLinks],consoleErrors,externalPaymentCharges:"Not performed",maps:"Selection tested; provider delivery excluded"},null,2));
+  console.log("PUBLIC AUDIT PASS: 12 public routes at 320/390/768/1440px, images, internal links, metadata, confirmed event cards, aligned payment links, selected division date, map selection, mobile navigation and private/legacy confirmation navigation.");
   assert.deepEqual(pageErrors, []);
   assert.deepEqual(databaseErrors, []);
   console.log(

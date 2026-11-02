@@ -363,10 +363,11 @@ export async function POST(request: Request) {
     const confirmationUrl = new URL("/tryouts/success", request.url);
 
     confirmationUrl.searchParams.set("id", tryoutId);
-    confirmationUrl.searchParams.set(
-      "athlete",
-      `${firstName} ${lastName}`
-    );
+    // Modern clients retain only confirmation details in tab-scoped session storage.
+    // Native form fallback keeps the public Tryout ID/division, never athlete names.
+    if(request.headers.get("accept")?.includes("application/json")) {
+      return NextResponse.json({confirmation:{id:tryoutId,athlete:`${firstName} ${lastName}`,division:ageGroup}},{headers:{"Cache-Control":"private, no-store"}});
+    }
     confirmationUrl.searchParams.set("division", ageGroup);
 
     return new NextResponse(null, {status:303,headers:{Location:confirmationUrl.pathname+confirmationUrl.search}});

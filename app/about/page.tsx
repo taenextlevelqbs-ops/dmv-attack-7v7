@@ -2,9 +2,7 @@ import Link from "next/link";
 
 import DmvPageHeader from "@/components/dmv-page-header";
 
-export const metadata = {
-  title: "About | DMV Attack",
-};
+export const metadata = {title: "About", description: "Meet DMV Attack, a Northern Virginia football organization focused on athlete development, competition, mentorship and community."};
 
 export default function AboutPage() {
   return (
@@ -30,7 +28,7 @@ export default function AboutPage() {
               Develop first.
             </h2>
 
-            <p className="mt-5 text-sm leading-7 text-white/55">
+            <p className="mt-5 text-sm leading-7 text-white/70">
               DMV Attack was created to give athletes an environment where development and competition work together. Winning matters, but preparing athletes to become better football players, teammates, leaders, and young men and women matters more.
             </p>
 
@@ -47,7 +45,7 @@ export default function AboutPage() {
               Built by coaches.
             </h2>
 
-            <p className="mt-5 text-sm leading-7 text-white/55">
+            <p className="mt-5 text-sm leading-7 text-white/70">
               DMV Attack is led by Tae Crews-Naylor, Dante Absher, and Ross Madison — former college and professional athletes who now coach and train athletes throughout Northern Virginia.
             </p>
 
