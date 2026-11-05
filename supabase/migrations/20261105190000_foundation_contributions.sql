@@ -25,3 +25,7 @@ create index if not exists foundation_contributions_status_idx on public.foundat
 alter table public.foundation_contributions enable row level security;
 revoke all on table public.foundation_contributions from anon, authenticated;
 grant all on table public.foundation_contributions to service_role;
+
+insert into storage.buckets (id,name,public,file_size_limit,allowed_mime_types)
+values ('foundation-logos','foundation-logos',true,2097152,array['image/png','image/jpeg','image/webp'])
+on conflict (id) do nothing;
