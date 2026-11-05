@@ -185,7 +185,7 @@ export default function HomePage() {
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
             <Link href="/tryouts" className="inline-flex justify-center rounded-full bg-lime-400 px-6 py-3 text-xs font-black uppercase tracking-wider text-black transition hover:bg-lime-300">Explore Tryouts</Link>
-            <Link href="/contact" className="inline-flex justify-center rounded-full border border-white/20 px-6 py-3 text-xs font-black uppercase tracking-wider transition hover:bg-white/10">Get In Touch</Link>
+            <Link href="/foundation#sponsor" className="inline-flex justify-center rounded-full border border-white/20 px-6 py-3 text-xs font-black uppercase tracking-wider transition hover:border-lime-400/50 hover:text-lime-400">Become a Sponsor</Link>
           </div>
         </div>
       </section>
