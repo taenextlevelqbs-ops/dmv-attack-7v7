@@ -37,7 +37,7 @@ export default async function FoundationAdminPage() {
    <h1 className="mt-5 text-3xl font-black uppercase md:text-5xl">Foundation & Sponsors</h1>
    <p className="mt-3 max-w-2xl text-sm leading-7 text-white/60">Private owner-only payment and sponsor approval dashboard. Stripe webhook updates payment status. Approve uploaded logos only after reviewing the business and artwork.</p>
    <div className="mt-7 grid gap-4 sm:grid-cols-3">
-    <div className="rounded-2xl border border-white/10 p-6"><p className="text-xs text-white/50">Paid in recent 100 records</p><p className="mt-2 text-3xl font-black">${(gross/100).toLocaleString("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0})}</p></div>
+    <div className="rounded-2xl border border-white/10 p-6"><p className="text-xs text-white/50">Paid in recent 100 records</p><p className="mt-2 text-3xl font-black">{(gross/100).toLocaleString("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0})}</p></div>
     <div className="rounded-2xl border border-white/10 p-6"><p className="text-xs text-white/50">Paid business sponsors</p><p className="mt-2 text-3xl font-black">{paidSponsors}</p></div>
     <div className="rounded-2xl border border-white/10 p-6"><p className="text-xs text-white/50">Publicly featured</p><p className="mt-2 text-3xl font-black">{orders.filter(o=>o.published).length}</p></div>
    </div>
@@ -50,7 +50,7 @@ export default async function FoundationAdminPage() {
          <p className="mt-1 text-sm text-white/65">{order.contact_name} · <a className="underline underline-offset-4" href={`mailto:${order.email}`}>{order.email}</a></p>
          {order.website && <a href={order.website} rel="noopener noreferrer" target="_blank" className="mt-1 inline-flex text-xs text-lime-400 underline">Business website</a>}
         </div>
-        <div className="text-right"><p className="text-xl font-black">${(order.amount_cents/100).toLocaleString("en-US",{style:"currency",currency:"USD"})}</p><p className="mt-1 text-xs font-bold uppercase tracking-wider text-lime-400">{order.status}</p></div>
+        <div className="text-right"><p className="text-xl font-black">{(order.amount_cents/100).toLocaleString("en-US",{style:"currency",currency:"USD"})}</p><p className="mt-1 text-xs font-bold uppercase tracking-wider text-lime-400">{order.status}</p></div>
       </div>
       <div className="mt-4 flex flex-wrap gap-3 text-xs text-white/50"><span>{order.kind==="SPONSORSHIP"?order.tier:"Donation"}</span><span>{new Date(order.created_at).toLocaleDateString("en-US")}</span><span>Published: {order.published?"Yes":"No"}</span></div>
       {order.kind==="SPONSORSHIP" && <>
