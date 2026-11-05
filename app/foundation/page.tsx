@@ -39,6 +39,7 @@ const initiatives = [
 
 export const dynamic = "force-dynamic";
 export default async function FoundationPage() {
+  const paymentsEnabled = process.env.FOUNDATION_PAYMENTS_ENABLED === "true" && Boolean(process.env.FOUNDATION_STRIPE_SECRET_KEY && process.env.FOUNDATION_STRIPE_WEBHOOK_SECRET);
   let sponsors: Array<{id:string;business_name:string;website:string|null;logo_path:string|null;tier:string|null;logo_url?:string|null}> = [];
   try {
     if (process.env.SUPABASE_SECRET_KEY) {
@@ -210,7 +211,7 @@ export default async function FoundationPage() {
               </article>
             ))}
           </div>
-          <div id="foundation-checkout" className="mt-10 scroll-mt-24"><FoundationCheckoutForm kind="SPONSORSHIP" /></div>
+          <div id="foundation-checkout" className="mt-10 scroll-mt-24">{paymentsEnabled ? <FoundationCheckoutForm kind="SPONSORSHIP" /> : <div className="rounded-[28px] border border-lime-400/25 p-8"><h3 className="text-2xl font-black uppercase">Reserve Your Sponsorship</h3><p className="mt-4 text-sm leading-7 text-white/70">Online sponsorship payments are being prepared. Contact our Foundation team to reserve a package, confirm artwork and learn about availability.</p><a href="mailto:dmvattackfoundation@gmail.com?subject=2027%20Business%20Sponsorship" className="mt-6 inline-flex rounded-full bg-lime-400 px-7 py-4 text-xs font-black uppercase text-black">Contact Sponsorship Team</a></div>}</div>
           <p className="mt-6 text-xs leading-6 text-white/50">Sponsorship benefits depend on final artwork approval, production deadlines, available placement and a written agreement. Logo placement is not guaranteed until confirmed. Fees and benefits are proposed for the 2027 season.</p>
         </div>
       </section>
@@ -222,7 +223,7 @@ export default async function FoundationPage() {
             <p className="mt-6 text-base leading-8 text-white/70">Not a business owner? You can still support equipment assistance, athlete development, camps and travel opportunities. Reach our team to arrange a contribution or discuss how your gift can make an impact.</p>
             <p className="mt-4 text-sm leading-7 text-white/50">Contributions are not represented as tax-deductible unless the organization has confirmed the applicable tax status. We will share payment details only through a verified DMV Attack channel.</p>
           </div>
-          <FoundationCheckoutForm kind="CONTRIBUTION" />
+          {paymentsEnabled ? <FoundationCheckoutForm kind="CONTRIBUTION" /> : <div className="rounded-[28px] border border-lime-400/20 bg-white/[0.03] p-8"><h3 className="text-2xl font-black uppercase">Support DMV Attack</h3><p className="mt-4 text-sm leading-7 text-white/70">Secure online contributions are being prepared. Contact us to discuss a gift supporting youth athletic development.</p><a href="mailto:dmvattackfoundation@gmail.com?subject=Community%20Contribution" className="mt-6 inline-flex rounded-full bg-lime-400 px-7 py-4 text-xs font-black uppercase text-black">Contact The Foundation</a></div>}
         </div>
       </section>
       <section id="our-sponsors" className="scroll-mt-24 border-b border-white/10">
