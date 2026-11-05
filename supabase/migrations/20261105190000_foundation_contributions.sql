@@ -27,5 +27,7 @@ revoke all on table public.foundation_contributions from anon, authenticated;
 grant all on table public.foundation_contributions to service_role;
 
 insert into storage.buckets (id,name,public,file_size_limit,allowed_mime_types)
-values ('foundation-logos','foundation-logos',true,2097152,array['image/png','image/jpeg','image/webp'])
+values ('foundation-logos','foundation-logos',false,2097152,array['image/png','image/jpeg','image/webp'])
 on conflict (id) do nothing;
+
+update storage.buckets set public=false where id='foundation-logos';
