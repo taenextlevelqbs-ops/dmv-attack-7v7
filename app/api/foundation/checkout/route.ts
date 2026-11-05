@@ -74,6 +74,18 @@ export async function POST(request: Request) {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       customer_email: email,
+      customer_creation: "always",
+      invoice_creation: {
+        enabled: true,
+        invoice_data: {
+          description: "DMV Attack Foundation payment acknowledgment. Tax-deductibility has not been established. Sponsorship packages include recognition and promotional benefits.",
+          custom_fields: [
+            { name: "Payment type", value: kind === "SPONSORSHIP" ? `${tier} sponsorship` : "Community contribution" },
+            { name: "Reference", value: order.id },
+          ],
+          footer: "Payment record only. This document does not certify a tax-deductible charitable donation. Consult your tax professional.",
+        },
+      },
       line_items: [{ price_data: { currency: "usd", unit_amount: amount, product_data: { name: label, description: "Not represented as a tax-deductible contribution." } }, quantity: 1 }],
       client_reference_id: order.id,
       metadata: { foundation_order_id: order.id, foundation_kind: kind },
