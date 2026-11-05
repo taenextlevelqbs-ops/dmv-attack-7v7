@@ -1,4 +1,3 @@
-import { syncFoundationCheckout } from "@/lib/finance/foundation-sync";
 import { stripeClient, syncCheckout } from "@/lib/finance/stripe";
 import type Stripe from "stripe";
 
@@ -19,14 +18,12 @@ export async function POST(request: Request) {
   try {
     if (["checkout.session.completed", "checkout.session.async_payment_succeeded", "checkout.session.async_payment_failed", "checkout.session.expired"].includes(event.type)) {
       await syncCheckout(stripe, (event.data.object as Stripe.Checkout.Session).id);
-      await syncFoundationCheckout(stripe, (event.data.object as Stripe.Checkout.Session).id);
     } else if (["charge.refunded", "refund.updated", "refund.created", "refund.failed", "charge.dispute.created", "charge.dispute.closed"].includes(event.type)) {
       const object = event.data.object as Stripe.Charge | Stripe.Refund | Stripe.Dispute;
       const intent = typeof object.payment_intent === "string" ? object.payment_intent : object.payment_intent?.id;
       if (intent) {
         for await (const session of stripe.checkout.sessions.list({ payment_intent: intent, limit: 100 })) {
           await syncCheckout(stripe, session.id);
-          await syncFoundationCheckout(stripe, session.id);
         }
       }
     }
