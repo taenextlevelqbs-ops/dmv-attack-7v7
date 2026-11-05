@@ -28,7 +28,11 @@ export default async function FoundationAdminPage() {
  const {data, error} = await db.from("foundation_contributions")
    .select("id,kind,tier,business_name,contact_name,email,website,amount_cents,status,logo_path,published,created_at")
    .order("created_at",{ascending:false}).limit(100);
- const orders = data || [];
+ const orders = await Promise.all((data || []).map(async (item) => {
+  if (!item.logo_path) return {...item,logo_url:null};
+  const {data:signed} = await db.storage.from("foundation-logos").createSignedUrl(item.logo_path, 3600);
+  return {...item, logo_url:signed?.signedUrl || null};
+ }));
  const gross = orders.filter(o=>o.status==="PAID").reduce((a,o)=>a+o.amount_cents,0);
  const paidSponsors = orders.filter(o=>o.kind==="SPONSORSHIP"&&o.status==="PAID").length;
  return <main className="min-h-screen bg-black px-4 py-10 text-white md:px-8">
@@ -54,7 +58,7 @@ export default async function FoundationAdminPage() {
       </div>
       <div className="mt-4 flex flex-wrap gap-3 text-xs text-white/50"><span>{order.kind==="SPONSORSHIP"?order.tier:"Donation"}</span><span>{new Date(order.created_at).toLocaleDateString("en-US")}</span><span>Published: {order.published?"Yes":"No"}</span></div>
       {order.kind==="SPONSORSHIP" && <>
-        {order.logo_path ? <a className="mt-4 inline-flex text-sm text-lime-400 underline" target="_blank" rel="noopener noreferrer" href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/foundation-logos/${order.logo_path}`}>Review uploaded logo</a> : <p className="mt-4 text-xs text-white/50">No logo uploaded. Request a PNG, JPEG or WebP file before approval.</p>}
+        {order.logo_url ? <a className="mt-4 inline-flex text-sm text-lime-400 underline" target="_blank" rel="noopener noreferrer" href={order.logo_url || "#"}>Review uploaded logo</a> : <p className="mt-4 text-xs text-white/50">No logo uploaded. Request a PNG, JPEG or WebP file before approval.</p>}
         {order.status==="PAID" && <form action={setSponsorApproval} className="mt-5">
           <input type="hidden" name="id" value={order.id}/>
           <input type="hidden" name="approved" value={order.published?"false":"true"}/>
