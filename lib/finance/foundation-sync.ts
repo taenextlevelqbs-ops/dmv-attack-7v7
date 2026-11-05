@@ -12,7 +12,7 @@ export async function syncFoundationCheckout(stripe: Stripe, sessionId: string) 
       (order.stripe_session_id && order.stripe_session_id !== session.id) ||
       session.mode !== "payment" || session.currency !== "usd" ||
       session.amount_total !== order.amount_cents ||
-      session.livemode !== process.env.STRIPE_SECRET_KEY?.startsWith("sk_live_")) {
+      session.livemode !== process.env.FOUNDATION_STRIPE_SECRET_KEY?.startsWith("sk_live_")) {
     throw new Error("Foundation Stripe checkout validation failed");
   }
   const intentId = typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id;
