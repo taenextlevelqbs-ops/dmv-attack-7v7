@@ -20,8 +20,9 @@ export async function POST(request: Request) {
     const raw = form.get("data");
     if (typeof raw !== "string" || raw.length > 6000) return NextResponse.json({error:"Invalid submission"},{status:400});
     const body = JSON.parse(raw);
-    const logo = form.get("logo");
-    if (logo && !(logo instanceof File)) return NextResponse.json({error:"Invalid logo"},{status:400});
+    const logoEntry = form.get("logo");
+    if (logoEntry !== null && !(logoEntry instanceof File)) return NextResponse.json({error:"Invalid logo"},{status:400});
+    const logo = logoEntry instanceof File ? logoEntry : null;
     if (logo && (logo.size > 2097152 || logo.size < 8)) return NextResponse.json({error:"Logo must be under 2 MB"},{status:400});
     if (body.companyWebsiteHidden) return NextResponse.json({ error: "Unable to process request" }, { status: 400 });
     const kind = body.kind === "SPONSORSHIP" ? "SPONSORSHIP" : body.kind === "CONTRIBUTION" ? "CONTRIBUTION" : null;
