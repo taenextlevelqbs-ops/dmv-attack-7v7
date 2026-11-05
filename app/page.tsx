@@ -1,3 +1,4 @@
+import { stripeDatabase } from "@/lib/finance/stripe";
 import Image from "next/image";
 import Link from "next/link";
 import TryoutEvents from "@/components/tryout-events";
@@ -39,7 +40,19 @@ const programs = [
   },
 ];
 
-export default function HomePage() {
+export const dynamic = "force-dynamic";
+export default async function HomePage() {
+  let featuredSponsors: Array<{id:string;business_name:string;website:string|null;logo_url:string|null}> = [];
+  try {
+    if (process.env.SUPABASE_SECRET_KEY) {
+      const db = stripeDatabase();
+      const {data} = await db.from("foundation_contributions").select("id,business_name,website,logo_path").eq("kind","SPONSORSHIP").eq("tier","GOLD").eq("status","PAID").eq("published",true).eq("sponsor_approved",true).order("created_at",{ascending:false}).limit(8);
+      featuredSponsors = await Promise.all((data || []).map(async item => {
+        const {data:signed} = item.logo_path ? await db.storage.from("foundation-logos").createSignedUrl(item.logo_path,3600) : {data:null};
+        return {id:item.id,business_name:item.business_name,website:item.website,logo_url:signed?.signedUrl || null};
+      }));
+    }
+  } catch { /* Sponsor section is optional when unavailable. */ }
   return (
     <main className="min-h-screen bg-black text-white">
 
@@ -177,6 +190,21 @@ export default function HomePage() {
         </div>
       </section>
 
+      {featuredSponsors.length > 0 && <section aria-labelledby="home-sponsors" className="border-t border-white/10">
+        <div className="mx-auto max-w-7xl px-4 py-12 md:px-8">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div><p className="text-xs font-black uppercase tracking-widest text-lime-400">Official 2027 Partners</p><h2 id="home-sponsors" className="mt-2 text-2xl font-black uppercase md:text-3xl">Businesses Behind The Attack</h2></div>
+            <Link href="/foundation#our-sponsors" className="text-xs font-black uppercase tracking-wider text-lime-400 underline underline-offset-4">Meet Our Sponsors</Link>
+          </div>
+          <div className="mt-7 grid grid-cols-2 gap-3 md:grid-cols-4">
+            {featuredSponsors.map(s=><div key={s.id} className="rounded-2xl border border-white/10 bg-white/[0.035] p-5 text-center">
+              {s.logo_url && <img src={s.logo_url} alt={`${s.business_name} logo`} loading="lazy" className="mx-auto h-20 w-full object-contain" />}
+              <p className="mt-3 text-xs font-black uppercase">{s.business_name}</p>
+              {s.website && (s.website.startsWith("https://")||s.website.startsWith("http://")) && <a href={s.website} target="_blank" rel="noopener noreferrer nofollow sponsored" className="mt-2 inline-flex text-xs text-lime-400 underline">Visit Sponsor</a>}
+            </div>)}
+          </div>
+        </div>
+      </section>}
       <section aria-labelledby="home-next-step" className="bg-lime-400/[0.04]">
         <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-10 md:px-8 sm:flex-row sm:items-center sm:justify-between">
           <div>
