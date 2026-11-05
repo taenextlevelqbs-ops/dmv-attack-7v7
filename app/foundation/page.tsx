@@ -1,3 +1,5 @@
+import FoundationCheckoutForm from "@/components/foundation-checkout-form";
+import { stripeDatabase } from "@/lib/finance/stripe";
 import Image from "next/image";
 import Link from "next/link";
 import DmvPageHeader from "@/components/dmv-page-header";
@@ -35,7 +37,16 @@ const initiatives = [
   },
 ];
 
-export default function FoundationPage() {
+export const dynamic = "force-dynamic";
+export default async function FoundationPage() {
+  let sponsors: Array<{id:string;business_name:string;website:string|null;logo_path:string|null;tier:string|null}> = [];
+  try {
+    if (process.env.SUPABASE_SECRET_KEY) {
+      const db = stripeDatabase();
+      const {data} = await db.from("foundation_contributions").select("id,business_name,website,logo_path,tier").eq("kind","SPONSORSHIP").eq("status","PAID").eq("sponsor_approved",true).eq("published",true).order("created_at",{ascending:false}).limit(100);
+      sponsors = data || [];
+    }
+  } catch { /* Sponsor list is optional if database unavailable. */ }
   return (
     <main className="min-h-screen bg-black text-white">
       <DmvPageHeader
@@ -195,6 +206,7 @@ export default function FoundationPage() {
               </article>
             ))}
           </div>
+          <div id="foundation-checkout" className="mt-10 scroll-mt-24"><FoundationCheckoutForm kind="SPONSORSHIP" /></div>
           <p className="mt-6 text-xs leading-6 text-white/50">Sponsorship benefits depend on final artwork approval, production deadlines, available placement and a written agreement. Logo placement is not guaranteed until confirmed. Fees and benefits are proposed for the 2027 season.</p>
         </div>
       </section>
@@ -206,26 +218,33 @@ export default function FoundationPage() {
             <p className="mt-6 text-base leading-8 text-white/70">Not a business owner? You can still support equipment assistance, athlete development, camps and travel opportunities. Reach our team to arrange a contribution or discuss how your gift can make an impact.</p>
             <p className="mt-4 text-sm leading-7 text-white/50">Contributions are not represented as tax-deductible unless the organization has confirmed the applicable tax status. We will share payment details only through a verified DMV Attack channel.</p>
           </div>
-          <div className="rounded-[28px] border border-lime-400/20 bg-white/[0.035] p-7 md:p-10">
-            <h3 className="text-2xl font-black uppercase">Choose Your Impact</h3>
-            <div className="mt-6 grid grid-cols-2 gap-3">
-              {["$25","$50","$100","$250"].map(amount => (
-                <a key={amount} href={`mailto:dmvattackfoundation@gmail.com?subject=${encodeURIComponent(`DMV Attack Foundation - ${amount} Contribution`)}`} className="rounded-2xl border border-white/20 px-5 py-5 text-center text-xl font-black transition hover:border-lime-400 hover:text-lime-400">{amount}</a>
-              ))}
-            </div>
-            <a href="mailto:dmvattackfoundation@gmail.com?subject=DMV%20Attack%20Foundation%20-%20Custom%20Contribution" className="mt-4 block rounded-full bg-lime-400 px-6 py-4 text-center text-xs font-black uppercase tracking-wider text-black hover:bg-lime-300">Ask About A Custom Donation</a>
-          </div>
+          <FoundationCheckoutForm kind="CONTRIBUTION" />
         </div>
       </section>
       <section id="our-sponsors" className="scroll-mt-24 border-b border-white/10">
         <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
           <p className="text-xs font-black uppercase tracking-[0.25em] text-lime-400">Community Partners</p>
           <h2 className="mt-3 text-4xl font-black uppercase md:text-6xl">Our Sponsors.</h2>
-          <div className="mt-8 rounded-[28px] border border-dashed border-white/20 p-9 text-center">
+          {sponsors.length > 0 ? (
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {sponsors.map(sponsor => {
+                const logo = sponsor.logo_path && process.env.NEXT_PUBLIC_SUPABASE_URL
+                  ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/foundation-logos/${sponsor.logo_path}` : null;
+                const validUrl = sponsor.website && /^https?:\\/\\//.test(sponsor.website) ? sponsor.website : null;
+                return <div key={sponsor.id} className="rounded-3xl border border-white/10 bg-white/[0.03] p-7 text-center">
+                  {logo && <img src={logo} alt={`${sponsor.business_name} logo`} loading="lazy" className="mx-auto mb-5 h-24 w-full object-contain" />}
+                  <h3 className="text-xl font-black uppercase">{sponsor.business_name}</h3>
+                  <p className="mt-2 text-xs uppercase tracking-widest text-lime-400">{sponsor.tier} Partner</p>
+                  {validUrl && <a href={validUrl} target="_blank" rel="noopener noreferrer nofollow sponsored" className="mt-4 inline-flex text-sm font-semibold text-white/75 underline underline-offset-4 hover:text-lime-400">Visit Business Website</a>}
+                </div>;
+              })}
+            </div>
+          ) : (<div className="mt-8 rounded-[28px] border border-dashed border-white/20 p-9 text-center">
             <p className="text-lg font-bold">The 2027 sponsor lineup is coming together.</p>
             <p className="mt-3 text-sm leading-7 text-white/60">Approved businesses will be featured here with their logos and website links. Be among the first to back DMV Attack.</p>
             <a href="#sponsor" className="mt-6 inline-flex rounded-full border border-lime-400/50 px-6 py-3 text-xs font-black uppercase tracking-wider text-lime-400">Explore Sponsorships</a>
           </div>
+          )}
         </div>
       </section>
       <section>
