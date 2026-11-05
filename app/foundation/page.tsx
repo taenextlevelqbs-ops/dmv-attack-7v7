@@ -185,7 +185,7 @@ export default async function FoundationPage() {
         <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
           <p className="text-xs font-black uppercase tracking-[0.25em] text-lime-400">2027 Business Partnerships</p>
           <h2 className="mt-3 max-w-4xl text-4xl font-black uppercase leading-tight md:text-6xl">Put Your Business Behind The Next Generation.</h2>
-          <p className="mt-6 max-w-3xl text-base leading-8 text-white/70">Partner with DMV Attack to support athlete development, equipment, mentorship and travel opportunities. Select a season sponsorship below and we will confirm your logo, placement and production timing before collecting payment.</p>
+          <p className="mt-6 max-w-3xl text-base leading-8 text-white/70">Partner with DMV Attack to support athlete development, equipment, mentorship and travel opportunities. Select a season sponsorship below and business logos are reviewed before publication and apparel placement depends on printing schedules.</p>
           <div className="mt-10 grid gap-5 lg:grid-cols-3">
             {[
               {name:"Bronze",price:"$250",subtitle:"Community Supporter",perks:["Business logo and link in the sponsor directory","Social media sponsor thank-you","Digital sponsorship recognition"],featured:false},
@@ -202,7 +202,7 @@ export default async function FoundationPage() {
                 <ul className="mt-7 flex-1 space-y-3">
                   {tier.perks.map(perk => <li key={perk} className="flex gap-3 text-sm leading-6 text-white/80"><span className="shrink-0 text-lime-400">✓</span><span>{perk}</span></li>)}
                 </ul>
-                <a href={`mailto:dmvattackfoundation@gmail.com?subject=${encodeURIComponent(`DMV Attack 2027 ${tier.name} Sponsorship Inquiry`)}&body=${encodeURIComponent("Business name:\nContact name:\nBusiness website:\nPreferred phone:\nWarmup logo placement (if applicable):\n")}`} className="mt-9 inline-flex justify-center rounded-full bg-lime-400 px-6 py-4 text-xs font-black uppercase tracking-wider text-black hover:bg-lime-300">Request {tier.name} Sponsorship</a>
+                <a href="#foundation-checkout" className="mt-9 inline-flex justify-center rounded-full bg-lime-400 px-6 py-4 text-xs font-black uppercase tracking-wider text-black hover:bg-lime-300">Request {tier.name} Sponsorship</a>
               </article>
             ))}
           </div>
@@ -230,7 +230,7 @@ export default async function FoundationPage() {
               {sponsors.map(sponsor => {
                 const logo = sponsor.logo_path && process.env.NEXT_PUBLIC_SUPABASE_URL
                   ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/foundation-logos/${sponsor.logo_path}` : null;
-                const validUrl = sponsor.website && /^https?:\\/\\//.test(sponsor.website) ? sponsor.website : null;
+                const validUrl = sponsor.website && (sponsor.website.startsWith("https://") || sponsor.website.startsWith("http://")) ? sponsor.website : null;
                 return <div key={sponsor.id} className="rounded-3xl border border-white/10 bg-white/[0.03] p-7 text-center">
                   {logo && <img src={logo} alt={`${sponsor.business_name} logo`} loading="lazy" className="mx-auto mb-5 h-24 w-full object-contain" />}
                   <h3 className="text-xl font-black uppercase">{sponsor.business_name}</h3>
