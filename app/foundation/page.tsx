@@ -82,7 +82,7 @@ export default async function FoundationPage() {
                 <ul className="mt-7 flex-1 space-y-3">
                   {tier.perks.map(perk => <li key={perk} className="flex gap-3 text-sm leading-6 text-white/80"><span className="shrink-0 text-lime-400">✓</span><span>{perk}</span></li>)}
                 </ul>
-                <a href="#foundation-checkout" className="mt-9 inline-flex justify-center rounded-full bg-lime-400 px-6 py-4 text-xs font-black uppercase tracking-wider text-black hover:bg-lime-300">Request {tier.name} Sponsorship</a>
+                <a href={`?sponsor=${tier.name.toUpperCase()}#foundation-checkout`} className="mt-9 inline-flex justify-center rounded-full bg-lime-400 px-6 py-4 text-xs font-black uppercase tracking-wider text-black hover:bg-lime-300">Select {tier.name} Sponsorship</a>
               </article>
             ))}
           </div>
