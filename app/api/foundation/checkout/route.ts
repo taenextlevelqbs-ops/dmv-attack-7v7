@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { stripeClient, stripeDatabase } from "@/lib/finance/stripe";
+import { stripeDatabase } from "@/lib/finance/stripe";
+import { foundationStripeClient } from "@/lib/finance/foundation-stripe";
 
 export const runtime = "nodejs";
 const prices = { BRONZE: 25000, SILVER: 50000, GOLD: 100000 } as const;
@@ -8,7 +9,7 @@ const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(request: Request) {
   try {
-    if (!process.env.STRIPE_SECRET_KEY || !process.env.SUPABASE_SECRET_KEY) return NextResponse.json({ error: "Secure checkout is temporarily unavailable." }, { status: 503 });
+    if (process.env.FOUNDATION_PAYMENTS_ENABLED !== "true" || !process.env.FOUNDATION_STRIPE_SECRET_KEY || !process.env.SUPABASE_SECRET_KEY) return NextResponse.json({ error: "Secure checkout is temporarily unavailable." }, { status: 503 });
     if (!request.headers.get("content-type")?.startsWith("multipart/form-data")) return NextResponse.json({ error: "Invalid request" }, { status: 415 });
     if (Number(request.headers.get("content-length") || "0") > 2300000) return NextResponse.json({ error: "Request too large" }, { status: 413 });
     const origin = request.headers.get("origin");
@@ -68,7 +69,7 @@ export async function POST(request: Request) {
       const {error: logoError} = await db.from("foundation_contributions").update({logo_path:logoPath}).eq("id",order.id);
       if (logoError) throw new Error("Unable to attach sponsor logo");
     }
-    const stripe = stripeClient();
+    const stripe = foundationStripeClient();
     const label = kind === "SPONSORSHIP" ? `DMV Attack 2027 ${tier} Business Sponsorship` : "DMV Attack Community Contribution";
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
