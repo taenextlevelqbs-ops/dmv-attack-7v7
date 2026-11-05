@@ -39,12 +39,16 @@ const initiatives = [
 
 export const dynamic = "force-dynamic";
 export default async function FoundationPage() {
-  let sponsors: Array<{id:string;business_name:string;website:string|null;logo_path:string|null;tier:string|null}> = [];
+  let sponsors: Array<{id:string;business_name:string;website:string|null;logo_path:string|null;tier:string|null;logo_url?:string|null}> = [];
   try {
     if (process.env.SUPABASE_SECRET_KEY) {
       const db = stripeDatabase();
       const {data} = await db.from("foundation_contributions").select("id,business_name,website,logo_path,tier").eq("kind","SPONSORSHIP").eq("status","PAID").eq("sponsor_approved",true).eq("published",true).order("created_at",{ascending:false}).limit(100);
-      sponsors = data || [];
+      sponsors = await Promise.all((data || []).map(async (item) => {
+        if (!item.logo_path) return {...item, logo_url:null};
+        const {data:signed} = await db.storage.from("foundation-logos").createSignedUrl(item.logo_path, 3600);
+        return {...item,logo_url:signed?.signedUrl || null};
+      }));
     }
   } catch { /* Sponsor list is optional if database unavailable. */ }
   return (
@@ -228,8 +232,7 @@ export default async function FoundationPage() {
           {sponsors.length > 0 ? (
             <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {sponsors.map(sponsor => {
-                const logo = sponsor.logo_path && process.env.NEXT_PUBLIC_SUPABASE_URL
-                  ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/foundation-logos/${sponsor.logo_path}` : null;
+                const logo = sponsor.logo_url;
                 const validUrl = sponsor.website && (sponsor.website.startsWith("https://") || sponsor.website.startsWith("http://")) ? sponsor.website : null;
                 return <div key={sponsor.id} className="rounded-3xl border border-white/10 bg-white/[0.03] p-7 text-center">
                   {logo && <img src={logo} alt={`${sponsor.business_name} logo`} loading="lazy" className="mx-auto mb-5 h-24 w-full object-contain" />}
