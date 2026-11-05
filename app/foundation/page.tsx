@@ -60,6 +60,36 @@ export default async function FoundationPage() {
         description="Supporting youth athletes with resources, development, mentorship and opportunities throughout Northern Virginia and the DMV."
       />
 
+      {/* Business sponsorships are displayed first for easy access. Payments require verified Stripe configuration. */}
+      <section id="sponsor" className="scroll-mt-24 border-b border-white/10 bg-[#0b1008]">
+        <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
+          <p className="text-xs font-black uppercase tracking-[0.25em] text-lime-400">2027 Business Partnerships</p>
+          <h2 className="mt-3 max-w-4xl text-4xl font-black uppercase leading-tight md:text-6xl">Put Your Business Behind The Next Generation.</h2>
+          <p className="mt-6 max-w-3xl text-base leading-8 text-white/70">Partner with DMV Attack to support athlete development, equipment, mentorship and travel opportunities. Select a season sponsorship below and business logos are reviewed before publication and apparel placement depends on printing schedules.</p>
+          <div className="mt-10 grid gap-5 lg:grid-cols-3">
+            {[
+              {name:"Bronze",price:"$250",subtitle:"Community Supporter",perks:["Business logo and link in the sponsor directory","Social media sponsor thank-you","Digital sponsorship recognition"],featured:false},
+              {name:"Silver",price:"$500",subtitle:"Team Partner",perks:["Everything in Bronze","Business logo on team warmup shirts","Featured website sponsor listing","Two social media recognition posts"],featured:true},
+              {name:"Gold",price:"$1,000",subtitle:"Official Season Partner",perks:["Everything in Silver","Priority larger warmup logo placement","Featured sponsor placement on the homepage","Dedicated business spotlight","Season-long sponsor recognition"],featured:false}
+            ].map(tier => (
+              <article key={tier.name} className={`flex flex-col rounded-[28px] border p-7 md:p-9 ${tier.featured?"border-lime-400 bg-lime-400/[0.08]":"border-white/15 bg-white/[0.03]"}`}>
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-black uppercase tracking-widest text-lime-400">{tier.name}</p>
+                  {tier.featured && <span className="rounded-full bg-lime-400 px-3 py-1 text-[10px] font-black uppercase text-black">Popular</span>}
+                </div>
+                <p className="mt-5 text-5xl font-black">{tier.price}</p>
+                <p className="mt-2 text-sm text-white/60">{tier.subtitle} · 2027 season</p>
+                <ul className="mt-7 flex-1 space-y-3">
+                  {tier.perks.map(perk => <li key={perk} className="flex gap-3 text-sm leading-6 text-white/80"><span className="shrink-0 text-lime-400">✓</span><span>{perk}</span></li>)}
+                </ul>
+                <a href="#foundation-checkout" className="mt-9 inline-flex justify-center rounded-full bg-lime-400 px-6 py-4 text-xs font-black uppercase tracking-wider text-black hover:bg-lime-300">Request {tier.name} Sponsorship</a>
+              </article>
+            ))}
+          </div>
+          <div id="foundation-checkout" className="mt-10 scroll-mt-24">{paymentsEnabled ? <FoundationCheckoutForm kind="SPONSORSHIP" /> : <div className="rounded-[28px] border border-lime-400/25 p-8"><h3 className="text-2xl font-black uppercase">Reserve Your Sponsorship</h3><p className="mt-4 text-sm leading-7 text-white/70">Online sponsorship payments are being prepared. Contact our Foundation team to reserve a package, confirm artwork and learn about availability.</p><a href="mailto:dmvattackfoundation@gmail.com?subject=2027%20Business%20Sponsorship" className="mt-6 inline-flex rounded-full bg-lime-400 px-7 py-4 text-xs font-black uppercase text-black">Contact Sponsorship Team</a></div>}</div>
+          <p className="mt-6 text-xs leading-6 text-white/50">Sponsorship benefits depend on final artwork approval, production deadlines, available placement and a written agreement. Logo placement is not guaranteed until confirmed. Fees and benefits are proposed for the 2027 season.</p>
+        </div>
+      </section>
       <section className="border-b border-white/10">
         <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
           <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
@@ -185,36 +215,6 @@ export default async function FoundationPage() {
       </section>
 
 
-      {/* Community giving and partnerships: payment is intentionally handled only after eligibility review. */}
-      <section id="sponsor" className="scroll-mt-24 border-b border-white/10 bg-[#0b1008]">
-        <div className="mx-auto max-w-7xl px-4 py-16 md:px-8 md:py-24">
-          <p className="text-xs font-black uppercase tracking-[0.25em] text-lime-400">2027 Business Partnerships</p>
-          <h2 className="mt-3 max-w-4xl text-4xl font-black uppercase leading-tight md:text-6xl">Put Your Business Behind The Next Generation.</h2>
-          <p className="mt-6 max-w-3xl text-base leading-8 text-white/70">Partner with DMV Attack to support athlete development, equipment, mentorship and travel opportunities. Select a season sponsorship below and business logos are reviewed before publication and apparel placement depends on printing schedules.</p>
-          <div className="mt-10 grid gap-5 lg:grid-cols-3">
-            {[
-              {name:"Bronze",price:"$250",subtitle:"Community Supporter",perks:["Business logo and link in the sponsor directory","Social media sponsor thank-you","Digital sponsorship recognition"],featured:false},
-              {name:"Silver",price:"$500",subtitle:"Team Partner",perks:["Everything in Bronze","Business logo on team warmup shirts","Featured website sponsor listing","Two social media recognition posts"],featured:true},
-              {name:"Gold",price:"$1,000",subtitle:"Official Season Partner",perks:["Everything in Silver","Priority larger warmup logo placement","Featured sponsor placement on the homepage","Dedicated business spotlight","Season-long sponsor recognition"],featured:false}
-            ].map(tier => (
-              <article key={tier.name} className={`flex flex-col rounded-[28px] border p-7 md:p-9 ${tier.featured?"border-lime-400 bg-lime-400/[0.08]":"border-white/15 bg-white/[0.03]"}`}>
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-sm font-black uppercase tracking-widest text-lime-400">{tier.name}</p>
-                  {tier.featured && <span className="rounded-full bg-lime-400 px-3 py-1 text-[10px] font-black uppercase text-black">Popular</span>}
-                </div>
-                <p className="mt-5 text-5xl font-black">{tier.price}</p>
-                <p className="mt-2 text-sm text-white/60">{tier.subtitle} · 2027 season</p>
-                <ul className="mt-7 flex-1 space-y-3">
-                  {tier.perks.map(perk => <li key={perk} className="flex gap-3 text-sm leading-6 text-white/80"><span className="shrink-0 text-lime-400">✓</span><span>{perk}</span></li>)}
-                </ul>
-                <a href="#foundation-checkout" className="mt-9 inline-flex justify-center rounded-full bg-lime-400 px-6 py-4 text-xs font-black uppercase tracking-wider text-black hover:bg-lime-300">Request {tier.name} Sponsorship</a>
-              </article>
-            ))}
-          </div>
-          <div id="foundation-checkout" className="mt-10 scroll-mt-24">{paymentsEnabled ? <FoundationCheckoutForm kind="SPONSORSHIP" /> : <div className="rounded-[28px] border border-lime-400/25 p-8"><h3 className="text-2xl font-black uppercase">Reserve Your Sponsorship</h3><p className="mt-4 text-sm leading-7 text-white/70">Online sponsorship payments are being prepared. Contact our Foundation team to reserve a package, confirm artwork and learn about availability.</p><a href="mailto:dmvattackfoundation@gmail.com?subject=2027%20Business%20Sponsorship" className="mt-6 inline-flex rounded-full bg-lime-400 px-7 py-4 text-xs font-black uppercase text-black">Contact Sponsorship Team</a></div>}</div>
-          <p className="mt-6 text-xs leading-6 text-white/50">Sponsorship benefits depend on final artwork approval, production deadlines, available placement and a written agreement. Logo placement is not guaranteed until confirmed. Fees and benefits are proposed for the 2027 season.</p>
-        </div>
-      </section>
       <section id="donate" className="scroll-mt-24 border-b border-white/10">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 md:px-8 md:py-24 lg:grid-cols-2 lg:items-center">
           <div>
