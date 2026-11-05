@@ -56,7 +56,7 @@ export default function FoundationCheckoutForm({kind}:{kind:Kind}) {
         </>}
         {!sponsor && <label className="sm:col-span-2 text-sm font-bold">Contribution amount (USD)
           <select className="mt-2 w-full rounded-xl border border-white/25 bg-[#111710] px-4 py-3" value={amount} onChange={e=>setAmount(e.target.value)}>
-            {["25","50","100","250","500"].map(x=><option key={x} value={x}>${x}</option>)}
+            {["10","25","50","75","100","200","500"].map(x=><option key={x} value={x}>${x}</option>)}
           </select>
         </label>}
         <label className="text-sm font-bold">Contact name
