@@ -13,6 +13,7 @@ export default function FoundationCheckoutForm({kind}:{kind:Kind}) {
   const [website,setWebsite] = useState("");
   const [email,setEmail] = useState("");
   const [agreed,setAgreed] = useState(false);
+  const [logo,setLogo] = useState<File|null>(null);
   const [pending,setPending] = useState(false);
   const [error,setError] = useState("");
   async function submit(e:FormEvent<HTMLFormElement>) {
@@ -21,10 +22,10 @@ export default function FoundationCheckoutForm({kind}:{kind:Kind}) {
     setPending(true);setError("");
     try {
       const amountCents = Math.round(Number(amount)*100);
-      const r = await fetch("/api/foundation/checkout",{
-        method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({kind,tier,amountCents,contactName,businessName,website,email,agreed,companyWebsiteHidden:""})
-      });
+      const payload = new FormData();
+      payload.set("data",JSON.stringify({kind,tier,amountCents,contactName,businessName,website,email,agreed,companyWebsiteHidden:""}));
+      if(sponsor && logo) payload.set("logo",logo);
+      const r = await fetch("/api/foundation/checkout",{method:"POST",body:payload});
       const data = await r.json();
       if(!r.ok || !data.url || typeof data.url!=="string") throw new Error(data.error || "Unable to open checkout");
       const checkout = new URL(data.url);
@@ -59,6 +60,9 @@ export default function FoundationCheckoutForm({kind}:{kind:Kind}) {
         <label className="text-sm font-bold">Email address
           <input required type="email" maxLength={254} autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)} className="mt-2 w-full rounded-xl border border-white/25 bg-black px-4 py-3" placeholder="you@business.com"/>
         </label>
+        {sponsor && <label className="sm:col-span-2 text-sm font-bold">Business logo (PNG, JPEG or WebP, max 2 MB)
+          <input type="file" accept="image/png,image/jpeg,image/webp" onChange={e=>setLogo(e.target.files?.[0]||null)} className="mt-2 block w-full rounded-xl border border-white/25 bg-black px-4 py-3 text-sm"/>
+        </label>}
         {sponsor && <label className="sm:col-span-2 text-sm font-bold">Business website (optional)
           <input type="url" maxLength={300} value={website} onChange={e=>setWebsite(e.target.value)} className="mt-2 w-full rounded-xl border border-white/25 bg-black px-4 py-3" placeholder="https://example.com"/>
         </label>}
