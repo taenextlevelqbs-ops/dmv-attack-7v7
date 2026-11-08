@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { requestJson } from "@/lib/http.mjs";
 
 type Athlete = { id:string; athlete_first_name:string; athlete_last_name:string; age_group:string; tryout_id:string; bib_number:number|null; status:string };
-type Payment = { registration_id:string; status:string; payment_note:string|null };
+type Payment = { registration_id:string; status:string; payment_method:"VENMO"|"STRIPE"|null; payment_note:string|null };
 
 export default function PrintableTryoutRoster(){
   const [athletes,setAthletes]=useState<Athlete[]>([]);
@@ -41,7 +41,7 @@ export default function PrintableTryoutRoster(){
           <h2 className="mb-2 border-b-2 border-black pb-1 text-lg font-black">{group} — {filtered.filter(a=>a.age_group===group).length} Athletes</h2>
           <table className="w-full border-collapse text-left text-xs sm:text-sm">
             <thead><tr className="bg-gray-100"><th className="border border-gray-300 p-2">Athlete</th><th className="border border-gray-300 p-2">Paid</th><th className="border border-gray-300 p-2">Method / Note</th><th className="border border-gray-300 p-2">Sticker #</th><th className="border border-gray-300 p-2">Check-in</th></tr></thead>
-            <tbody>{filtered.filter(a=>a.age_group===group).map(a=><tr key={a.id}><td className="border border-gray-300 p-2 font-medium">{a.athlete_first_name} {a.athlete_last_name}</td><td className="border border-gray-300 p-2">{paymentById.get(a.id)?.status==="PAID"?"YES":paymentById.get(a.id)?.status==="PENDING"?"PENDING":"UNVERIFIED"}</td><td className="border border-gray-300 p-2 text-xs">{paymentById.get(a.id)?.payment_note??"—"}</td><td className="border border-gray-300 p-2 font-bold">{a.bib_number??"________"}</td><td className="border border-gray-300 p-2">{a.status!=="REGISTERED"?"✓":"☐"}</td></tr>)}</tbody>
+            <tbody>{filtered.filter(a=>a.age_group===group).map(a=><tr key={a.id}><td className="border border-gray-300 p-2 font-medium">{a.athlete_first_name} {a.athlete_last_name}</td><td className="border border-gray-300 p-2">{paymentById.get(a.id)?.status==="PAID"?"YES":paymentById.get(a.id)?.status==="PENDING"?"PENDING":"UNVERIFIED"}</td><td className="border border-gray-300 p-2 text-xs">{[paymentById.get(a.id)?.payment_method??"Method not recorded",paymentById.get(a.id)?.payment_note].filter(Boolean).join(" • ")}</td><td className="border border-gray-300 p-2 font-bold">{a.bib_number??"________"}</td><td className="border border-gray-300 p-2">{a.status!=="REGISTERED"?"✓":"☐"}</td></tr>)}</tbody>
           </table>
         </section>)}
         <p className="mt-4 text-xs">Payment records marked PAID reflect admin verification, not an independent transaction audit. Unverified athletes require payment confirmation. Printed information may become outdated as digital check-in is updated.</p>
