@@ -42,6 +42,7 @@ export default function TryoutCheckInPage() {
   >("ALL");
 
   const [updating, setUpdating] = useState("");
+  const [refreshing,setRefreshing]=useState(false);
   const [bibDrafts, setBibDrafts] = useState<Record<string,string>>({});
   type Payment = { registration_id:string; status:"UNPAID"|"PENDING"|"PAID"; payment_method:"VENMO"|"STRIPE"|null; payment_note:string|null };
   const [payments,setPayments] = useState<Record<string,Payment>>({});
@@ -65,6 +66,22 @@ export default function TryoutCheckInPage() {
       setPaymentDrafts(Object.fromEntries(records.map(p=>[p.registration_id,{method:p.payment_method==="STRIPE"?"STRIPE":"VENMO",note:p.payment_note??""}])));
     }).catch(()=>setError("Payment statuses unavailable. Verify payments before admitting athletes."));
   }, []);
+
+  async function refreshLive() {
+    setRefreshing(true);
+    try{
+      const [roster,paymentResult]=await Promise.all([
+        requestJson("/api/check-in/roster",{cache:"no-store"}),
+        requestJson("/api/check-in/payments",{cache:"no-store"})
+      ]);
+      setRegistrations(roster.registrations??[]);
+      setBibDrafts(current=>Object.fromEntries((roster.registrations??[]).map((r:Registration)=>[r.id,current[r.id]??(r.bib_number==null?"":String(r.bib_number))])));
+      const records=paymentResult.payments??[];
+      setPayments(Object.fromEntries(records.map((p:Payment)=>[p.registration_id,p])));
+      setError("");
+    }catch(e){setError(e instanceof Error?e.message:"Refresh failed");}
+    finally{setRefreshing(false)}
+  }
 
   async function savePayment(registration:Registration,status:"PAID"|"PENDING") {
     const draft=paymentDrafts[registration.id]??{method:"VENMO" as const,note:""};
@@ -292,7 +309,10 @@ export default function TryoutCheckInPage() {
           </div>
 
           <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={()=>void refreshLive()} disabled={refreshing} className="rounded-full border border-lime-400/60 px-5 py-3 text-xs font-black uppercase tracking-[0.12em] text-lime-400 disabled:opacity-50">{refreshing?"Refreshing…":"Refresh New Signups"}</button>
+            <Link href="/admin/tryouts/check-in/walk-ins" className="rounded-full border border-white/10 px-5 py-3 text-xs font-black uppercase tracking-[0.12em]">Walk-In QR Sign</Link>
             <Link href="/admin/tryouts/check-in/print" className="rounded-full border border-lime-400/50 px-5 py-3 text-xs font-black uppercase tracking-[0.12em] text-lime-400">Print Roster</Link>
+            <Link href="/admin/tryouts/check-in/staff" className="rounded-full border border-white/10 px-5 py-3 text-xs font-black uppercase tracking-[0.12em]">Staff Setup (Owner)</Link>
             <Link
               href="/admin/tryouts"
               className="rounded-full border border-white/10 px-5 py-3 text-xs font-black uppercase tracking-[0.12em]"
