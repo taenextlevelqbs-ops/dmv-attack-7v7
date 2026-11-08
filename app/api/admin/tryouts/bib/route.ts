@@ -9,7 +9,7 @@ export async function PATCH(request: Request) {
   const { data: { user } } = await client.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { data: profile } = await client.from("profiles").select("role").eq("id", user.id).maybeSingle();
-  if (!profile || !["OWNER", "ADMIN"].includes(profile.role)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (!profile || !["OWNER", "ADMIN", "CHECKIN"].includes(profile.role)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const secret = process.env.SUPABASE_SECRET_KEY;
   if (!url || !secret) return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
