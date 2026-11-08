@@ -14,7 +14,7 @@ export default function PrintableTryoutRoster(){
   const [error,setError]=useState("");
   const [loading,setLoading]=useState(true);
   useEffect(()=>{
-    Promise.all([requestJson("/api/admin/tryouts",{cache:"no-store"}),requestJson("/api/admin/tryouts/payments",{cache:"no-store"})])
+    Promise.all([requestJson("/api/check-in/roster",{cache:"no-store"}),requestJson("/api/check-in/payments",{cache:"no-store"})])
       .then(([a,b])=>{setAthletes(a.registrations??[]);setPayments(b.payments??[]);})
       .catch(e=>setError(e instanceof Error?e.message:"Could not load roster"))
       .finally(()=>setLoading(false));
