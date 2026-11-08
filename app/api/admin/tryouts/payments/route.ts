@@ -18,7 +18,7 @@ async function authorized() {
 export async function GET() {
   const auth = await authorized();
   if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-  const { data, error } = await auth.admin.from("tryout_payments").select("registration_id,status,payment_note,verified_at,updated_at");
+  const { data, error } = await auth.admin.from("tryout_payments").select("registration_id,status,payment_method,payment_note,verified_at,updated_at");
   if (error) {
     console.error("Tryout payments database query failed", { code: error.code, message: error.message, details: error.details });
     const code = error.code ?? "UNKNOWN";
