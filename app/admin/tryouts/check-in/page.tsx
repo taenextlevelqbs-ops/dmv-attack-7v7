@@ -3,7 +3,7 @@ import Image from "next/image";
 import {requestJson} from "@/lib/http.mjs";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type Registration = {
   id: string;
@@ -41,6 +41,7 @@ export default function TryoutCheckInPage() {
   >("ALL");
 
   const [updating, setUpdating] = useState("");
+  const updatingRef = useRef(false);
 
   function loadRegistrations() {
     return requestJson("/api/admin/tryouts",{cache:"no-store"}).then(result=>{
@@ -51,17 +52,24 @@ export default function TryoutCheckInPage() {
   }
 
   useEffect(() => {
-    loadRegistrations();
+    void loadRegistrations();
+    const timer = window.setInterval(() => {
+      if (document.visibilityState === "visible" && !updatingRef.current) {
+        void loadRegistrations();
+      }
+    }, 10000);
+    return () => window.clearInterval(timer);
   }, []);
 
   function hasArrived(registration:Registration) {return registration.attendance?.checked_in??registration.status==="CHECKED_IN";}
   async function saveAttendance(registration:Registration,checked_in:boolean){
+    updatingRef.current = true;
     setUpdating(registration.id);setError("");
     try{
       const response=await fetch("/api/admin/tryouts/attendance",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:registration.id,checked_in,version:registration.attendance?.version||0,request_id:crypto.randomUUID()})});
       const result=await response.json();if(!response.ok)throw Error(result.error||"Attendance could not be saved");
       setRegistrations(rows=>rows.map(row=>row.id===registration.id?{...row,attendance:result.attendance}:row));
-    }catch(reason){await loadRegistrations();setError(reason instanceof Error?reason.message:"Attendance failed");}finally{setUpdating("");}
+    }catch(reason){await loadRegistrations();setError(reason instanceof Error?reason.message:"Attendance failed");}finally{updatingRef.current = false;setUpdating("");}
   }
   function checkIn(registration:Registration){return saveAttendance(registration,true);}
   function undoCheckIn(registration:Registration){return saveAttendance(registration,false);}
@@ -155,6 +163,7 @@ export default function TryoutCheckInPage() {
           </div>
 
           <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={() => void loadRegistrations()} className="rounded-full border border-lime-400 px-5 py-3 text-xs font-black uppercase tracking-[0.12em] text-lime-400">Refresh roster</button>
             <Link
               href="/admin/tryouts"
               className="rounded-full border border-white/10 px-5 py-3 text-xs font-black uppercase tracking-[0.12em]"
