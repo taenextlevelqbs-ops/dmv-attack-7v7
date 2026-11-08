@@ -17,6 +17,7 @@ type Registration = {
   grade: string | null;
   status: string;
   headshot_url: string | null;
+  bib_number: number | null;
 };
 
 const divisions = [
@@ -41,10 +42,13 @@ export default function TryoutCheckInPage() {
   >("ALL");
 
   const [updating, setUpdating] = useState("");
+  const [bibDrafts, setBibDrafts] = useState<Record<string,string>>({});
+  const [payments,setPayments] = useState<Record<string,"UNPAID"|"PENDING"|"PAID">>({});
 
   function loadRegistrations() {
     return requestJson("/api/admin/tryouts",{cache:"no-store"}).then(result=>{
       setRegistrations(result.registrations ?? []);
+      setBibDrafts(Object.fromEntries((result.registrations ?? []).map((r:Registration)=>[r.id,r.bib_number==null?"":String(r.bib_number)])));
       setError("");
 
     }).catch((error:unknown)=>{setError(error instanceof Error?error.message:"Unable to load records");}).finally(()=>setLoading(false));
@@ -52,7 +56,22 @@ export default function TryoutCheckInPage() {
 
   useEffect(() => {
     loadRegistrations();
+    requestJson("/api/admin/tryouts/payments",{cache:"no-store"}).then(result=>setPayments(Object.fromEntries((result.payments??[]).map((p:{registration_id:string;status:"UNPAID"|"PENDING"|"PAID"})=>[p.registration_id,p.status])))).catch(()=>setError("Payment statuses unavailable. Verify payments before admitting athletes."));
   }, []);
+
+  async function saveBib(registration: Registration) {
+    const raw=(bibDrafts[registration.id]??"").trim();
+    const number=raw===""?null:Number(raw);
+    if(number!==null&&(!Number.isInteger(number)||number<1||number>9999)){setError("Sticker numbers must be whole numbers from 1 to 9999.");return;}
+    try {
+      setUpdating(registration.id);setError("");
+      const response=await fetch("/api/admin/tryouts/bib",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({registration_id:registration.id,bib_number:number})});
+      const result=await response.json();
+      if(!response.ok)throw new Error(result.error||"Could not save sticker number");
+      setRegistrations(current=>current.map(item=>item.id===registration.id?{...item,bib_number:number}:item));
+    }catch(e){setError(e instanceof Error?e.message:"Could not save sticker number");}
+    finally{setUpdating("");}
+  }
 
   function hasArrived(status: string) {
     return status !== "REGISTERED";
@@ -207,6 +226,7 @@ export default function TryoutCheckInPage() {
           registration.athlete_first_name,
           registration.athlete_last_name,
           registration.tryout_id,
+          registration.bib_number == null ? "" : String(registration.bib_number),
           registration.school,
           registration.primary_position,
           registration.secondary_position,
@@ -243,12 +263,12 @@ export default function TryoutCheckInPage() {
             </h1>
 
             <p className="mt-3 text-sm leading-6 text-white/45">
-              Find the athlete, verify the headshot and
-              check them in.
+              Verify payment, assign the sticker number, and check the athlete in.
             </p>
           </div>
 
           <div className="flex flex-wrap gap-2">
+            <Link href="/admin/tryouts/check-in/print" className="rounded-full border border-lime-400/50 px-5 py-3 text-xs font-black uppercase tracking-[0.12em] text-lime-400">Print Roster</Link>
             <Link
               href="/admin/tryouts"
               className="rounded-full border border-white/10 px-5 py-3 text-xs font-black uppercase tracking-[0.12em]"
@@ -431,6 +451,10 @@ export default function TryoutCheckInPage() {
                     </div>
 
                     <div className="border-t border-white/10 p-4">
+                      <div className="mb-3 flex items-center justify-between text-xs"><span className="font-bold text-white/60">Payment status</span><span className={payments[registration.id]==="PAID"?"font-black text-lime-400":"font-bold text-amber-300"}>{payments[registration.id]??"UNVERIFIED"}</span></div>
+                      <label htmlFor={`bib-${registration.id}`} className="mb-2 block text-xs font-black uppercase tracking-widest text-white/60">Shirt sticker / Tryout #</label>
+                      <div className="mb-4 flex gap-2"><input id={`bib-${registration.id}`} type="number" min="1" max="9999" inputMode="numeric" placeholder="Sticker #" value={bibDrafts[registration.id]??""} onChange={e=>setBibDrafts(current=>({...current,[registration.id]:e.target.value}))} className="w-full min-w-0 rounded-xl border border-white/20 bg-black p-3 text-lg font-bold text-white"/><button type="button" disabled={updating===registration.id} onClick={()=>void saveBib(registration)} className="rounded-xl bg-white px-4 py-2 text-xs font-black text-black disabled:opacity-50">Save #</button></div>
+                      {registration.bib_number!==null&&<p className="mb-3 text-xs font-bold text-lime-400">Assigned sticker #{registration.bib_number}</p>}
                       {!arrived ? (
                         <button
                           type="button"
