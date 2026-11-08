@@ -12,7 +12,7 @@ export default function StaffCheckinLogin(){
  if(signError)throw new Error("Username or password not recognized.");
  const response=await fetch("/api/auth/route-user",{cache:"no-store"});const result=await response.json();
  if(!response.ok||!["CHECKIN","OWNER","ADMIN"].includes(result.role))throw new Error("This account is not authorized for check-in.");
- router.replace("/admin/tryouts/check-in");router.refresh();
+ router.replace("/check-in");router.refresh();
  }catch(err){setError(err instanceof Error?err.message:"Could not sign in");}
  finally{setBusy(false)}}
  return <main className="flex min-h-screen items-center justify-center bg-black p-5 text-white"><div className="w-full max-w-md rounded-3xl border border-white/15 p-7">
