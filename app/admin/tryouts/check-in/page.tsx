@@ -49,7 +49,7 @@ export default function TryoutCheckInPage() {
   const [confirmations,setConfirmations]=useState<Record<string,boolean>>({});
 
   function loadRegistrations() {
-    return requestJson("/api/admin/tryouts",{cache:"no-store"}).then(result=>{
+    return requestJson("/api/check-in/roster",{cache:"no-store"}).then(result=>{
       setRegistrations(result.registrations ?? []);
       setBibDrafts(Object.fromEntries((result.registrations ?? []).map((r:Registration)=>[r.id,r.bib_number==null?"":String(r.bib_number)])));
       setError("");
@@ -59,7 +59,7 @@ export default function TryoutCheckInPage() {
 
   useEffect(() => {
     loadRegistrations();
-    requestJson("/api/admin/tryouts/payments",{cache:"no-store"}).then(result=>{
+    requestJson("/api/check-in/payments",{cache:"no-store"}).then(result=>{
       const records:Payment[]=result.payments??[];
       setPayments(Object.fromEntries(records.map(p=>[p.registration_id,p])));
       setPaymentDrafts(Object.fromEntries(records.map(p=>[p.registration_id,{method:p.payment_method==="STRIPE"?"STRIPE":"VENMO",note:p.payment_note??""}])));
