@@ -83,6 +83,13 @@ export default function TryoutCheckInPage() {
     finally{setRefreshing(false)}
   }
 
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      if (document.visibilityState === "visible" && !updating && !refreshing) void refreshLive();
+    }, 30000);
+    return () => window.clearInterval(interval);
+  }, [updating, refreshing]);
+
   async function savePayment(registration:Registration,status:"PAID"|"PENDING") {
     const draft=paymentDrafts[registration.id]??{method:"VENMO" as const,note:""};
     if(status==="PAID"&&!confirmations[registration.id]){setError("Confirm the transaction in Venmo or Stripe before marking PAID.");return;}
