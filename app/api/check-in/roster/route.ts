@@ -18,5 +18,5 @@ export async function GET() {
  if(headshot_path){const {data:signed}=await admin.storage.from("tryout-headshots").createSignedUrl(headshot_path,3600);headshot_url=signed?.signedUrl??null;}
  return {...r,headshot_url};
  }));
- return NextResponse.json({registrations},{headers:{"Cache-Control":"private, no-store"}});
+ return NextResponse.json({registrations,role:profile.role},{headers:{"Cache-Control":"private, no-store"}});
 }
