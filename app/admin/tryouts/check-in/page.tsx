@@ -3,6 +3,7 @@ import Image from "next/image";
 import {requestJson} from "@/lib/http.mjs";
 
 import Link from "next/link";
+import {createClient} from "@/lib/supabase/client";
 import { useEffect, useMemo, useState } from "react";
 
 type Registration = {
@@ -43,6 +44,7 @@ export default function TryoutCheckInPage() {
 
   const [updating, setUpdating] = useState("");
   const [refreshing,setRefreshing]=useState(false);
+  const [staffRole,setStaffRole]=useState("");
   const [bibDrafts, setBibDrafts] = useState<Record<string,string>>({});
   type Payment = { registration_id:string; status:"UNPAID"|"PENDING"|"PAID"; payment_method:"VENMO"|"STRIPE"|null; payment_note:string|null };
   const [payments,setPayments] = useState<Record<string,Payment>>({});
@@ -52,6 +54,7 @@ export default function TryoutCheckInPage() {
   function loadRegistrations() {
     return requestJson("/api/check-in/roster",{cache:"no-store"}).then(result=>{
       setRegistrations(result.registrations ?? []);
+      setStaffRole(result.role??"");
       setBibDrafts(Object.fromEntries((result.registrations ?? []).map((r:Registration)=>[r.id,r.bib_number==null?"":String(r.bib_number)])));
       setError("");
 
@@ -75,6 +78,7 @@ export default function TryoutCheckInPage() {
         requestJson("/api/check-in/payments",{cache:"no-store"})
       ]);
       setRegistrations(roster.registrations??[]);
+      setStaffRole(roster.role??"");
       setBibDrafts(current=>Object.fromEntries((roster.registrations??[]).map((r:Registration)=>[r.id,current[r.id]??(r.bib_number==null?"":String(r.bib_number))])));
       const records=paymentResult.payments??[];
       setPayments(Object.fromEntries(records.map((p:Payment)=>[p.registration_id,p])));
@@ -319,20 +323,9 @@ export default function TryoutCheckInPage() {
             <button type="button" onClick={()=>void refreshLive()} disabled={refreshing} className="rounded-full border border-lime-400/60 px-5 py-3 text-xs font-black uppercase tracking-[0.12em] text-lime-400 disabled:opacity-50">{refreshing?"Refreshing…":"Refresh New Signups"}</button>
             <Link href="/admin/tryouts/check-in/walk-ins" className="rounded-full border border-white/10 px-5 py-3 text-xs font-black uppercase tracking-[0.12em]">Walk-In QR Sign</Link>
             <Link href="/admin/tryouts/check-in/print" className="rounded-full border border-lime-400/50 px-5 py-3 text-xs font-black uppercase tracking-[0.12em] text-lime-400">Print Roster</Link>
-            <Link href="/admin/tryouts/check-in/staff" className="rounded-full border border-white/10 px-5 py-3 text-xs font-black uppercase tracking-[0.12em]">Staff Setup (Owner)</Link>
-            <Link
-              href="/admin/tryouts"
-              className="rounded-full border border-white/10 px-5 py-3 text-xs font-black uppercase tracking-[0.12em]"
-            >
-              Tryout Dashboard
-            </Link>
-
-            <Link
-              href="/admin"
-              className="rounded-full border border-white/10 px-5 py-3 text-xs font-black uppercase tracking-[0.12em]"
-            >
-              Admin Home
-            </Link>
+            {staffRole==="OWNER"&&<Link href="/admin/tryouts/check-in/staff" className="rounded-full border border-white/10 px-5 py-3 text-xs font-black uppercase tracking-[0.12em]">Create Staff Login</Link>}
+            {(staffRole==="OWNER"||staffRole==="ADMIN")&&<Link href="/admin/tryouts" className="rounded-full border border-white/10 px-5 py-3 text-xs font-black uppercase tracking-[0.12em]">Tryout Dashboard</Link>}
+            <button type="button" onClick={async()=>{await createClient().auth.signOut();window.location.assign("/check-in/login");}} className="rounded-full border border-white/10 px-5 py-3 text-xs font-black uppercase tracking-[0.12em]">Sign Out</button>
           </div>
         </header>
 
