@@ -5,7 +5,7 @@ const qr="https://api.qrserver.com/v1/create-qr-code/?size=400x400&margin=12&dat
 export default function WalkinQrSign(){
  return <main className="min-h-screen bg-white px-5 py-8 text-center text-black">
   <div className="mx-auto max-w-2xl">
-   <nav className="mb-6 flex justify-between print:hidden"><Link href="/admin/tryouts/check-in" className="rounded border px-4 py-2">Check-in</Link><button type="button" onClick={undefined} className="hidden">Print</button></nav>
+   <nav className="mb-6 flex justify-between print:hidden"><Link href="/admin/tryouts/check-in" className="rounded border px-4 py-2">Check-in</Link><span className="text-sm">Print: Cmd+P / Ctrl+P</span></nav>
    <div className="border-4 border-black p-6 sm:p-10">
     <p className="text-lg font-black tracking-[.2em]">DMV ATTACK 7v7</p>
     <h1 className="mt-4 text-4xl font-black uppercase sm:text-5xl">Walk-In Tryout Registration</h1>
