@@ -38,6 +38,8 @@ export async function GET() {
       destination = "/admin";
     }
 
+    if (profile.role === "CHECKIN") { destination = "/admin/tryouts/check-in"; }
+
     if (profile.role === "PARENT") {
       destination = "/portal";
     }
