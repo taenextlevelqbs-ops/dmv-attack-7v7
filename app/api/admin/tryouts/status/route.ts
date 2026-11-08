@@ -36,7 +36,7 @@ export async function PATCH(request: Request) {
       .eq("id", user.id)
       .single();
 
-    if (!profile || !["OWNER", "ADMIN"].includes(profile.role)) {
+    if (!profile || !["OWNER", "ADMIN", "CHECKIN"].includes(profile.role)) {
       return NextResponse.json(
         { error: "Forbidden" },
         { status: 403 }
@@ -48,7 +48,7 @@ export async function PATCH(request: Request) {
     const id = String(body.id ?? "");
     const status = String(body.status ?? "").toUpperCase();
 
-    if (!id || !allowedStatuses.has(status)) {
+    if (!id || !allowedStatuses.has(status) || (profile.role === "CHECKIN" && !["REGISTERED", "CHECKED_IN"].includes(status))) {
       return NextResponse.json(
         { error: "Invalid status update" },
         { status: 400 }
