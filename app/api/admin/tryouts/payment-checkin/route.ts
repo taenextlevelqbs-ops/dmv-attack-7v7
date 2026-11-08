@@ -9,7 +9,7 @@ export async function PATCH(request: Request) {
   const { data: { user } } = await client.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { data: profile } = await client.from("profiles").select("role").eq("id", user.id).maybeSingle();
-  if (!profile || !["OWNER","ADMIN"].includes(profile.role)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (!profile || !["OWNER","ADMIN","CHECKIN"].includes(profile.role)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const body = await request.json().catch(() => null);
   const id = body?.registration_id;
   const method = body?.payment_method;
