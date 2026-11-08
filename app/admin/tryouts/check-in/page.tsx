@@ -43,7 +43,10 @@ export default function TryoutCheckInPage() {
 
   const [updating, setUpdating] = useState("");
   const [bibDrafts, setBibDrafts] = useState<Record<string,string>>({});
-  const [payments,setPayments] = useState<Record<string,"UNPAID"|"PENDING"|"PAID">>({});
+  type Payment = { registration_id:string; status:"UNPAID"|"PENDING"|"PAID"; payment_method:"VENMO"|"STRIPE"|null; payment_note:string|null };
+  const [payments,setPayments] = useState<Record<string,Payment>>({});
+  const [paymentDrafts,setPaymentDrafts] = useState<Record<string,{method:"VENMO"|"STRIPE";note:string}>>({});
+  const [confirmations,setConfirmations]=useState<Record<string,boolean>>({});
 
   function loadRegistrations() {
     return requestJson("/api/admin/tryouts",{cache:"no-store"}).then(result=>{
@@ -56,8 +59,29 @@ export default function TryoutCheckInPage() {
 
   useEffect(() => {
     loadRegistrations();
-    requestJson("/api/admin/tryouts/payments",{cache:"no-store"}).then(result=>setPayments(Object.fromEntries((result.payments??[]).map((p:{registration_id:string;status:"UNPAID"|"PENDING"|"PAID"})=>[p.registration_id,p.status])))).catch(()=>setError("Payment statuses unavailable. Verify payments before admitting athletes."));
+    requestJson("/api/admin/tryouts/payments",{cache:"no-store"}).then(result=>{
+      const records:Payment[]=result.payments??[];
+      setPayments(Object.fromEntries(records.map(p=>[p.registration_id,p])));
+      setPaymentDrafts(Object.fromEntries(records.map(p=>[p.registration_id,{method:p.payment_method==="STRIPE"?"STRIPE":"VENMO",note:p.payment_note??""}])));
+    }).catch(()=>setError("Payment statuses unavailable. Verify payments before admitting athletes."));
   }, []);
+
+  async function savePayment(registration:Registration,status:"PAID"|"PENDING") {
+    const draft=paymentDrafts[registration.id]??{method:"VENMO" as const,note:""};
+    if(status==="PAID"&&!confirmations[registration.id]){setError("Confirm the transaction in Venmo or Stripe before marking PAID.");return;}
+    if(status==="PAID"&&!draft.note.trim()){setError("Enter the Venmo sender name or Stripe transaction reference before marking PAID.");return;}
+    setUpdating(registration.id);setError("");
+    try {
+      const response=await fetch("/api/admin/tryouts/payment-checkin",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+        registration_id:registration.id,payment_method:draft.method,payment_note:draft.note,status,confirmed:status==="PAID"&&confirmations[registration.id]===true
+      })});
+      const result=await response.json();
+      if(!response.ok)throw new Error(result.error||"Unable to save payment");
+      setPayments(current=>({...current,[registration.id]:result.payment}));
+      setConfirmations(current=>({...current,[registration.id]:false}));
+    }catch(e){setError(e instanceof Error?e.message:"Unable to save payment");}
+    finally{setUpdating("");}
+  }
 
   async function saveBib(registration: Registration) {
     const raw=(bibDrafts[registration.id]??"").trim();
@@ -451,7 +475,18 @@ export default function TryoutCheckInPage() {
                     </div>
 
                     <div className="border-t border-white/10 p-4">
-                      <div className="mb-3 flex items-center justify-between text-xs"><span className="font-bold text-white/60">Payment status</span><span className={payments[registration.id]==="PAID"?"font-black text-lime-400":"font-bold text-amber-300"}>{payments[registration.id]??"UNVERIFIED"}</span></div>
+                      <div className="mb-3 flex items-center justify-between text-xs"><span className="font-bold text-white/60">Payment status</span><span className={payments[registration.id]?.status==="PAID"?"font-black text-lime-400":"font-bold text-amber-300"}>{payments[registration.id]?.status??"UNVERIFIED"}{payments[registration.id]?.payment_method?` • ${payments[registration.id].payment_method}`:""}</span></div>
+                      {payments[registration.id]?.status!=="PAID" ? <div className="mb-4 space-y-2 rounded-xl border border-white/15 p-3">
+                        <label htmlFor={`method-${registration.id}`} className="block text-xs font-bold text-white/70">Payment method</label>
+                        <select id={`method-${registration.id}`} value={paymentDrafts[registration.id]?.method??"VENMO"} onChange={e=>setPaymentDrafts(current=>({...current,[registration.id]:{method:e.target.value as "VENMO"|"STRIPE",note:current[registration.id]?.note??""}}))} className="w-full rounded-lg border border-white/20 bg-black p-3">
+                          <option value="VENMO">Venmo</option><option value="STRIPE">Stripe</option>
+                        </select>
+                        <label htmlFor={`reference-${registration.id}`} className="block text-xs font-bold text-white/70">Sender / transaction reference</label>
+                        <input id={`reference-${registration.id}`} placeholder="Sender name or Stripe payment ID" value={paymentDrafts[registration.id]?.note??""} onChange={e=>setPaymentDrafts(current=>({...current,[registration.id]:{method:current[registration.id]?.method??"VENMO",note:e.target.value}}))} className="w-full rounded-lg border border-white/20 bg-black p-3 text-sm"/>
+                        <button type="button" disabled={updating===registration.id} onClick={()=>void savePayment(registration,"PENDING")} className="w-full rounded-lg border border-amber-400/40 p-3 text-xs font-black text-amber-300 disabled:opacity-50">Parent says paid — Not verified yet</button>
+                        <label className="flex items-start gap-2 text-xs leading-5 text-white/70"><input type="checkbox" checked={confirmations[registration.id]??false} onChange={e=>setConfirmations(current=>({...current,[registration.id]:e.target.checked}))} className="mt-1"/>I checked this actual $20 payment in Venmo or Stripe.</label>
+                        <button type="button" disabled={updating===registration.id||!confirmations[registration.id]} onClick={()=>void savePayment(registration,"PAID")} className="w-full rounded-lg bg-lime-400 p-3 text-xs font-black text-black disabled:opacity-40">Confirm $20 Paid</button>
+                      </div> : <p className="mb-4 text-xs text-lime-400">Verified payment {payments[registration.id]?.payment_note ? `• ${payments[registration.id].payment_note}` : "• Existing verified record"}</p>}
                       <label htmlFor={`bib-${registration.id}`} className="mb-2 block text-xs font-black uppercase tracking-widest text-white/60">Shirt sticker / Tryout #</label>
                       <div className="mb-4 flex gap-2"><input id={`bib-${registration.id}`} type="number" min="1" max="9999" inputMode="numeric" placeholder="Sticker #" value={bibDrafts[registration.id]??""} onChange={e=>setBibDrafts(current=>({...current,[registration.id]:e.target.value}))} className="w-full min-w-0 rounded-xl border border-white/20 bg-black p-3 text-lg font-bold text-white"/><button type="button" disabled={updating===registration.id} onClick={()=>void saveBib(registration)} className="rounded-xl bg-white px-4 py-2 text-xs font-black text-black disabled:opacity-50">Save #</button></div>
                       {registration.bib_number!==null&&<p className="mb-3 text-xs font-bold text-lime-400">Assigned sticker #{registration.bib_number}</p>}
