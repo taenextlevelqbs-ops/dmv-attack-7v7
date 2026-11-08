@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import { FormEvent, useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -11,7 +11,6 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [checking, setChecking] = useState(true);
   const [message, setMessage] = useState("");
 
   const routeUser = useCallback(async () => {
@@ -34,30 +33,6 @@ export default function LoginPage() {
 
     return true;
   }, [router]);
-
-  useEffect(() => {
-    async function checkSession() {
-      try {
-        const supabase = createClient();
-
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-
-        if (session) {
-          const routed = await routeUser();
-
-          if (routed) return;
-        }
-      } catch {
-        setMessage("Unable to verify your session. Please sign in again.");
-      } finally {
-        setChecking(false);
-      }
-    }
-
-    checkSession();
-  }, [routeUser]);
 
   async function handleLogin(
     event: FormEvent<HTMLFormElement>
@@ -132,16 +107,6 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
-  }
-
-  if (checking) {
-    return (
-      <main className="flex min-h-screen items-center justify-center bg-black text-white">
-        <div className="text-xs font-black uppercase tracking-[0.2em] text-white/30">
-          Checking Account...
-        </div>
-      </main>
-    );
   }
 
   return (
