@@ -31,6 +31,8 @@ type PortalData = {
   } | null;
   athletes: Athlete[];
   message?: string;
+  fees?: {id:string;registration_id:string;status:string;balance_cents:number;eligible:boolean}[];
+  offers?: {id:string;roster_status:string;teams:{name:string;season:string}|null}[];
 };
 
 export default function FamilyPortal() {
@@ -38,6 +40,8 @@ export default function FamilyPortal() {
   const [data, setData] = useState<PortalData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [paying,setPaying]=useState("");
+  const [paymentError,setPaymentError]=useState("");
 
   useEffect(() => {
     async function loadPortal() {
@@ -284,6 +288,7 @@ export default function FamilyPortal() {
               )}
             </section>
 
+            <section className="mt-10 rounded-3xl border border-white/15 p-6"><h2 className="text-2xl font-black uppercase">Team Offers &amp; Registration</h2>{paymentError&&<p role="alert" className="mt-4 text-red-300">{paymentError}</p>}{data.offers?.map(offer=><p key={offer.id} className="mt-4 text-sm text-white/70">{offer.teams?.name||"Team assignment"} · {offer.teams?.season} · {offer.roster_status}</p>)}{data.fees?.map(fee=><div key={fee.id} className="mt-5 rounded-2xl border border-white/15 p-5"><p className="font-bold">Team fee: {fee.status} · Balance ${(fee.balance_cents/100).toFixed(2)}</p>{fee.eligible&&fee.balance_cents===75000&&<button disabled={paying===fee.id} className="site-button site-button-primary mt-4" onClick={async()=>{setPaying(fee.id);try{const r=await fetch("/api/portal/team-fee",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({account_id:fee.id})});const result=await r.json();if(!r.ok)throw Error(result.error);const url=new URL(result.url);if(url.protocol!=="https:"||url.hostname!=="checkout.stripe.com")throw Error("Invalid checkout destination");window.location.assign(url.href);}catch(reason){setPaymentError(reason instanceof Error?reason.message:"Checkout unavailable");}finally{setPaying("");}}}>{paying===fee.id?"Opening Stripe…":"Pay $750 Team Registration"}</button>}</div>)}<p className="mt-4 text-xs leading-6 text-white/60">Only accepted athletes can start team registration checkout. Payment is confirmed by Stripe, never by a return URL.</p></section>
             <section className="mt-12 grid gap-4 md:grid-cols-2">
               <ComingSoon
                 title="Schedule"
@@ -300,10 +305,7 @@ export default function FamilyPortal() {
                 text="Organization and team updates will appear here."
               />
 
-              <ComingSoon
-                title="Payments"
-                text="Program balances, payment history and receipts will live here."
-              />
+
             </section>
           </>
         )}

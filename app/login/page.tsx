@@ -1,5 +1,6 @@
 "use client";
 
+import ParentEmailSignIn from "@/components/parent-email-sign-in";
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -237,6 +238,7 @@ export default function LoginPage() {
             multiple DMV Attack athletes.
           </p>
         </div>
+        <ParentEmailSignIn />
       </div>
     </main>
   );

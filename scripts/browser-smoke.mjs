@@ -103,6 +103,7 @@ const fixture = createServer(async (req, res) => {
         ? send(200, {
             id,
             email: "fixture@example.invalid",
+            email_confirmed_at: "2026-01-01T00:00:00Z",
             aud: "authenticated",
             role: "authenticated",
             app_metadata: {},
@@ -136,6 +137,14 @@ const fixture = createServer(async (req, res) => {
     }
     if (url.pathname === "/rest/v1/rpc/generate_public_tryout_id")
       return send(200, `DMV-FIXTURE-${++idCount}`);
+    if(url.pathname==="/rest/v1/tryout_attendance")return send(404,{code:"PGRST205",message:"Operations migration pending"});
+    if(url.pathname==="/rest/v1/rpc/set_tryout_attendance")return send(404,{code:"PGRST202",message:"Operations migration pending"});
+    if(url.pathname==="/rest/v1/rpc/accept_tryout_athlete"){
+      const row=registrations.find(r=>r.id===body.p_registration_id),offer=assignments.find(a=>a.tryout_submission_id===body.p_registration_id&&a.team_id===body.p_team_id);
+      if(!row||!offer||!["OFFERED","ACCEPTED","ACTIVE"].includes(offer.roster_status))return send(409,{message:"Offer required"});
+      row.status="ACCEPTED";offer.roster_status="ACCEPTED";
+      return send(200,{athlete_id:row.linked_athlete_id,family_id:row.linked_family_id,notification_id:"dddddddd-dddd-4ddd-8ddd-dddddddddddd",team_id:offer.team_id,parent_email:row.parent_email});
+    }
     if (url.pathname.startsWith("/rest/v1/rpc/")) {
       const name = url.pathname.split("/").at(-1);
       let result;
@@ -172,6 +181,7 @@ const fixture = createServer(async (req, res) => {
       return send(200, result.rows[0].id);
     }
     const table = url.pathname.replace("/rest/v1/", "");
+    if(table==="foundation_contributions"&&req.method==="GET")return send(200,[]);
     const single = (req.headers.accept || "").includes("vnd.pgrst.object");
     if (["roster_assignments", "family_members"].includes(table)) {
       const rows = table === "roster_assignments" ? assignments : members;
@@ -216,11 +226,10 @@ const fixture = createServer(async (req, res) => {
       const idFilter=url.searchParams.get("id");
       const id=idFilter?.startsWith("eq.")?idFilter.slice(3):undefined;
       if (req.method === "PATCH") {
-        Object.assign(
-          rows.find((r) => r.id === id),
-          body,
-        );
-        return send(200, null);
+        const expected=url.searchParams.get("status")?.replace("eq.","");
+        const row=rows.find(r=>r.id===id&&(!expected||r.status===expected));
+        if(row)Object.assign(row,body);
+        return send(200,(req.headers.prefer||"").includes("return=representation")?(row?[row]:[]):null);
       }
       let result = id ? rows.filter((r) => r.id === id) : rows;
       if(idFilter?.startsWith("in.(")){const ids=new Set(idFilter.slice(4,-1).split(","));result=result.filter(r=>ids.has(r.id));}
@@ -289,6 +298,8 @@ const fixture = createServer(async (req, res) => {
 await new Promise((resolve) => fixture.listen(4481, "127.0.0.1", resolve));
 const env = {
   ...process.env,
+  ACCEPTANCE_EMAILS_ENABLED: "false",
+  RESEND_API_KEY: "",
   NEXT_PUBLIC_SUPABASE_URL: provider,
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "fixture-public",
   SUPABASE_SECRET_KEY: "fixture-service",
@@ -526,6 +537,15 @@ try {
     ]);
     assert.ok(scroll <= client + 1, `Fee page overflow ${width}`);
   }
+  // Event-day attendance is exercised against the deliberately unmigrated fixture.
+  await page.goto(origin+"/admin/tryouts/check-in");
+  await page.getByPlaceholder(/Search/).fill("Sam");
+  await page.getByRole("button",{name:"Check In",exact:true}).click();
+  await page.getByRole("button",{name:"Undo",exact:true}).click();
+  await page.getByRole("button",{name:"Check In",exact:true}).waitFor();
+  assert.equal(registrations[0].status,"REGISTERED");
+  assert.equal((await context.request.patch(origin+"/api/admin/tryouts/attendance",{headers:{Origin:"https://other.invalid"},data:{}})).status(),403);
+  assert.equal((await context.request.post(origin+"/api/portal/team-fee",{headers:{Origin:origin},data:{account_id:account}})).status(),403);
   const accepted = await context.request.post(
     origin + "/api/admin/rosters/accept",
     {
@@ -534,6 +554,11 @@ try {
     },
   );
   assert.equal(accepted.status(), 200, await accepted.text());
+  assert.equal((await accepted.json()).notification.status,"DISABLED");
+  assert.equal((await context.request.post(origin+"/api/portal/team-fee",{headers:{Origin:origin},data:{account_id:account}})).status(),403,"Accepted status alone must not bypass family membership");
+  members.push({id:crypto.randomUUID(),profile_id:owner,family_id:registrations[0].linked_family_id});
+  assert.equal((await context.request.post(origin+"/api/portal/team-fee",{headers:{Origin:origin},data:{account_id:account}})).status(),409,"Adjusted accounts must not open a new $750 charge");
+  members.length=0;
   assert.equal(
     (await (await context.request.get(origin + "/api/auth/route-user")).json())
       .destination,
@@ -621,8 +646,8 @@ try {
   await guest.getByRole("heading",{name:"Test Registrant",exact:true}).waitFor();
   assert.equal(await guest.getByText("Payment confirmed",{exact:true}).count(),0);
   await guest.getByRole("link",{name:"Pay $20 with Stripe",exact:true}).waitFor();
-  assert.equal(await guest.getByRole("link",{name:"Pay $20 with Stripe",exact:true}).getAttribute("href"),"https://buy.stripe.com/5kQfZa9Op1yj2Cq0yt3F600");
-  assert.equal(await guest.getByRole("link",{name:"Pay $20 with Venmo",exact:true}).getAttribute("href"),"https://venmo.com/code?user_id=4448738877638638119&created=1792019750.353775&printed=1");
+  assert.equal(await guest.getByRole("link",{name:"Pay $20 with Stripe",exact:true}).getAttribute("href"),"https://buy.stripe.com/5kQfZa9Op1yj2Cq0yt3F600?client_reference_id=DMV-FIXTURE-1");
+  assert.equal(await guest.getByRole("link",{name:/Venmo/}).count(),0);
   await guest.reload();
   await guest.getByRole("heading",{name:"Test Registrant",exact:true}).waitFor();
   assert.ok(
@@ -693,10 +718,9 @@ try {
       assert.ok((await events.nth(index).innerText()).includes(date));
       assert.ok((await events.nth(index).innerText()).includes("3:00–4:30 PM"));
     }
-    const stripeButton=audit.getByRole("link",{name:"Pay $20 with Stripe",exact:true}),venmoButton=audit.getByRole("link",{name:"Pay $20 with Venmo",exact:true});
-    const sb=await stripeButton.boundingBox(),vb=await venmoButton.boundingBox();assert.ok(Math.abs(sb.height-vb.height)<1,"equal payment button heights");assert.ok(Math.abs(sb.width-vb.width)<1,"equal payment button widths");
-    for(const button of [stripeButton,venmoButton]){assert.equal(await button.getAttribute("target"),"_blank");assert.match(await button.getAttribute("rel"),/noopener/);}
-    if(width>=768)assert.ok(Math.abs(sb.y-vb.y)<1,"aligned payment buttons");
+    const stripeButton=audit.getByRole("link",{name:"Pay $20 with Stripe",exact:true});
+    assert.equal(await stripeButton.getAttribute("target"),"_blank");assert.match(await stripeButton.getAttribute("rel"),/noopener/);
+    assert.equal(await audit.getByRole("link",{name:/Venmo/}).count(),0);
     await audit.locator('[name="Tryout Division"]').selectOption("18U");
     await audit.getByText("Sunday, November 22, 2026 · 3:00–4:30 PM EST",{exact:true}).waitFor();
     await audit.evaluate(()=>window.scrollTo(0,0));

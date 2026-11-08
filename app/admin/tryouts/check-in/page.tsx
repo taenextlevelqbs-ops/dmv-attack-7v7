@@ -17,11 +17,11 @@ type Registration = {
   grade: string | null;
   status: string;
   headshot_url: string | null;
+  attendance?: {checked_in:boolean;version:number};
 };
 
 const divisions = [
   "ALL",
-  "8U",
   "10U",
   "12U",
   "14U",
@@ -54,109 +54,17 @@ export default function TryoutCheckInPage() {
     loadRegistrations();
   }, []);
 
-  function hasArrived(status: string) {
-    return status !== "REGISTERED";
+  function hasArrived(registration:Registration) {return registration.attendance?.checked_in??registration.status==="CHECKED_IN";}
+  async function saveAttendance(registration:Registration,checked_in:boolean){
+    setUpdating(registration.id);setError("");
+    try{
+      const response=await fetch("/api/admin/tryouts/attendance",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:registration.id,checked_in,version:registration.attendance?.version||0,request_id:crypto.randomUUID()})});
+      const result=await response.json();if(!response.ok)throw Error(result.error||"Attendance could not be saved");
+      setRegistrations(rows=>rows.map(row=>row.id===registration.id?{...row,attendance:result.attendance}:row));
+    }catch(reason){await loadRegistrations();setError(reason instanceof Error?reason.message:"Attendance failed");}finally{setUpdating("");}
   }
-
-  async function checkIn(registration: Registration) {
-    try {
-      setUpdating(registration.id);
-
-      const response = await fetch(
-        "/api/admin/tryouts/status",
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            id: registration.id,
-            status: "CHECKED_IN",
-          }),
-        }
-      );
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          result.error || "Unable to check athlete in"
-        );
-      }
-
-      setRegistrations((current) =>
-        current.map((item) =>
-          item.id === registration.id
-            ? { ...item, status: "CHECKED_IN" }
-            : item
-        )
-      );
-    } catch (err) {
-      alert(
-        err instanceof Error
-          ? err.message
-          : "Unable to check athlete in"
-      );
-    } finally {
-      setUpdating("");
-    }
-  }
-
-  async function undoCheckIn(registration: Registration) {
-    if (
-      registration.status !== "CHECKED_IN"
-    ) {
-      return;
-    }
-
-    const confirmed = window.confirm(
-      `Mark ${registration.athlete_first_name} ${registration.athlete_last_name} as not arrived?`
-    );
-
-    if (!confirmed) return;
-
-    try {
-      setUpdating(registration.id);
-
-      const response = await fetch(
-        "/api/admin/tryouts/status",
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            id: registration.id,
-            status: "REGISTERED",
-          }),
-        }
-      );
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          result.error || "Unable to undo check-in"
-        );
-      }
-
-      setRegistrations((current) =>
-        current.map((item) =>
-          item.id === registration.id
-            ? { ...item, status: "REGISTERED" }
-            : item
-        )
-      );
-    } catch (err) {
-      alert(
-        err instanceof Error
-          ? err.message
-          : "Unable to undo check-in"
-      );
-    } finally {
-      setUpdating("");
-    }
-  }
+  function checkIn(registration:Registration){return saveAttendance(registration,true);}
+  function undoCheckIn(registration:Registration){return saveAttendance(registration,false);}
 
   const stats = useMemo(() => {
     const scoped =
@@ -167,7 +75,7 @@ export default function TryoutCheckInPage() {
           );
 
     const arrived = scoped.filter((item) =>
-      hasArrived(item.status)
+      hasArrived(item)
     ).length;
 
     return {
@@ -189,9 +97,7 @@ export default function TryoutCheckInPage() {
           return false;
         }
 
-        const arrived = hasArrived(
-          registration.status
-        );
+        const arrived = hasArrived(registration);
 
         if (show === "ARRIVED" && !arrived) {
           return false;
@@ -242,7 +148,7 @@ export default function TryoutCheckInPage() {
               Check-In
             </h1>
 
-            <p className="mt-3 text-sm leading-6 text-white/45">
+            <p className="mt-3 text-sm leading-6 text-white/70">
               Find the athlete, verify the headshot and
               check them in.
             </p>
@@ -283,16 +189,16 @@ export default function TryoutCheckInPage() {
           />
         </section>
 
-        <section className="sticky top-0 z-30 -mx-4 mt-6 border-y border-white/10 bg-black/95 px-4 py-4 backdrop-blur-xl md:-mx-8 md:px-8">
+        <section className="sticky top-[68px] z-30 -mx-4 mt-6 border-y border-white/10 bg-black/95 px-4 py-4 backdrop-blur-xl md:-mx-8 md:px-8">
           <div className="mx-auto max-w-7xl">
             <input
               value={search}
               onChange={(event) =>
                 setSearch(event.target.value)
               }
-              autoFocus
+              aria-label="Search athletes"
               placeholder="Search name, Tryout ID, school or position..."
-              className="w-full rounded-2xl border border-white/10 bg-white/[0.05] px-5 py-4 text-base font-semibold outline-none placeholder:text-white/25 focus:border-lime-400"
+              className="w-full rounded-2xl border border-white/10 bg-white/[0.05] px-5 py-4 text-base font-semibold outline-none placeholder:text-white/55 focus:border-lime-400"
             />
 
             <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
@@ -334,7 +240,7 @@ export default function TryoutCheckInPage() {
                   className={`rounded-full px-4 py-2 text-[10px] font-black uppercase tracking-[0.1em] ${
                     show === value
                       ? "bg-white text-black"
-                      : "border border-white/10 text-white/45"
+                      : "border border-white/10 text-white/70"
                   }`}
                 >
                   {label}
@@ -351,20 +257,18 @@ export default function TryoutCheckInPage() {
         )}
 
         {loading ? (
-          <div className="py-20 text-center text-sm font-bold uppercase tracking-[0.2em] text-white/30">
+          <div className="py-20 text-center text-sm font-bold uppercase tracking-[0.2em] text-white/65">
             Loading Athletes...
           </div>
         ) : (
           <>
-            <div className="mt-6 text-xs font-black uppercase tracking-[0.16em] text-white/30">
+            <div className="mt-6 text-xs font-black uppercase tracking-[0.16em] text-white/65">
               {filtered.length} athletes
             </div>
 
             <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
               {filtered.map((registration) => {
-                const arrived = hasArrived(
-                  registration.status
-                );
+                const arrived = hasArrived(registration);
 
                 return (
                   <article
@@ -399,7 +303,7 @@ export default function TryoutCheckInPage() {
                               {registration.tryout_id}
                             </div>
 
-                            <h2 className="mt-1 truncate text-xl font-black uppercase">
+                            <h2 className="mt-1 break-words text-xl font-black uppercase">
                               {
                                 registration.athlete_first_name
                               }{" "}
@@ -453,8 +357,7 @@ export default function TryoutCheckInPage() {
                             ✓ Checked In
                           </div>
 
-                          {registration.status ===
-                            "CHECKED_IN" && (
+                          {arrived && (
                             <button
                               type="button"
                               disabled={
@@ -518,7 +421,7 @@ function Stat({
         className={`text-[8px] font-black uppercase tracking-[0.15em] md:text-[10px] ${
           highlight
             ? "text-lime-400"
-            : "text-white/30"
+            : "text-white/65"
         }`}
       >
         {label}

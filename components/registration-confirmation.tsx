@@ -133,7 +133,7 @@ export default function RegistrationConfirmation({
             division.
           </li>
           <li>
-            If you haven’t paid, choose one $20 payment option above and keep
+            If you haven’t paid, complete the $20 Stripe payment above and keep
             your receipt.
           </li>
           <li>

@@ -108,15 +108,7 @@ export default function TeamsPage() {
         );
       }
 
-      if (result.parent_account_linked) {
-        window.alert(
-          "Player activated successfully. Family and parent portal account are connected."
-        );
-      } else {
-        window.alert(
-          `Player activated successfully. Family and athlete records were created. Parent account still needs activation for ${result.parent_email}.`
-        );
-      }
+      window.alert(`Athlete accepted and permanent family/athlete profiles saved. Acceptance email: ${result.notification?.status || "Unavailable"}. Parents must verify their email before portal access.`);
 
       await loadRosters();
     } catch (error) {
@@ -463,6 +455,7 @@ export default function TeamsPage() {
                       key={assignment.id}
                       className="overflow-hidden rounded-[26px] border border-white/10 bg-white/[0.03]"
                     >
+                      {["ACCEPTED","ACTIVE"].includes(assignment.roster_status)&&<button className="m-4 rounded-xl border border-white/20 px-4 py-3 text-xs font-bold text-lime-400" onClick={async()=>{const r=await fetch("/api/admin/rosters/notify",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({assignment_id:assignment.id})});const d=await r.json();window.alert(d.sent?"Acceptance notification sent.":`Notification status: ${d.status||d.error||"Unavailable"}. Check delivery settings.`);}}>Send / Retry Acceptance Email</button>}
                       <div className="flex gap-4 p-4">
                         <div className="h-24 w-20 shrink-0 overflow-hidden rounded-2xl bg-white/5">
                           {athlete.headshot_url ? (

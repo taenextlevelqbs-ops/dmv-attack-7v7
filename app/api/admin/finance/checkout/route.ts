@@ -39,6 +39,8 @@ export async function POST(request: Request) {
     const { data: account, error: accountError } = await auth.admin.from("team_fee_accounts").select("*").eq("id", body.account_id).maybeSingle();
     if (accountError) throw accountError;
     if (!account) return response({ error: "Fee account not found." }, 404);
+    const {data:accepted,error:acceptedError}=await auth.admin.from("roster_assignments").select("id").eq("tryout_submission_id",account.registration_id).eq("team_id",account.team_id).in("roster_status",["ACCEPTED","ACTIVE"]).maybeSingle();
+    if(acceptedError)throw acceptedError;if(!accepted)return response({error:"Athlete must be accepted before team payment checkout."},403);
     const transactions = await allRows((start, end) => auth.admin.from("team_fee_transactions").select("*").eq("account_id", account.id).order("id").range(start, end));
     if (transactions.error) throw transactions.error;
     if (amount > summarizeAccount(account, transactions.data || [], "").balance_cents)

@@ -1,0 +1,42 @@
+# Tryout operations release
+
+Status: implementation on a review branch; production deployment is blocked by missing migration/deployment access and network policy. Do not merge/deploy before the prerequisites below. Baseline application rollback: `623b62e` (main at audit start).
+
+## Preserved production data
+
+Read-only audit found 38 registrations, each with a headshot. A second full-row canonical SHA-256 comparison matched the initial audit exactly, and all 38 private headshot object HEAD requests returned HTTP 200. No production registration, storage object, acceptance, payment, family, or athlete was modified during testing. Two active 18U teams already exist; the implementation uses team IDs rather than inventing teams.
+
+## Implementation
+
+- Mobile check-in supports search, division/arrival filters, totals, check-in and undo. Independent attendance, optimistic version checks and audit request IDs prevent overwriting decisions. Before migration, the fallback only changes REGISTERED/CHECKED_IN with a compare-and-set update; advanced statuses require migration.
+- Staff acceptance is a SQL transaction: validates an offered matching active team, prevents two accepted teams in one season, reuses normalized parent-email families and name/DOB athletes, preserves headshot paths, creates a $750 account only if absent, and queues one notification. Ambiguous preexisting identities stop for manual review rather than merge/delete history.
+- Acceptance delivery is explicitly disabled by default. Staff can retry from Teams. Delivery provisions/links the matching parent identity without demoting existing staff, then sends through Resend with an idempotency key, payload hash and delivery audit. Parents must confirm their email before access. Provider acceptance is not proof of inbox delivery.
+- Parent portal requires verified authentication and family membership. $750 checkout additionally requires accepted registration plus accepted/active team assignment. Adjusted/partially paid accounts go to staff; no arbitrary amounts are accepted from clients. Existing owner ledger still supports adjustments and historical payments.
+- Visible public Venmo payment links removed. Historical VENMO ledger entries remain intact. Confirmation Stripe links include the registration's Tryout ID. Webhooks require a signed raw body, exact shared Payment Link, matching registration ID/email, $20 USD settled intent and matching live/test mode. Refunds are cumulative and retries idempotent. Duplicate payments are retained for review, never silently refunded.
+- Browser access to registrations, families, athletes, roster and payment tables is revoked; server routes use service role after authorization. Profiles allow authenticated self-read only and no browser role writes. New RPCs are service-only.
+
+## Required release order
+
+1. Take a Supabase database backup and storage recovery snapshot; retain the current Vercel deployment ID. The audit digest is a preservation check, not a database backup.
+2. In Supabase SQL Editor, run `supabase/migrations/20261108_tryout_operations.sql` after the existing tryout payment, team ledger and Stripe checkout migrations. This additive SQL does not accept or backfill real athletes. Verify success and current RLS/policies/grants. The SQL cannot be applied with the available REST key.
+3. Configure Vercel production server environment: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_TEAM_PRICE_ID` (active one-time USD 75000), `PAYMENTS_BASE_URL=https://www.dmvattack.com`, `RESEND_API_KEY`, and verified `ACCEPTANCE_EMAIL_FROM`. Keep `ACCEPTANCE_EMAILS_ENABLED=false` until delivery configuration is approved. Never put service/Stripe/email secrets in NEXT_PUBLIC variables.
+4. Configure the Stripe webhook at `https://www.dmvattack.com/api/stripe/webhook`: checkout.session.completed, checkout.session.async_payment_succeeded, checkout.session.async_payment_failed, checkout.session.expired, payment_intent.payment_failed, charge.refunded, refund.created and refund.updated. Use its endpoint-specific signing secret. Existing Foundation webhook is separate and must be retained.
+5. Confirm the existing $20 Payment Link is active, one-time USD 2000, with no optional/tax amounts that would change the expected total. Payments from the generic public link or older sessions lacking a Tryout ID cannot be auto-matched; reconcile explicitly by staff. Do not mark historical payments paid from a success-page visit.
+6. Configure Supabase Auth Site URL and redirect allowlist for the canonical production `/auth/callback` and `/auth/confirm` URLs; configure SMTP and compatible magic-link/invite templates. Test verified email sign-in in an isolated preview database and approved test inbox. Do not email real accepted families to test.
+7. Publish this environment's saved network/credential draft. The saved draft adds api.resend.com; the running environment still only permits the Supabase custom host. Also allow production, Stripe, Vercel and GitHub API domains already requested in the draft. Cloud environment settings do not configure Vercel automatically.
+8. Use an isolated Supabase project + Stripe test mode + test-only webhook + test inbox in Vercel preview for provider-level E2E. Production code refuses a test key in a production deployment. Never substitute production Supabase for test fixtures. Verify new registration/headshot, failed/paid/duplicate/refunded $20, staff access/check-in/conflicts, offer/accept/retry, sibling deduplication, both 18U assignments, wrong-family denial, verified sign-in, accepted-only $750 checkout, settlement and refunds.
+9. Merge only after migration/provider preview passes, deploy Vercel production, wait for READY, verify the deployed commit/domain and public/admin read-only routes, and compare registration/headshot preservation. Enable acceptance emails only for intentional staff acceptance/delivery actions. Do not run production mutation tests or live charges.
+
+## Validation and limitations
+
+Verified locally: all 15 tests pass; the complete browser smoke suite passes, including 12 public routes at 320/390/768/1440 widths, map selection, mobile navigation, registration/duplicate handling, protected headshots, check-in/undo, disabled acceptance email, family payment access denial and adjusted-fee rejection. Changed-file ESLint passes.
+
+`npm test` exercises isolated PostgreSQL fixtures containing 38 synthetic registrations, including SQL acceptance identity reuse, wrong-parent rejection, role preservation, RLS, attendance idempotency/version conflicts, two 18U teams, fee creation, receipt/refund reconciliation, outbox leases and security rollback. Stripe SDK/provider behavior is mocked. Browser smoke uses an isolated HTTP Supabase fixture, synthetic files and disabled payment/email credentials; it covers public responsive routes, registration, admin finance and check-in. Its acceptance API provider is a fixture; actual transactional SQL is tested separately.
+
+Repository-wide lint currently reports one preexisting `react-hooks/set-state-in-effect` error in `components/foundation-checkout-form.tsx` and two existing image warnings in the Foundation/home pages. Those unrelated files are unchanged. Changed application/test files are linted separately.
+
+Not verified: real Stripe link/product/webhook configuration, provider-level $750 checkout, Resend sender/inbox delivery, Supabase SMTP/templates, deployed RLS/migration, Vercel environment/deployment and dmvattack.com production response. Network probes to production, Stripe and Vercel returned CONNECT 403; required provider/deployment credentials were absent. No claim of production readiness is made.
+
+## Rollback
+
+Redeploy the retained prior Vercel deployment or revert application code to baseline `623b62e`. Keep additive tables, permanent profiles, receipts, fees and audit history; never delete athletes or registrations to roll back. The new attendance writer also mirrors only legacy REGISTERED/CHECKED_IN statuses, leaving accepted decisions intact. If security hardening specifically needs reversal, review and run `supabase/rollback/20261108_tryout_operations_security.sql`; it restores captured grants/RLS and removes only the two new profile policies. This deliberately preserves new tables/data. Restoring old grants can restore old security weaknesses: prefer code rollback with hardening retained where compatible. Do not replay acceptance emails or provider transactions as part of rollback.

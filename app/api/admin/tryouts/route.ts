@@ -1,3 +1,5 @@
+import {allRows} from "@/lib/admin/pagination";
+import {missingTable} from "@/lib/operations/server";
 import { NextResponse } from "next/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { createClient as createServerClient } from "@/lib/supabase/server";
@@ -49,11 +51,10 @@ export async function GET() {
       },
     });
 
-    const { data, error } = await admin
-      .from("tryout_submissions")
-      .select("*")
-      .order("submitted_at", { ascending: false });
-
+    const {data,error}=await allRows((start,end)=>admin.from("tryout_submissions").select("*").order("submitted_at",{ascending:false}).range(start,end));
+    const attendance=await admin.from("tryout_attendance").select("registration_id,checked_in,version,updated_at");
+    if(attendance.error&&!missingTable(attendance.error))throw attendance.error;
+    const attendanceMap=new Map((attendance.data||[]).map(a=>[a.registration_id,a]));
     if (error) {
       console.error(error);
 
@@ -77,6 +78,7 @@ export async function GET() {
 
         return {
           ...registration,
+          attendance:attendanceMap.get(registration.id)||{checked_in:registration.status==="CHECKED_IN",version:0},
           headshot_url: headshotUrl,
         };
       })
@@ -85,7 +87,8 @@ export async function GET() {
     return NextResponse.json({
       registrations,
       role: profile.role,
-    });
+      attendance_mode:attendance.error?"LEGACY":"INDEPENDENT",
+    },{headers:{"Cache-Control":"private, no-store"}});
   } catch (error) {
     console.error("Admin tryouts error:", error);
 

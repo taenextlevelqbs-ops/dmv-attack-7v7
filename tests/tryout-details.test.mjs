@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {TRYOUT_EVENTS,TRYOUT_LOCATION,TRYOUT_TIME,TRYOUT_JSON_LD,STRIPE_TRYOUT_URL,VENMO_TRYOUT_URL,tryoutForDivision,validConfirmation} from '../lib/tryouts.mjs';
+import {TRYOUT_EVENTS,TRYOUT_LOCATION,TRYOUT_TIME,TRYOUT_JSON_LD,STRIPE_TRYOUT_URL,tryoutForDivision,validConfirmation} from '../lib/tryouts.mjs';
 test('confirmed tryout dates are Sundays with exact EST times and correct division mappings',()=>{
  assert.equal(TRYOUT_EVENTS.length,2);assert.equal(TRYOUT_TIME,'3:00–4:30 PM');
  assert.deepEqual(TRYOUT_EVENTS.map(e=>e.date),['2026-11-08','2026-11-22']);
@@ -11,7 +11,7 @@ test('confirmed tryout dates are Sundays with exact EST times and correct divisi
 });
 test('SEO event schema agrees with the visible event schedule and $20 price',()=>{
  for(const [i,e]of TRYOUT_EVENTS.entries()){assert.equal(TRYOUT_JSON_LD[i].startDate,e.start);assert.equal(TRYOUT_JSON_LD[i].endDate,e.end);assert.equal(TRYOUT_JSON_LD[i].offers.price,20);assert.equal(TRYOUT_JSON_LD[i].offers.priceCurrency,'USD');}
- assert.equal(STRIPE_TRYOUT_URL,'https://buy.stripe.com/5kQfZa9Op1yj2Cq0yt3F600');assert.equal(new URL(VENMO_TRYOUT_URL).searchParams.get('user_id'),'4448738877638638119');
+ assert.equal(STRIPE_TRYOUT_URL,'https://buy.stripe.com/5kQfZa9Op1yj2Cq0yt3F600');
 });
 test('confirmation contains only bounded registration display data, never payment claims',()=>{
  assert.equal(validConfirmation({id:'DMV-001',athlete:'Example Athlete',division:'12U'}),true);

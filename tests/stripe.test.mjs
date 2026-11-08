@@ -30,7 +30,7 @@ test("Stripe reconciliation uses current provider state and validates account, a
   const link = { id: "link", account_id: "account", amount_cents: 10000, session_id: session.id };
   const db = { from: () => ({ select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: link }) }) }) }),
     rpc: async (_, args) => { calls.push(args); return {}; } };
-  let intent = { status: "processing", latest_charge: { disputed: false } };
+  let intent = { status: "processing",currency:"usd",amount:10000,amount_received:10000, latest_charge: { disputed: false } };
   const stripe = { checkout: { sessions: { retrieve: async () => session } },
     paymentIntents: { retrieve: async () => intent },
     refunds: { list: async function* () { yield { status: "pending", amount: 1000 }; yield { status: "succeeded", amount: 2000 }; } } };

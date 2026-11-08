@@ -72,13 +72,17 @@ export async function PATCH(request: Request) {
       },
     });
 
-    const { error } = await admin
+    if(["CHECKED_IN","ACCEPTED"].includes(status))return NextResponse.json({error:"Use the dedicated attendance or acceptance workflow to preserve identity and attendance records."},{status:409});
+    const {data:current,error:currentError}=await admin.from("tryout_submissions").select("status").eq("id",id).maybeSingle();
+    if(currentError||!current)return NextResponse.json({error:"Registration not found"},{status:404});
+    if(current.status==="ACCEPTED")return NextResponse.json({error:"An accepted roster must be changed through the roster workflow."},{status:409});
+    const { data: updated, error } = await admin
       .from("tryout_submissions")
       .update({
         status,
         updated_at: new Date().toISOString(),
       })
-      .eq("id", id);
+      .eq("id", id).eq("status",current.status).select("id");
 
     if (error) {
       console.error(error);
@@ -89,6 +93,7 @@ export async function PATCH(request: Request) {
       );
     }
 
+    if(!updated?.length)return NextResponse.json({error:"Status changed on another device. Refresh and retry."},{status:409});
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Status update error:", error);

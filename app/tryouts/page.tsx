@@ -42,7 +42,7 @@ export default function TryoutsPage() {
       <DmvPageHeader
         eyebrow="DMV Attack 7v7"
         title="2027 Season Tryouts"
-        description="Your next season starts here. Join DMV Attack for youth and high school tryouts this November. Register your athlete, save your Tryout ID, then choose Stripe or Venmo for the $20 fee."
+        description="Your next season starts here. Join DMV Attack for youth and high school tryouts this November. Register your athlete, save your Tryout ID, then choose Stripe for the $20 fee."
         buttonText="Register your athlete"
         buttonHref="#registration"
       />
@@ -583,7 +583,7 @@ export default function TryoutsPage() {
 
             <p className="mt-4 max-w-2xl text-sm font-semibold leading-7 text-black/65">
               The tryout fee is $20 per athlete. Register first, then choose
-              Stripe or Venmo on your confirmation page. Staff verifies payment
+              Stripe on your confirmation page. Staff verifies payment
               separately. After submitting, your athlete will be added directly
               to the DMV Attack tryout system and assigned a unique Tryout ID.
               Keep that ID for check-in and future tryout communication.

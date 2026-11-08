@@ -72,10 +72,10 @@ const statuses = [
   "ALL",
   "REGISTERED",
   "CHECKED_IN",
+  "ACCEPTED",
   "EVALUATING",
   "CALLBACK",
   "OFFERED",
-  "ACCEPTED",
   "DECLINED",
   "PASS",
 ];
@@ -303,7 +303,7 @@ export default function AdminTryoutsPage() {
             className="rounded-2xl border border-white/10 bg-black px-5 py-4 text-sm font-bold outline-none focus:border-lime-400"
           >
             {divisions.map((item) => (
-              <option key={item} value={item}>
+              <option key={item} value={item} disabled={["CHECKED_IN","ACCEPTED"].includes(item)}>
                 {item === "ALL" ? "All Divisions" : item}
               </option>
             ))}
@@ -402,7 +402,7 @@ export default function AdminTryoutsPage() {
 
                 <select
                   value={registration.status}
-                  disabled={updating === registration.id}
+                  disabled={updating === registration.id || registration.status === "ACCEPTED"}
                   onChange={(event) =>
                     updateStatus(
                       registration,
@@ -414,7 +414,7 @@ export default function AdminTryoutsPage() {
                   {statuses
                     .filter((item) => item !== "ALL")
                     .map((item) => (
-                      <option key={item} value={item}>
+                      <option key={item} value={item} disabled={["CHECKED_IN","ACCEPTED"].includes(item)}>
                         {readableStatus(item)}
                       </option>
                     ))}
@@ -484,7 +484,7 @@ export default function AdminTryoutsPage() {
 
                   <select
                     value={selected.status}
-                    disabled={updating === selected.id}
+                    disabled={updating === selected.id || selected.status === "ACCEPTED"}
                     onChange={(event) =>
                       updateStatus(
                         selected,
@@ -496,7 +496,7 @@ export default function AdminTryoutsPage() {
                     {statuses
                       .filter((item) => item !== "ALL")
                       .map((item) => (
-                        <option key={item} value={item}>
+                        <option key={item} value={item} disabled={["CHECKED_IN","ACCEPTED"].includes(item)}>
                           {readableStatus(item)}
                         </option>
                       ))}
