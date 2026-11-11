@@ -82,8 +82,15 @@ export async function GET() {
       })
     );
 
+    // Notification log stays server-side and is visible only to authorized admins.
+    const { data: emailRows } = await admin.from("tryout_decision_emails")
+      .select("submission_id,decision,state,sent_at,error_message");
+    const emailBySubmission = new Map<string, typeof emailRows>();
+    for (const entry of emailRows ?? []) {
+      emailBySubmission.set(entry.submission_id, [...(emailBySubmission.get(entry.submission_id) ?? []), entry]);
+    }
     return NextResponse.json({
-      registrations,
+      registrations: registrations.map((entry) => ({...entry, decision_emails: emailBySubmission.get(entry.id) ?? []})),
       role: profile.role,
     });
   } catch (error) {
