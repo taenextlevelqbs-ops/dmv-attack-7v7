@@ -75,7 +75,7 @@ export async function PATCH(request: Request) {
 
     const { data: existing, error: lookupError } = await admin
       .from("tryout_submissions")
-      .select("id,status,athlete_first_name,athlete_last_name,age_group,parent_email,parent_guardian_name")
+      .select("id,status,athlete_first_name,athlete_last_name,age_group,parent_email,parent_guardian_name,referral_source")
       .eq("id",id).maybeSingle();
     if (lookupError) throw lookupError;
     if (!existing) return NextResponse.json({error:"Athlete not found"},{status:404});
