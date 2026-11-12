@@ -1,4 +1,4 @@
-import DirectInvitePage from "./[token]/page";
+import DirectInviteForm from "./DirectInviteForm";
 export const dynamic = "force-dynamic";
 export const metadata = {
   title: "DMV Attack | Direct Player Invitation",
@@ -16,5 +16,5 @@ export default function ShortInvitePage() {
       </main>
     );
   }
-  return <DirectInvitePage tokenOverride={token} />;
+  return <DirectInviteForm token={token} />;
 }
