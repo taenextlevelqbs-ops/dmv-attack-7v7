@@ -11,6 +11,7 @@ export default function DirectInvitePage(){
  const [invite,setInvite]=useState<Invite|null>(null);
  const [error,setError]=useState(""),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false);
  const [childCount,setChildCount]=useState(1),[progress,setProgress]=useState("");
+ const [completedCount,setCompletedCount]=useState(0);
  const completed=useRef(new Set<number>());
  useEffect(()=>{let active=true;fetch("/api/direct-invites/lookup",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token})}).then(async r=>{const j=await r.json();if(!r.ok)throw new Error(j.error||"Invitation is unavailable");if(active)setInvite(j);}).catch(e=>{if(active)setError(e instanceof Error?e.message:"Invitation is unavailable");}).finally(()=>{if(active)setLoading(false);});return()=>{active=false};},[token]);
  async function submit(e:FormEvent<HTMLFormElement>){
@@ -33,6 +34,7 @@ export default function DirectInvitePage(){
     const j=await r.json().catch(()=>({}));
     if(!r.ok||!j.confirmation?.id)throw new Error(`Athlete ${index+1}: ${j.error||"Unable to save registration"}`);
     completed.current.add(index);
+    setCompletedCount(completed.current.size);
    }
    setProgress("All athletes registered. Opening confirmation...");
    router.push("/invite/success");
@@ -44,7 +46,7 @@ export default function DirectInvitePage(){
  return <main className="min-h-screen bg-black px-4 py-10 text-white"><div className="mx-auto max-w-3xl">
   <p className="text-sm font-black uppercase tracking-[0.2em] text-lime-400">DMV ATTACK 7v7 · Private Invitation</p>
   <h1 className="mt-4 text-4xl font-black uppercase sm:text-6xl">Welcome To The Attack.</h1>
-  <p className="mt-5 text-white/70">Complete one family registration for all invited athletes, including children in different age divisions. Parent and emergency contact details are entered once; each athlete needs their own details and headshot. No tryout fee is required. Staff will verify each player's information before final roster acceptance.</p>
+  <p className="mt-5 text-white/70">Complete one family registration for all invited athletes, including children in different age divisions. Parent and emergency contact details are entered once; each athlete needs their own details and headshot. No tryout fee is required. Staff will verify each player&apos;s information before final roster acceptance.</p>
   <p className="mt-4 rounded-2xl border border-lime-400/40 bg-lime-400/10 p-4 font-bold text-lime-300">Division: {invite.age_group??"Select an age group for each athlete"}{invite.intended_athlete?` · Invited athlete: ${invite.intended_athlete}`:""}</p>
   <form onSubmit={submit} className="mt-8 space-y-7">
    {Array.from({length:childCount},(_,index)=>(
@@ -74,10 +76,10 @@ export default function DirectInvitePage(){
    </section>
    ))}
    {invite.general&&<div className="flex flex-wrap items-center justify-between gap-3">
-    <p className="text-sm text-white/65">{childCount} athlete{childCount!==1?"s":""} in this family's registration</p>
+    <p className="text-sm text-white/65">{childCount} athlete{childCount!==1?"s":""} in this family&apos;s registration</p>
     <div className="flex gap-3">
-     {childCount>1&&<button type="button" disabled={busy||completed.current.has(childCount-1)} onClick={()=>setChildCount(n=>n-1)} className="rounded-full border border-white/30 px-5 py-3 text-sm font-semibold text-white disabled:opacity-40">Remove Last Athlete</button>}
-     {childCount<6&&<button type="button" disabled={busy||completed.current.size>0} onClick={()=>setChildCount(n=>n+1)} className="rounded-full border border-lime-400 px-5 py-3 text-sm font-bold text-lime-400 disabled:opacity-40">+ Add Another Child</button>}
+     {childCount>1&&<button type="button" disabled={busy||completedCount>=childCount} onClick={()=>setChildCount(n=>n-1)} className="rounded-full border border-white/30 px-5 py-3 text-sm font-semibold text-white disabled:opacity-40">Remove Last Athlete</button>}
+     {childCount<6&&<button type="button" disabled={busy||completedCount>0} onClick={()=>setChildCount(n=>n+1)} className="rounded-full border border-lime-400 px-5 py-3 text-sm font-bold text-lime-400 disabled:opacity-40">+ Add Another Child</button>}
     </div>
    </div>}
    <section className="grid gap-4 rounded-2xl border border-white/15 p-5 sm:grid-cols-2">
