@@ -400,6 +400,21 @@ try {
     data: { token: "invalid-invite-token" },
   })).status(), 404);
   assert.equal((await guest.request.get(origin + "/invite/success")).status(), 200);
+  // Exercise the full reusable-invite age selector without consuming a real invite.
+  const invitePreview = await anonymous.newPage();
+  await invitePreview.route("**/api/direct-invites/lookup", async route => {
+    await route.fulfill({status:200,contentType:"application/json",body:JSON.stringify({age_group:null,intended_athlete:null,general:true})});
+  });
+  await invitePreview.goto(origin + "/invite/" + "a".repeat(43));
+  await invitePreview.getByRole("heading",{name:"Welcome To The Attack."}).waitFor();
+  const divisionPicker=invitePreview.getByRole("combobox",{name:/Age Division/i});
+  await divisionPicker.selectOption("18U");
+  assert.equal(await divisionPicker.inputValue(),"18U");
+  assert.equal(await invitePreview.locator('input[name="Athlete First Name"]').count(),1);
+  assert.equal(await invitePreview.locator('input[name="Parent Email"]').count(),1);
+  assert.equal(await invitePreview.locator('input[name="Athlete Headshot"]').count(),1);
+  await invitePreview.close();
+
 
   assert.equal((await guest.request.get(origin + "/api/admin/finance/checkout")).status(), 403);
   assert.equal((await guest.request.get(origin + "/api/admin/finance/checkout/setup")).status(), 403);
