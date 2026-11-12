@@ -71,9 +71,9 @@ export async function POST(request: Request) {
       if (!/^[A-Za-z0-9_-]{40,60}$/.test(invitationToken)) return NextResponse.json({error:"Invalid invitation"},{status:404});
       invitationHash=createHash("sha256").update(invitationToken).digest("hex");
       const {data:invitation,error:inviteError}=await supabase.from("direct_roster_invites")
-        .select("age_group,expires_at,redeemed_at,revoked_at")
+        .select("age_group,expires_at,redeemed_at,revoked_at,max_uses,use_count")
         .eq("token_hash",invitationHash).maybeSingle();
-      if(inviteError||!invitation||invitation.redeemed_at||invitation.revoked_at||Date.parse(invitation.expires_at)<=Date.now())
+      if(inviteError||!invitation||invitation.revoked_at||invitation.use_count>=invitation.max_uses||Date.parse(invitation.expires_at)<=Date.now())
         return NextResponse.json({error:"This invitation is no longer valid. Contact DMV Attack for a new private link."},{status:404});
       invitedDivision=invitation.age_group;
     }
@@ -389,7 +389,7 @@ export async function POST(request: Request) {
         // If another submission consumed this link concurrently, remove the unclaimed record and photo.
         await supabase.from("tryout_submissions").delete().eq("id",created.id);
         await supabase.storage.from("tryout-headshots").remove([storagePath]);
-        return NextResponse.json({error:"This invitation has already been used. Please contact DMV Attack."},{status:409});
+        return NextResponse.json({error:"This invitation is no longer available. Please contact DMV Attack."},{status:409});
       }
     }
 
