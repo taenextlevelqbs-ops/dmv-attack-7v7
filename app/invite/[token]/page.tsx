@@ -1,19 +1,21 @@
 "use client";
 import {useParams,useRouter} from "next/navigation";
 import {useEffect,useState,type FormEvent} from "react";
-type Invite={age_group:string;intended_athlete:string|null};
+type Invite={age_group:string|null;intended_athlete:string|null;general:boolean};
 const input="mt-2 w-full min-w-0 rounded-xl border border-white/20 bg-black px-4 py-3 text-white outline-none focus:border-lime-400";
 const positions=["Quarterback","Running Back","Wide Receiver","Tight End","Defensive Back","Linebacker","Athlete / Multiple Positions"];
 export default function DirectInvitePage(){
  const params=useParams<{token:string}>(),router=useRouter();
  const token=params.token;
+ const [division,setDivision]=useState("");
  const [invite,setInvite]=useState<Invite|null>(null),[error,setError]=useState(""),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false);
  useEffect(()=>{let active=true;fetch("/api/direct-invites/lookup",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token})}).then(async r=>{const j=await r.json();if(!r.ok)throw new Error(j.error||"Invitation is unavailable");if(active)setInvite(j);}).catch(e=>{if(active)setError(e instanceof Error?e.message:"Invitation is unavailable");}).finally(()=>{if(active)setLoading(false);});return()=>{active=false};},[token]);
  async function submit(e:FormEvent<HTMLFormElement>){
   e.preventDefault();if(busy||!invite)return;
+  if(invite.general && !division){setError("Please select the athlete age division.");return;}
   const form=new FormData(e.currentTarget);
   form.set("Direct Invitation Token",token);
-  form.set("Tryout Division",invite.age_group);
+  form.set("Tryout Division",invite.age_group??division);
   form.set("Form Type","DMV Attack Direct Player Invitation");
   setBusy(true);setError("");
   try{
@@ -29,8 +31,8 @@ export default function DirectInvitePage(){
  return <main className="min-h-screen bg-black px-4 py-10 text-white"><div className="mx-auto max-w-3xl">
   <p className="text-sm font-black uppercase tracking-[0.2em] text-lime-400">DMV ATTACK 7v7 · Private Invitation</p>
   <h1 className="mt-4 text-4xl font-black uppercase sm:text-6xl">Welcome To The Attack.</h1>
-  <p className="mt-5 text-white/70">You have been personally invited to complete your athlete&apos;s information for the DMV Attack program. No tryout attendance or $20 tryout fee is required. A parent or guardian must complete this registration.</p>
-  <p className="mt-4 rounded-2xl border border-lime-400/40 bg-lime-400/10 p-4 font-bold text-lime-300">Division: {invite.age_group}{invite.intended_athlete?` · Invited athlete: ${invite.intended_athlete}`:""}</p>
+  <p className="mt-5 text-white/70">You have been personally invited to complete your athlete&apos;s information for the DMV Attack program. No tryout attendance or $20 tryout fee is required. A parent or guardian must complete this registration. Select the athlete’s division before submitting; the DMV Attack staff will review every application.</p>
+  <p className="mt-4 rounded-2xl border border-lime-400/40 bg-lime-400/10 p-4 font-bold text-lime-300">Division: {invite.age_group??"Choose below"}{invite.intended_athlete?` · Invited athlete: ${invite.intended_athlete}`:""}</p>
   <form onSubmit={submit} className="mt-8 space-y-7">
    <section className="grid gap-4 rounded-2xl border border-white/15 p-5 sm:grid-cols-2">
     <h2 className="text-xl font-bold sm:col-span-2">Athlete Details</h2>
@@ -40,7 +42,10 @@ export default function DirectInvitePage(){
     <label className="text-sm">Current age *<input required type="number" min="6" max="19" name="Current Age" className={input}/></label>
     <label className="text-sm">School *<input required maxLength={160} name="School" className={input}/></label>
     <label className="text-sm">Grade *<select required name="Grade" className={input}><option value="">Select</option>{["2nd","3rd","4th","5th","6th","7th","8th","9th","10th","11th","12th"].map(x=><option key={x}>{x}</option>)}</select></label>
-    <label className="text-sm">Division *<input readOnly value={invite.age_group} className={input}/></label>
+    <label className="text-sm">Age Division *{invite.general?<select name="Age Division Selection" required className={input} value={division} onChange={e=>setDivision(e.target.value)}>
+<option value="">Select athlete age group</option>
+{["10U","12U","14U","15U","18U"].map(d=><option key={d} value={d}>{d}</option>)}
+</select>:<input readOnly value={invite.age_group??""} className={input}/>}</label>
     <label className="text-sm">Graduation year<input type="number" min="2027" max="2040" name="Graduation Year" className={input}/></label>
     <label className="text-sm">Primary position *<select required name="Primary Position" className={input}><option value="">Select</option>{positions.map(x=><option key={x}>{x}</option>)}</select></label>
     <label className="text-sm">Secondary position<select name="Secondary Position" className={input}><option value="">None</option>{positions.map(x=><option key={x}>{x}</option>)}</select></label>
