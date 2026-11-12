@@ -45,27 +45,29 @@ export default function DirectInvitePage(){
     <label className="text-sm">Primary position *<select required name="Primary Position" className={input}><option value="">Select</option>{positions.map(x=><option key={x}>{x}</option>)}</select></label>
     <label className="text-sm">Secondary position<select name="Secondary Position" className={input}><option value="">None</option>{positions.map(x=><option key={x}>{x}</option>)}</select></label>
     <label className="text-sm">Current team<input name="Current Team" className={input}/></label>
-    <label className="text-sm">Years playing<input name="Years Playing Football" type="number" min="0" max="19" className={input}/></label>
+    <label className="text-sm">Years playing football *<input name="Years Playing Football" required type="number" min="0" max="15" className={input}/></label>
     <label className="text-sm">Height<input name="Height" className={input}/></label>
     <label className="text-sm">Weight<input name="Weight" className={input}/></label>
     <label className="text-sm sm:col-span-2">Highlight film URL<input type="url" name="Highlight Link" className={input}/></label>
     <label className="text-sm sm:col-span-2">Athlete social handle<input name="Athlete Social Media" className={input}/></label>
+    <label className="text-sm sm:col-span-2">Football background / accomplishments<textarea name="Football Background" rows={4} className={input} placeholder="Teams, awards, camps, stats, achievements or recruiting information" /></label>
     <label className="text-sm sm:col-span-2">Athlete headshot (JPG, PNG or WEBP, max 4 MB) *<input required type="file" accept="image/jpeg,image/png,image/webp" name="Athlete Headshot" className={input}/></label>
    </section>
    <section className="grid gap-4 rounded-2xl border border-white/15 p-5 sm:grid-cols-2">
     <h2 className="text-xl font-bold sm:col-span-2">Parent / Guardian</h2>
     <label className="text-sm">Full name *<input required name="Parent Guardian Name" autoComplete="name" className={input}/></label>
-    <label className="text-sm">Relationship<input name="Relationship To Athlete" className={input}/></label>
+    <label className="text-sm">Relationship to athlete *<input required name="Relationship To Athlete" className={input}/></label>
     <label className="text-sm">Email *<input required type="email" name="Parent Email" autoComplete="email" className={input}/></label>
     <label className="text-sm">Phone *<input required type="tel" name="Parent Phone" autoComplete="tel" className={input}/></label>
-    <label className="text-sm">City<input name="City" className={input}/></label>
-    <label className="text-sm">State<input name="State" className={input}/></label>
+    <label className="text-sm">City *<input required name="City" className={input}/></label>
+    <label className="text-sm">State *<input required name="State" className={input}/></label>
     <label className="text-sm">Emergency contact *<input required name="Emergency Contact" className={input}/></label>
     <label className="text-sm">Emergency phone *<input required type="tel" name="Emergency Phone" className={input}/></label>
     <label className="text-sm sm:col-span-2">Important medical information (optional)<textarea name="Medical Information" rows={3} className={input}/></label>
+    <label className="text-sm sm:col-span-2">How did you hear about DMV Attack?<select name="Referral Source" className={input}><option value="">Select</option>{["Current DMV Attack Player / Parent","Coach","Instagram","Website","Training","Camp","Friend / Family","Other"].map(x=><option key={x}>{x}</option>)}</select></label>
     <label className="text-sm sm:col-span-2">Additional notes (optional)<textarea name="Additional Comments" rows={3} className={input}/></label>
    </section>
-   <section className="space-y-4 rounded-2xl border border-white/15 p-5 text-sm text-white/75">
+   <section className="space-y-4 rounded-2xl border border-white/15 p-5 text-sm text-white/75"><h2 className="text-xl font-bold text-white">Registration Confirmation</h2>
     <label className="flex gap-3"><input type="checkbox" required name="Information Confirmation"/>I confirm this information is accurate.</label>
     <label className="flex gap-3"><input type="checkbox" required name="Tryout Communication Consent"/>I authorize DMV Attack to contact me about this invitation, roster administration, and program information.</label>
     <label className="flex gap-3"><input type="checkbox" required name="Roster Understanding"/>I understand registration information must be verified and that a roster spot is finalized through the official team acceptance process.</label>
