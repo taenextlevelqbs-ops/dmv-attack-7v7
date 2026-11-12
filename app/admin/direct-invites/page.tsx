@@ -8,12 +8,13 @@ export default function DirectInvitesAdmin(){
  const [invites,setInvites]=useState<Invite[]>([]);
  const [division,setDivision]=useState("12U"),[name,setName]=useState(""),[team,setTeam]=useState("");
  const [url,setUrl]=useState(""),[error,setError]=useState(""),[busy,setBusy]=useState(false);
+ const [now] = useState(()=>Date.now());
  const load=async()=>{
   const [t,i]=await Promise.all([fetch("/api/admin/teams"),fetch("/api/admin/direct-invites")]);
   if(t.ok)setTeams((await t.json()).teams??[]);
   if(i.ok)setInvites((await i.json()).invites??[]);
  };
- useEffect(()=>{void load();},[]);
+ useEffect(()=>{let active=true;Promise.all([fetch("/api/admin/teams"),fetch("/api/admin/direct-invites")]).then(async ([t,i])=>{const ts=t.ok?(await t.json()).teams??[]:[];const is=i.ok?(await i.json()).invites??[]:[];if(active){setTeams(ts);setInvites(is);}}).catch(()=>{});return()=>{active=false};},[]);
  async function create(){
   setError("");setBusy(true);setUrl("");
   try{
@@ -46,6 +47,6 @@ export default function DirectInvitesAdmin(){
   </section>}
   {error&&<p role="alert" className="mt-4 text-red-300">{error}</p>}
   <h2 className="mt-10 text-xl font-black uppercase">Invitation Tracker</h2>
-  <div className="mt-4 space-y-3">{invites.map(i=><div key={i.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/15 p-4"><div><p className="font-bold">{i.intended_athlete||"Player invitation"} · {i.age_group}</p><p className="text-xs text-white/50">{i.redeemed_at?"Registration received":i.revoked_at?"Revoked":Date.parse(i.expires_at)<Date.now()?"Expired":"Awaiting family registration"} · Created {new Date(i.created_at).toLocaleDateString()}</p></div>{!i.redeemed_at&&!i.revoked_at&&<button onClick={()=>revoke(i.id)} className="rounded-lg border border-white/20 px-3 py-2 text-sm">Revoke</button>}</div>)}</div>
+  <div className="mt-4 space-y-3">{invites.map(i=><div key={i.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/15 p-4"><div><p className="font-bold">{i.intended_athlete||"Player invitation"} · {i.age_group}</p><p className="text-xs text-white/50">{i.redeemed_at?"Registration received":i.revoked_at?"Revoked":Date.parse(i.expires_at)<now?"Expired":"Awaiting family registration"} · Created {new Date(i.created_at).toLocaleDateString()}</p></div>{!i.redeemed_at&&!i.revoked_at&&<button onClick={()=>revoke(i.id)} className="rounded-lg border border-white/20 px-3 py-2 text-sm">Revoke</button>}</div>)}</div>
  </div></main>;
 }
