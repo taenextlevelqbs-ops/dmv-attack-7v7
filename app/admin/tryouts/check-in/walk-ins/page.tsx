@@ -12,7 +12,7 @@ export default function WalkinQrSign(){
     <p className="mt-4 text-xl font-bold">Scan to register your athlete</p>
     <div className="mx-auto my-6 w-fit border-2 border-black p-3"><Image src={qr} alt="QR code to open DMV ATTACK tryout registration" width={320} height={320} unoptimized/></div>
     <p className="text-xl font-black">www.dmvattack.com/tryouts</p>
-    <p className="mt-5 text-base">Complete the online registration, including your athlete's photo, then return to the check-in desk. The tryout fee is $20 per athlete.</p>
+    <p className="mt-5 text-base">Complete the online registration, including your athlete&apos;s photo, then return to the check-in desk. The tryout fee is $20 per athlete.</p>
     <p className="mt-5 text-sm font-bold uppercase">Staff will verify payment and issue your shirt number.</p>
    </div>
    <p className="mt-6 text-sm print:hidden">Print this page from your browser (Cmd+P / Ctrl+P). The QR code requires an internet connection to display.</p>
