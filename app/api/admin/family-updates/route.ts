@@ -53,6 +53,15 @@ export async function GET(request:Request){
  try {
   const admin=adminClient();
   const teams=await getTeams(admin);
+  const params=new URL(request.url).searchParams;
+  const previewGroup=params.get("age_group");
+  const previewTeam=params.get("team_id");
+  if(previewGroup && !groups.includes(previewGroup))return NextResponse.json({error:"Invalid division"},{status:400});
+  if(previewTeam && (!previewGroup || !teams.some(t=>t.id===previewTeam && t.age_group===previewGroup)))return NextResponse.json({error:"Invalid team"},{status:400});
+  if(previewGroup){
+   const recipients=await audience(admin,previewGroup,previewTeam);
+   return NextResponse.json({recipients,digest:await digestAudience(recipients)},{headers:{"Cache-Control":"private, no-store"}});
+  }
   const result=await Promise.all(groups.map(async age_group=>({age_group,recipients:await audience(admin,age_group,null)})));
   const {data:history,error:historyError}=await admin.from("family_update_campaigns")
     .select("id,age_group,team_id,subject,recipient_count,sent_count,failed_count,created_at")
