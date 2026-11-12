@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type Decision = "ACCEPTED" | "DECLINED" | "CALLBACK" | "OFFERED";
 export const emailDecisions = new Set<Decision>(["ACCEPTED", "DECLINED", "CALLBACK", "OFFERED"]);
-type Submission = { id: string; athlete_first_name: string; athlete_last_name: string; age_group: string; parent_email: string | null; parent_guardian_name: string | null };
+type Submission = { id: string; athlete_first_name: string; athlete_last_name: string; age_group: string; parent_email: string | null; parent_guardian_name: string | null; referral_source?: string | null };
 
 const safe = (value: string) => value.replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c] ?? c));
 
@@ -10,11 +10,12 @@ export function decisionEmail(submission: Submission, decision: Decision) {
  const athlete = safe(submission.athlete_first_name);
  const fullName = safe([submission.athlete_first_name,submission.athlete_last_name].filter(Boolean).join(" "));
  const division = safe(submission.age_group);
+ const directInvite = submission.referral_source === "Direct Invitation";
  const content = {
   ACCEPTED: {
    subject: "Congratulations! Welcome to DMV Attack",
    headline: "WELCOME TO THE ATTACK.",
-   message: `Congratulations, ${athlete}! Our coaching staff is excited to select you for DMV Attack. Your effort, competitiveness, and performance stood out at tryouts. Your division is ${division}. Our staff will share your team assignment and the next steps for completing your roster registration. Please do not submit a team fee until you receive your official instructions.`,
+   message: directInvite ? `Congratulations, ${athlete}! Your DMV Attack direct invitation has been confirmed for the ${division} division. Our staff will share your team assignment and official roster registration steps. Please do not submit a team fee until you receive your official instructions.` : `Congratulations, ${athlete}! Our coaching staff is excited to select you for DMV Attack. Your effort, competitiveness, and performance stood out at tryouts. Your division is ${division}. Our staff will share your team assignment and the next steps for completing your roster registration. Please do not submit a team fee until you receive your official instructions.`,
   },
   DECLINED: {
    subject: "DMV Attack Tryout Update",
@@ -29,7 +30,7 @@ export function decisionEmail(submission: Submission, decision: Decision) {
   OFFERED: {
    subject: "DMV Attack Roster Offer",
    headline: "YOU'VE RECEIVED AN OFFER.",
-   message: `Congratulations, ${athlete}! DMV Attack would like to offer you a position in the ${division} division. Our staff will follow up with your team assignment and instructions to accept your offer. Your roster spot is not finalized until the offer process is completed.`,
+   message: directInvite ? `Congratulations, ${athlete}! Your DMV Attack direct invitation has been reviewed and our staff is offering you a position in ${division}. We will follow up with the assigned team and official acceptance steps. Your spot is finalized through the roster acceptance process.` : `Congratulations, ${athlete}! DMV Attack would like to offer you a position in the ${division} division. Our staff will follow up with your team assignment and instructions to accept your offer. Your roster spot is not finalized until the offer process is completed.`,
   },
  }[decision];
  const url = "https://www.dmvattack.com";

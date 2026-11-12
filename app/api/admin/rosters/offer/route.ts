@@ -85,7 +85,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { data: submission, error: submissionError }=await admin.from("tryout_submissions").select("id,age_group,athlete_first_name,athlete_last_name,parent_email,parent_guardian_name,status").eq("id",tryoutId).maybeSingle();
+    const { data: submission, error: submissionError }=await admin.from("tryout_submissions").select("id,age_group,athlete_first_name,athlete_last_name,parent_email,parent_guardian_name,status,referral_source").eq("id",tryoutId).maybeSingle();
     if(submissionError)throw submissionError;
     if(!submission)return NextResponse.json({error:"Athlete not found"},{status:404});
     if(submission.age_group!==team.age_group)return NextResponse.json({error:"Athlete division must match the team"},{status:400});
