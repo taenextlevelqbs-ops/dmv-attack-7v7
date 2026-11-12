@@ -4,9 +4,9 @@ import {useEffect,useState,type FormEvent} from "react";
 type Invite={age_group:string|null;intended_athlete:string|null;general:boolean};
 const input="mt-2 w-full min-w-0 rounded-xl border border-white/20 bg-black px-4 py-3 text-white outline-none focus:border-lime-400";
 const positions=["Quarterback","Running Back","Wide Receiver","Tight End","Defensive Back","Linebacker","Athlete / Multiple Positions"];
-export default function DirectInvitePage(){
- const params=useParams<{token:string}>(),router=useRouter();
- const token=params.token;
+export default function DirectInvitePage({tokenOverride}:{tokenOverride?:string}={}){
+ const params=useParams<{token?:string}>(),router=useRouter();
+ const token=tokenOverride??params?.token??"";
  const [division,setDivision]=useState("");
  const [invite,setInvite]=useState<Invite|null>(null),[error,setError]=useState(""),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false);
  useEffect(()=>{let active=true;fetch("/api/direct-invites/lookup",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({token})}).then(async r=>{const j=await r.json();if(!r.ok)throw new Error(j.error||"Invitation is unavailable");if(active)setInvite(j);}).catch(e=>{if(active)setError(e instanceof Error?e.message:"Invitation is unavailable");}).finally(()=>{if(active)setLoading(false);});return()=>{active=false};},[token]);
