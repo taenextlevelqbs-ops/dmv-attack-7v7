@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { validBirthDate, imageMatchesType } from "@/lib/tryout-validation.mjs";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
@@ -62,10 +63,26 @@ export async function POST(request: Request) {
 
     const form = await request.formData();
 
+    // Only a private, live, unredeemed link enables the no-tryout registration path.
+    const invitationToken = getText(form, "Direct Invitation Token");
+    let invitationHash: string | null = null;
+    let invitedDivision: string | null = null;
+    if (invitationToken) {
+      if (!/^[A-Za-z0-9_-]{40,60}$/.test(invitationToken)) return NextResponse.json({error:"Invalid invitation"},{status:404});
+      invitationHash=createHash("sha256").update(invitationToken).digest("hex");
+      const {data:invitation,error:inviteError}=await supabase.from("direct_roster_invites")
+        .select("age_group,expires_at,redeemed_at,revoked_at")
+        .eq("token_hash",invitationHash).maybeSingle();
+      if(inviteError||!invitation||invitation.redeemed_at||invitation.revoked_at||Date.parse(invitation.expires_at)<=Date.now())
+        return NextResponse.json({error:"This invitation is no longer valid. Contact DMV Attack for a new private link."},{status:404});
+      invitedDivision=invitation.age_group;
+    }
+
     const firstName = getText(form, "Athlete First Name");
     const lastName = getText(form, "Athlete Last Name");
     const dateOfBirth = getText(form, "Date of Birth");
     const ageGroup = getText(form, "Tryout Division").toUpperCase();
+    if (invitedDivision && ageGroup !== invitedDivision) return NextResponse.json({error:"Invitation division mismatch"},{status:400});
     const school = getText(form, "School");
     const primaryPosition = getText(form, "Primary Position");
 
@@ -321,7 +338,7 @@ export async function POST(request: Request) {
             getText(form, "Medical Information") || null,
 
           referral_source:
-            getText(form, "Referral Source") || null,
+            invitationHash ? "Direct Invitation" : (getText(form, "Referral Source") || null),
 
           additional_comments:
             getText(form, "Additional Comments") || null,
@@ -360,15 +377,31 @@ export async function POST(request: Request) {
       );
     }
 
-    const confirmationUrl = new URL("/tryouts/success", request.url);
+    if(invitationHash){
+      // Consume a single-use link only after a valid submission is saved.
+      const {data:created,error:createdError}=await supabase.from("tryout_submissions").select("id").eq("tryout_id",tryoutId).single();
+      if(createdError || !created){
+        console.error("Direct invitation registration lookup failed",createdError);
+        return NextResponse.json({error:"Player information saved, but invitation confirmation requires staff review. Please contact DMV Attack."},{status:500});
+      }
+      const {data:claimed,error:claimError}=await supabase.rpc("redeem_direct_roster_invite",{p_hash:invitationHash,p_submission_id:created.id});
+      if(claimError || !claimed){
+        // If another submission consumed this link concurrently, remove the unclaimed record and photo.
+        await supabase.from("tryout_submissions").delete().eq("id",created.id);
+        await supabase.storage.from("tryout-headshots").remove([storagePath]);
+        return NextResponse.json({error:"This invitation has already been used. Please contact DMV Attack."},{status:409});
+      }
+    }
 
-    confirmationUrl.searchParams.set("id", tryoutId);
+    const confirmationUrl = new URL(invitationHash ? "/invite/success" : "/tryouts/success", request.url);
+
+    if (!invitationHash) confirmationUrl.searchParams.set("id", tryoutId);
     // Modern clients retain only confirmation details in tab-scoped session storage.
     // Native form fallback keeps the public Tryout ID/division, never athlete names.
     if(request.headers.get("accept")?.includes("application/json")) {
-      return NextResponse.json({confirmation:{id:tryoutId,athlete:`${firstName} ${lastName}`,division:ageGroup}},{headers:{"Cache-Control":"private, no-store"}});
+      return NextResponse.json({confirmation:{id:tryoutId,athlete:`${firstName} ${lastName}`,division:ageGroup},direct_invite:!!invitationHash},{headers:{"Cache-Control":"private, no-store"}});
     }
-    confirmationUrl.searchParams.set("division", ageGroup);
+    if (!invitationHash) confirmationUrl.searchParams.set("division", ageGroup);
 
     return new NextResponse(null, {status:303,headers:{Location:confirmationUrl.pathname+confirmationUrl.search}});
   } catch (error) {
