@@ -11,8 +11,8 @@ export async function POST(request:Request){
  if(!url||!secret)return NextResponse.json({error:"Unavailable"},{status:503});
  const admin=createClient(url,secret,{auth:{persistSession:false,autoRefreshToken:false}});
  const hash=createHash("sha256").update(token).digest("hex");
- const {data,error}=await admin.from("direct_roster_invites").select("age_group,intended_athlete,expires_at,redeemed_at,revoked_at").eq("token_hash",hash).maybeSingle();
- if(error||!data||data.redeemed_at||data.revoked_at||Date.parse(data.expires_at)<=Date.now())return NextResponse.json({error:"Invitation is no longer available"},{status:404});
- return NextResponse.json({age_group:data.age_group,intended_athlete:data.intended_athlete},{headers:{"Cache-Control":"no-store"}});
+ const {data,error}=await admin.from("direct_roster_invites").select("age_group,intended_athlete,expires_at,redeemed_at,revoked_at,use_count,max_uses").eq("token_hash",hash).maybeSingle();
+ if(error||!data||data.revoked_at||data.use_count>=data.max_uses||Date.parse(data.expires_at)<=Date.now())return NextResponse.json({error:"Invitation is no longer available"},{status:404});
+ return NextResponse.json({age_group:data.age_group,intended_athlete:data.intended_athlete,general:data.age_group===null},{headers:{"Cache-Control":"no-store"}});
  }catch{return NextResponse.json({error:"Unable to load invitation"},{status:500});}
 }
