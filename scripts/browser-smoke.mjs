@@ -52,6 +52,7 @@ const assignments = [
   },
 ];
 const members = [];
+const decisionEmails = [];
 const db = new PGlite();
 await db.exec(
   `create role anon;create role authenticated;create role service_role bypassrls;create schema auth;create table auth.users(id uuid primary key);create table public.tryout_submissions(id uuid primary key);create table public.teams(id uuid primary key);insert into auth.users values('${owner}'),('${admin}'),('${parent}');insert into tryout_submissions values('${registration}');insert into teams values('${team}');`,
@@ -226,7 +227,23 @@ const fixture = createServer(async (req, res) => {
       if(idFilter?.startsWith("in.(")){const ids=new Set(idFilter.slice(4,-1).split(","));result=result.filter(r=>ids.has(r.id));}
       return send(200, single ? result[0] || null : result);
     }
-    const allowed = [
+    if (table === "foundation_contributions") return send(200, single ? null : []);
+    if (table === "tryout_decision_emails") {
+      let rows = decisionEmails;
+      for (const [key,value] of url.searchParams)
+        if (value.startsWith("eq.")) rows = rows.filter(row => String(row[key]) === value.slice(3));
+      if(req.method === "GET") return send(200, single ? rows[0] || null : rows);
+      if(req.method === "POST") {
+        const existing=decisionEmails.find(r=>r.submission_id===body.submission_id && r.decision===body.decision);
+        if(!existing) decisionEmails.push({id:crypto.randomUUID(),...body,state:"pending",created_at:new Date().toISOString()});
+        return send(201, single ? existing || decisionEmails.at(-1) : null);
+      }
+      if(req.method === "PATCH") {
+        for(const row of rows) Object.assign(row,body);
+        return send(200, single ? rows[0] || null : null);
+      }
+    }
+        const allowed = [
       "team_fee_accounts",
       "team_fee_transactions",
       "team_fee_settings",
@@ -295,6 +312,7 @@ const env = {
   NEXT_TELEMETRY_DISABLED: "1",
   STRIPE_SECRET_KEY: "",
   STRIPE_WEBHOOK_SECRET: "",
+  DMV_ATTACK_DECISION_EMAILS_ENABLED: "false",
 };
 let server, browser;
 let logs = "";
