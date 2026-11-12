@@ -53,6 +53,7 @@ type Registration = {
   additional_comments: string | null;
 
   status: string;
+  decision_emails?: {decision:string;state:string;sent_at:string|null;error_message:string|null}[];
 
   submitted_at: string;
 
@@ -112,6 +113,9 @@ export default function AdminTryoutsPage() {
     registration: Registration,
     newStatus: string
   ) {
+    if (registration.status === newStatus) return;
+    if (["ACCEPTED","DECLINED","CALLBACK","OFFERED"].includes(newStatus) &&
+      !window.confirm(`Set ${registration.athlete_first_name} ${registration.athlete_last_name} to ${newStatus}? If email notifications are enabled, this will notify the parent/guardian.`)) return;
     try {
       setUpdating(registration.id);
 
@@ -137,6 +141,10 @@ export default function AdminTryoutsPage() {
         );
       }
 
+      if (result.email && result.email !== "not_applicable" && result.email !== "sent" && result.email !== "already_sent") {
+        alert(`Decision saved. Email status: ${result.email.replaceAll("_"," ")}. Check email settings before notifying family.`);
+      }
+      await loadRegistrations();
       setRegistrations((current) =>
         current.map((item) =>
           item.id === registration.id
@@ -396,6 +404,11 @@ export default function AdminTryoutsPage() {
               </button>
 
               <div className="border-t border-white/10 p-5">
+                {registration.decision_emails?.length ? (
+                  <div className="mb-3 text-xs text-white/60">
+                    {registration.decision_emails.map((email) => <p key={email.decision}>{email.decision}: Email {email.state}</p>)}
+                  </div>
+                ) : null}
                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/35">
                   Status
                 </label>

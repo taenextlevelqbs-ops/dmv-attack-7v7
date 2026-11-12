@@ -1,17 +1,12 @@
 "use client";
-import {useEffect, useState, type FormEvent} from "react";
+import {useState, type FormEvent} from "react";
 
 type Kind = "SPONSORSHIP" | "CONTRIBUTION";
 const tiers = [{key:"BRONZE",label:"Bronze · $250"},{key:"SILVER",label:"Silver · $500"},{key:"GOLD",label:"Gold · $1,000"}] as const;
 
 export default function FoundationCheckoutForm({kind}:{kind:Kind}) {
   const sponsor = kind === "SPONSORSHIP";
-  const [tier,setTier] = useState<"BRONZE"|"SILVER"|"GOLD">("SILVER");
-  useEffect(() => {
-    if (!sponsor) return;
-    const selected = new URLSearchParams(window.location.search).get("sponsor");
-    if (selected === "BRONZE" || selected === "SILVER" || selected === "GOLD") setTier(selected);
-  }, [sponsor]);
+  const [tier,setTier] = useState<"BRONZE"|"SILVER"|"GOLD">(() => { const selected = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("sponsor") : null; return selected === "BRONZE" || selected === "SILVER" || selected === "GOLD" ? selected : "SILVER"; });
   const [amount,setAmount] = useState("50");
   const [contactName,setContactName] = useState("");
   const [businessName,setBusinessName] = useState("");

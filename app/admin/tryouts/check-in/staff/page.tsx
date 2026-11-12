@@ -10,7 +10,7 @@ export default function StaffSetup(){
  return <main className="min-h-screen bg-black p-6 text-white"><div className="mx-auto max-w-xl">
  <Link href="/admin/tryouts" className="text-sm font-bold text-lime-400">Back to Tryouts</Link>
  <h1 className="mt-6 text-3xl font-black uppercase">Set Up Check-In Staff</h1>
- <p className="mt-3 text-sm leading-6 text-white/60">Owner-only. Create your mom's private check-in username and password. This role can access check-in, payments, and printouts — not the owner dashboard. Use a password of at least 12 characters and share it privately.</p>
+ <p className="mt-3 text-sm leading-6 text-white/60">Owner-only. Create your mom&apos;s private check-in username and password. This role can access check-in, payments, and printouts — not the owner dashboard. Use a password of at least 12 characters and share it privately.</p>
  <form onSubmit={submit} className="mt-6 space-y-4 rounded-3xl border border-white/15 p-5">
  <label className="block text-sm">Staff first name<input value={name} onChange={e=>setName(e.target.value)} className="mt-2 w-full rounded-xl border border-white/20 bg-black p-4"/></label>
  <label className="block text-sm">Username<input required minLength={4} maxLength={24} autoComplete="off" value={username} onChange={e=>setUsername(e.target.value)} placeholder="Example: checkindesk" className="mt-2 w-full rounded-xl border border-white/20 bg-black p-4"/></label>

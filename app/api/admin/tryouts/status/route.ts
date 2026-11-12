@@ -1,3 +1,4 @@
+import { emailDecisions, sendDecisionEmail, type Decision } from "@/lib/tryout-decision-email";
 import { sameOrigin } from "@/lib/admin/api";
 import { NextResponse } from "next/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
@@ -36,7 +37,7 @@ export async function PATCH(request: Request) {
       .eq("id", user.id)
       .single();
 
-    if (!profile || !["OWNER", "ADMIN", "CHECKIN"].includes(profile.role)) {
+    if (!profile || !["OWNER", "ADMIN"].includes(profile.role)) {
       return NextResponse.json(
         { error: "Forbidden" },
         { status: 403 }
@@ -48,7 +49,7 @@ export async function PATCH(request: Request) {
     const id = String(body.id ?? "");
     const status = String(body.status ?? "").toUpperCase();
 
-    if (!id || !allowedStatuses.has(status) || (profile.role === "CHECKIN" && !["REGISTERED", "CHECKED_IN"].includes(status))) {
+    if (!id || !allowedStatuses.has(status) ) {
       return NextResponse.json(
         { error: "Invalid status update" },
         { status: 400 }
@@ -72,24 +73,29 @@ export async function PATCH(request: Request) {
       },
     });
 
-    const { error } = await admin
+    const { data: existing, error: lookupError } = await admin
       .from("tryout_submissions")
-      .update({
-        status,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", id);
+      .select("id,status,athlete_first_name,athlete_last_name,age_group,parent_email,parent_guardian_name")
+      .eq("id",id).maybeSingle();
+    if (lookupError) throw lookupError;
+    if (!existing) return NextResponse.json({error:"Athlete not found"},{status:404});
+    if (existing.status === status) return NextResponse.json({success:true,unchanged:true});
 
-    if (error) {
-      console.error(error);
+    // Never allow a dropdown to bypass the separate official roster-acceptance workflow.
+    // The decision status here records selection only, not fee/account activation.
+    const { data: changed, error } = await admin
+      .from("tryout_submissions")
+      .update({status,updated_at:new Date().toISOString()})
+      .eq("id",id).eq("status",existing.status)
+      .select("id").maybeSingle();
+    if(error) throw error;
+    if(!changed) return NextResponse.json({error:"Athlete status changed elsewhere. Refresh and try again."},{status:409});
 
-      return NextResponse.json(
-        { error: "Unable to update status" },
-        { status: 500 }
-      );
-    }
+    const email = emailDecisions.has(status as Decision)
+      ? await sendDecisionEmail(admin, existing, status as Decision)
+      : {state:"not_applicable" as const};
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({success:true,email:email.state});
   } catch (error) {
     console.error("Status update error:", error);
 
