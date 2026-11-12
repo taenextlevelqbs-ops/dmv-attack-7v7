@@ -392,6 +392,15 @@ try {
     403,
   );
   assert.equal((await (await guest.request.get(origin+"/api/status")).json()).service,"DMV Attack");
+  // New athlete invitation and family-update surfaces must deny anonymous access.
+  assert.equal((await guest.request.get(origin + "/api/admin/direct-invites")).status(), 403);
+  assert.equal((await guest.request.get(origin + "/api/admin/family-updates")).status(), 403);
+  assert.equal((await guest.request.get(origin + "/api/admin/family-updates?age_group=18U")).status(), 403);
+  assert.equal((await guest.request.post(origin + "/api/direct-invites/lookup", {
+    data: { token: "invalid-invite-token" },
+  })).status(), 404);
+  assert.equal((await guest.request.get(origin + "/invite/success")).status(), 200);
+
   assert.equal((await guest.request.get(origin + "/api/admin/finance/checkout")).status(), 403);
   assert.equal((await guest.request.get(origin + "/api/admin/finance/checkout/setup")).status(), 403);
   assert.equal((await guest.request.get(origin + "/api/admin/finance/stripe-status")).status(), 403);
