@@ -313,6 +313,7 @@ const env = {
   STRIPE_SECRET_KEY: "",
   STRIPE_WEBHOOK_SECRET: "",
   DMV_ATTACK_DECISION_EMAILS_ENABLED: "false",
+  DMV_ATTACK_GENERAL_INVITE_TOKEN: "a".repeat(43),
 };
 let server, browser;
 let logs = "";
@@ -414,6 +415,18 @@ try {
   assert.equal(await invitePreview.locator('input[name="Parent Email"]').count(),1);
   assert.equal(await invitePreview.locator('input[name="Athlete Headshot"]').count(),1);
   await invitePreview.close();
+  // Clean /invite route must work with the same full form, without a token in URL.
+  const cleanInvite = await anonymous.newPage();
+  await cleanInvite.route("**/api/direct-invites/lookup", async route => {
+    await route.fulfill({status:200,contentType:"application/json",body:JSON.stringify({age_group:null,intended_athlete:null,general:true})});
+  });
+  assert.equal((await cleanInvite.goto(origin + "/invite")).status(), 200);
+  await cleanInvite.getByRole("heading",{name:"Welcome To The Attack."}).waitFor();
+  assert.equal(new URL(cleanInvite.url()).pathname,"/invite");
+  await cleanInvite.getByRole("combobox",{name:/Age Division/i}).selectOption("12U");
+  assert.equal(await cleanInvite.getByRole("combobox",{name:/Age Division/i}).inputValue(),"12U");
+  await cleanInvite.close();
+
 
 
   assert.equal((await guest.request.get(origin + "/api/admin/finance/checkout")).status(), 403);
