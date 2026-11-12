@@ -2,6 +2,8 @@
 alter table public.direct_roster_invites alter column age_group drop not null;
 alter table public.direct_roster_invites add column if not exists max_uses integer not null default 1 check (max_uses between 1 and 250);
 alter table public.direct_roster_invites add column if not exists use_count integer not null default 0 check (use_count >= 0);
+-- Preserve already redeemed single-use links from the earlier schema.
+update public.direct_roster_invites set use_count=1 where redeemed_at is not null and use_count=0;
 create table if not exists public.direct_roster_invite_uses (
   id uuid primary key default gen_random_uuid(),
   invite_id uuid not null references public.direct_roster_invites(id) on delete cascade,
@@ -23,7 +25,7 @@ declare v_id uuid; v_max integer; v_used integer; v_group text;
 begin
   select id,max_uses,use_count,age_group into v_id,v_max,v_used,v_group
   from public.direct_roster_invites
-  where token_hash=p_hash and expires_at>now() and revoked_at is null
+  where token_hash=p_hash and expires_at>now() and revoked_at is null and (max_uses > 1 or redeemed_at is null)
   for update;
   if v_id is null or v_used >= v_max then return false; end if;
   if v_group is not null and v_used <> 0 then return false; end if;
