@@ -410,9 +410,19 @@ try {
   const divisionPicker=invitePreview.getByRole("combobox",{name:/Age Division/i});
   await divisionPicker.selectOption("18U");
   assert.equal(await divisionPicker.inputValue(),"18U");
-  assert.equal(await invitePreview.locator('input[name="Athlete First Name"]').count(),1);
+  assert.equal(await invitePreview.locator('input[name="athlete-0:Athlete First Name"]').count(),1);
   assert.equal(await invitePreview.locator('input[name="Parent Email"]').count(),1);
-  assert.equal(await invitePreview.locator('input[name="Athlete Headshot"]').count(),1);
+  assert.equal(await invitePreview.locator('input[name="athlete-0:Athlete Headshot"]').count(),1);
+  await invitePreview.getByRole("button",{name:/Add Another Child/i}).click();
+  await invitePreview.getByRole("button",{name:/Add Another Child/i}).click();
+  assert.equal(await invitePreview.locator('input[name$=":Athlete First Name"]').count(),3);
+  assert.equal(await invitePreview.locator('input[name="Parent Email"]').count(),1);
+  assert.equal(await invitePreview.locator('input[name$=":Athlete Headshot"]').count(),3);
+  await invitePreview.locator('select[name="athlete-0:Tryout Division"]').selectOption("12U");
+  await invitePreview.locator('select[name="athlete-1:Tryout Division"]').selectOption("12U");
+  await invitePreview.locator('select[name="athlete-2:Tryout Division"]').selectOption("14U");
+  assert.equal(await invitePreview.locator('select[name="athlete-2:Tryout Division"]').inputValue(),"14U");
+  assert.equal(await invitePreview.getByRole("button",{name:"Register All 3 Athletes"}).count(),1);
   await invitePreview.close();
 
 
