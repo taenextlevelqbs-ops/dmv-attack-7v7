@@ -3,7 +3,6 @@ import {useParams,useRouter} from "next/navigation";
 import {useEffect,useState,type FormEvent} from "react";
 type Invite={age_group:string;intended_athlete:string|null};
 const input="mt-2 w-full min-w-0 rounded-xl border border-white/20 bg-black px-4 py-3 text-white outline-none focus:border-lime-400";
-const divisions=["10U","12U","14U","15U","18U"];
 const positions=["Quarterback","Running Back","Wide Receiver","Tight End","Defensive Back","Linebacker","Athlete / Multiple Positions"];
 export default function DirectInvitePage(){
  const params=useParams<{token:string}>(),router=useRouter();
