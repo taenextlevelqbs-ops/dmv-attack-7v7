@@ -108,13 +108,16 @@ export default function TeamsPage() {
         );
       }
 
+      const notification = result.email === "sent" || result.email === "already_sent"
+        ? "Acceptance email sent."
+        : `Acceptance email status: ${String(result.email ?? "unknown").replaceAll("_"," ")}. Check the notification log before telling the family they were emailed.`;
       if (result.parent_account_linked) {
         window.alert(
-          "Player activated successfully. Family and parent portal account are connected."
+          `Player activated successfully. Family and parent portal account are connected. ${notification}`
         );
       } else {
         window.alert(
-          `Player activated successfully. Family and athlete records were created. Parent account still needs activation for ${result.parent_email}.`
+          `Player activated successfully. Family and athlete records were created. Parent account still needs activation for ${result.parent_email}. ${notification}`
         );
       }
 

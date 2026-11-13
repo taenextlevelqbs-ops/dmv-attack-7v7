@@ -89,6 +89,14 @@ export async function POST(request: Request) {
     if(submissionError)throw submissionError;
     if(!submission)return NextResponse.json({error:"Athlete not found"},{status:404});
     if(submission.age_group!==team.age_group)return NextResponse.json({error:"Athlete division must match the team"},{status:400});
+    // A single athlete cannot hold open or accepted offers for two teams,
+    // including the separate Green and Yellow 18U rosters.
+    const {data:otherOffers,error:otherError}=await admin.from("roster_assignments")
+      .select("id,team_id,roster_status").eq("tryout_submission_id",tryoutId).neq("team_id",teamId)
+      .in("roster_status",["OFFERED","ACCEPTED","ACTIVE"]);
+    if(otherError)throw otherError;
+    if(otherOffers?.length)return NextResponse.json({error:"This athlete already has an active offer or roster spot on another team. Review the current assignment first."},{status:409});
+
     const {data:existingOffer,error:existingError}=await admin.from("roster_assignments").select("roster_status").eq("tryout_submission_id",tryoutId).eq("team_id",teamId).maybeSingle();
     if(existingError)throw existingError;
     if(existingOffer && ["ACCEPTED","ACTIVE"].includes(existingOffer.roster_status))return NextResponse.json({error:"Athlete has already accepted this team offer"},{status:409});

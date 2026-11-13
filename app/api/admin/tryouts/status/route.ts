@@ -9,8 +9,6 @@ const allowedStatuses = new Set([
   "CHECKED_IN",
   "EVALUATING",
   "CALLBACK",
-  "OFFERED",
-  "ACCEPTED",
   "DECLINED",
   "PASS",
 ]);
@@ -49,6 +47,12 @@ export async function PATCH(request: Request) {
     const id = String(body.id ?? "");
     const status = String(body.status ?? "").toUpperCase();
 
+    if (status === "OFFERED" || status === "ACCEPTED") {
+      return NextResponse.json(
+        { error: "Use Make Offer + Assign Team, then Accept Offer from Teams & Rosters. The status dropdown cannot finalize a roster." },
+        { status: 409 }
+      );
+    }
     if (!id || !allowedStatuses.has(status) ) {
       return NextResponse.json(
         { error: "Invalid status update" },

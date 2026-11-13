@@ -1,3 +1,4 @@
+import { sendDecisionEmail } from "@/lib/tryout-decision-email";
 import { sameOrigin } from "@/lib/admin/api";
 import { NextResponse } from "next/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
@@ -167,6 +168,10 @@ export async function POST(request: Request) {
         },
         { status: 400 }
       );
+    }
+
+    if (assignment.roster_status === "DECLINED" || assignment.roster_status === "REMOVED") {
+      return NextResponse.json({error:"This roster offer is no longer active."},{status:409});
     }
 
     const parentEmail = cleanEmail(
@@ -408,8 +413,20 @@ export async function POST(request: Request) {
       parentLinked = true;
     }
 
+    // Send the confirmation only after team, athlete, family and roster records are saved.
+    // Provider/queue problems must not undo a completed roster acceptance.
+    let emailState = "pending";
+    try {
+      const email = await sendDecisionEmail(admin, submission, "ACCEPTED");
+      emailState = email.state;
+    } catch (emailError) {
+      console.error("Post-acceptance email error", emailError);
+      emailState = "failed";
+    }
+
     return NextResponse.json({
       success: true,
+      email: emailState,
       athlete_id: athleteId,
       family_id: familyId,
       parent_email: parentEmail,
