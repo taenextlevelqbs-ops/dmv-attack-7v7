@@ -431,8 +431,8 @@ export default function AdminTryoutsPage() {
                   {statuses
                     .filter((item) => item !== "ALL")
                     .map((item) => (
-                      <option key={item} value={item}>
-                        {readableStatus(item)}
+                      <option key={item} value={item} disabled={item==="OFFERED"||item==="ACCEPTED"}>
+                        {item==="OFFERED"?"OFFERED (Use Make Offer)":item==="ACCEPTED"?"ACCEPTED (Use Teams & Rosters)":readableStatus(item)}
                       </option>
                     ))}
                 </select>
