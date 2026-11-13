@@ -234,6 +234,7 @@ const fixture = createServer(async (req, res) => {
       return send(200, []);
     }
     if (table === "team_coaches") return send(200, []);
+    if (table === "coach_tryout_evaluations" && req.method === "GET") return send(200, []);
     if (table === "foundation_contributions") return send(200, single ? null : []);
     if (table === "tryout_decision_emails") {
       let rows = decisionEmails;
