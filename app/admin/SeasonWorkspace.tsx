@@ -16,18 +16,19 @@ export default function SeasonWorkspace({ name, owner, directory = false }: { na
   const [division, setDivision] = useState("");
   const [status, setStatus] = useState("");
   const [path, setPath] = useState("");
-  const load = useCallback(async (signal?: AbortSignal) => {
-    setLoading(true); setError("");
-    try {
-      const response = await fetch("/api/admin/command-center", { cache: "no-store", signal });
-      const json = await response.json();
-      if (!response.ok) throw new Error(json.error || "Unable to load season records");
-      setData(json);
-    } catch (e) {
-      if (signal?.aborted) return;
-      // Do not present a previous response as fresh after a failed refresh.
-      setData(null); setError(e instanceof Error ? e.message : "Unable to load season records");
-    } finally { if (!signal?.aborted) setLoading(false); }
+  const load = useCallback((signal?: AbortSignal) => {
+    return fetch("/api/admin/command-center", { cache: "no-store", signal })
+      .then(async response => {
+        const json = await response.json();
+        if (!response.ok) throw new Error(json.error || "Unable to load season records");
+        return json;
+      })
+      .then(json => { if (!signal?.aborted) { setData(json); setError(""); } })
+      .catch((e: unknown) => {
+        if (signal?.aborted) return;
+        setData(null); setError(e instanceof Error ? e.message : "Unable to load season records");
+      })
+      .finally(() => { if (!signal?.aborted) setLoading(false); });
   }, []);
   useEffect(() => { const controller = new AbortController(); void load(controller.signal); return () => controller.abort(); }, [load]);
   const filtered = useMemo(() => (data?.registrations || []).filter(r => {
@@ -51,7 +52,7 @@ export default function SeasonWorkspace({ name, owner, directory = false }: { na
       </div>
       <div className="flex flex-wrap items-end justify-between gap-4 py-7">
         <div><p className="text-[10px] font-black uppercase tracking-[0.22em] text-lime-400">2027 season · {owner ? "Owner" : "Admin"}</p><h1 className="mt-2 text-3xl font-black uppercase tracking-tight sm:text-5xl">{directory ? "Athlete directory" : "Command Center"}</h1><p className="mt-3 text-sm text-white/60">{directory ? "One directory for tryout, guaranteed-play, walk-up and invited registrations." : `Welcome back, ${name}. Run the season from your existing DMV Attack account.`}</p></div>
-        <button className={button} disabled={loading} onClick={()=>void load()}>{loading ? "Loading records…" : "Refresh records"}</button>
+        <button className={button} disabled={loading} onClick={()=>{setLoading(true); setError(""); void load();}}>{loading ? "Loading records…" : "Refresh records"}</button>
       </div>
       <nav aria-label="Season workspace" className="mb-6 flex gap-2 overflow-x-auto pb-2">{[["Overview","/admin"],["Athletes","/admin/athletes"],["Rosters","/admin/teams"],["Attendance","/admin/tryouts/check-in"],["Families","/admin/families"],["Email groups","/admin/family-updates"]].map(([label,href])=><Link key={href} href={href} className={button+" shrink-0"}>{label}</Link>)}</nav>
       {error && <div role="alert" className="mb-5 rounded-xl border border-red-400/40 p-4 text-sm text-red-200">{error} No records are shown until the connection succeeds.</div>}
