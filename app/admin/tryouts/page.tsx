@@ -101,6 +101,11 @@ export default function AdminTryoutsPage() {
     return requestJson("/api/admin/tryouts",{cache:"no-store"}).then(result=>{
       setRegistrations(result.registrations ?? []);
       setError("");
+      const registrationId = new URLSearchParams(window.location.search).get("registration");
+      if (registrationId) {
+        const match = result.registrations?.find((r: Registration) => r.id === registrationId);
+        if (match) setSelected(match);
+      }
 
     }).catch((error:unknown)=>{setError(error instanceof Error?error.message:"Unable to load records");}).finally(()=>setLoading(false));
   }
