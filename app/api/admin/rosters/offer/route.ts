@@ -85,7 +85,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { data: submission, error: submissionError }=await admin.from("tryout_submissions").select("id,age_group,athlete_first_name,athlete_last_name,parent_email,parent_guardian_name,status,referral_source").eq("id",tryoutId).maybeSingle();
+    const { data: submission, error: submissionError }=await admin.from("tryout_submissions").select("id,age_group,date_of_birth,athlete_first_name,athlete_last_name,parent_email,parent_guardian_name,status,referral_source").eq("id",tryoutId).maybeSingle();
     if(submissionError)throw submissionError;
     if(!submission)return NextResponse.json({error:"Athlete not found"},{status:404});
     if(submission.age_group!==team.age_group)return NextResponse.json({error:"Athlete division must match the team"},{status:400});
@@ -100,6 +100,29 @@ export async function POST(request: Request) {
     const {data:existingOffer,error:existingError}=await admin.from("roster_assignments").select("roster_status").eq("tryout_submission_id",tryoutId).eq("team_id",teamId).maybeSingle();
     if(existingError)throw existingError;
     if(existingOffer && ["ACCEPTED","ACTIVE"].includes(existingOffer.roster_status))return NextResponse.json({error:"Athlete has already accepted this team offer"},{status:409});
+
+    // Older registrations can contain duplicate entries for the same player.
+    // Do not offer a second roster spot through a separate submission ID.
+    if (submission.date_of_birth) {
+      const {data:possibleDuplicates,error:duplicateError}=await admin
+        .from("tryout_submissions")
+        .select("id,athlete_first_name,athlete_last_name,status")
+        .eq("date_of_birth",submission.date_of_birth)
+        .neq("id",tryoutId);
+      if(duplicateError)throw duplicateError;
+      const matchingIds=(possibleDuplicates??[])
+        .filter((candidate)=>candidate.athlete_first_name.trim().toLocaleLowerCase()===submission.athlete_first_name.trim().toLocaleLowerCase()
+          &&candidate.athlete_last_name.trim().toLocaleLowerCase()===submission.athlete_last_name.trim().toLocaleLowerCase())
+        .map((candidate)=>candidate.id);
+      if(matchingIds.length){
+        const {data:duplicateOffers,error:duplicateOffersError}=await admin.from("roster_assignments")
+          .select("id").in("tryout_submission_id",matchingIds)
+          .in("roster_status",["OFFERED","ACCEPTED","ACTIVE"]).limit(1);
+        if(duplicateOffersError)throw duplicateOffersError;
+        if(duplicateOffers?.length||(possibleDuplicates??[]).some((candidate)=>matchingIds.includes(candidate.id)&&["OFFERED","ACCEPTED"].includes(candidate.status)))
+          return NextResponse.json({error:"This athlete already has an offer or roster acceptance on a duplicate registration. Review existing records before continuing."},{status:409});
+      }
+    }
 
     const now = new Date().toISOString();
 
