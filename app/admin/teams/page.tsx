@@ -63,6 +63,8 @@ export default function TeamsPage() {
     return requestJson("/api/admin/rosters",{cache:"no-store"}).then(result=>{
       setTeams(result.teams ?? []);
       setError("");
+      const teamId = new URLSearchParams(window.location.search).get("team");
+      if (teamId && result.teams?.some((team: Team) => team.id === teamId)) setSelectedTeam(teamId);
 
     }).catch((error:unknown)=>{setError(error instanceof Error?error.message:"Unable to load records");}).finally(()=>setLoading(false));
   }

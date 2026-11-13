@@ -112,6 +112,8 @@ const fixture = createServer(async (req, res) => {
         : send(401, { message: "Not authenticated" });
     }
     if (url.pathname === "/rest/v1/profiles") {
+      if (req.headers.apikey === "fixture-service" && !url.searchParams.has("id"))
+        return send(200, [{ id: owner, first_name: "Fixture", last_name: "Owner" }]);
       const id =
         url.searchParams.get("id")?.replace("eq.", "") || userFrom(req);
       if (req.method !== "GET") throw new Error("Unexpected profile write");
@@ -227,6 +229,11 @@ const fixture = createServer(async (req, res) => {
       if(idFilter?.startsWith("in.(")){const ids=new Set(idFilter.slice(4,-1).split(","));result=result.filter(r=>ids.has(r.id));}
       return send(200, single ? result[0] || null : result);
     }
+    if (table === "families" || table === "athletes") {
+      if (req.method === "HEAD") { res.writeHead(200, {"Content-Range":"*/0"}); return res.end(); }
+      return send(200, []);
+    }
+    if (table === "team_coaches") return send(200, []);
     if (table === "foundation_contributions") return send(200, single ? null : []);
     if (table === "tryout_decision_emails") {
       let rows = decisionEmails;
@@ -374,6 +381,31 @@ try {
     await new Promise((r) => setTimeout(r, 200));
   }
   if (!ready) throw new Error("Owned test server did not start");
+  if (process.env.DMV_API_ONLY === "1") {
+    const sessionCookie = (id) => "sb-127-auth-token=base64-" + Buffer.from(JSON.stringify({access_token:token(id),refresh_token:"fixture-refresh",expires_at:4102444800,token_type:"bearer",user:{id}})).toString("base64url");
+    for (const [id, expected] of [[null,401],[parent,403],[admin,200],[owner,200]]) {
+      const response = await fetch(origin+"/api/admin/command-center", {headers:id?{Cookie:sessionCookie(id)}:{}});
+      assert.equal(response.status,expected,await response.text().then(text=>text.slice(0,300)));
+    }
+    const response = await fetch(origin+"/api/admin/command-center", {headers:{Cookie:sessionCookie(owner)}});
+    assert.match(response.headers.get("cache-control"),/no-store/);
+    const summary=await response.json();
+    assert.deepEqual(summary.problems,[]);
+    assert.equal(summary.registrations.length,1);
+    assert.equal(summary.registrations[0].id,registration);
+    assert.equal(summary.registrations[0].has_headshot,true);
+    assert.equal("headshot_path" in summary.registrations[0],false);
+    assert.equal(summary.teams.length,1);
+    assert.deepEqual(summary.teams[0].coaches,[]);
+    assert.equal(summary.family_count,0);
+    assert.equal(summary.athlete_count,0);
+    assert.equal(summary.assignments[0].roster_status,"OFFERED");
+    const adminPage=await fetch(origin+"/admin",{headers:{Cookie:sessionCookie(owner)}});
+    assert.equal(adminPage.status,200);
+    assert.match(await adminPage.text(),/Command Center/);
+    assert.deepEqual(databaseErrors,[]);
+    console.log("COMMAND CENTER API PASS: anonymous/parent denial, staff/owner access, private no-store reads, original registration IDs, headshot-path minimization, team/coach reads, accurate empty counts and authenticated admin render. No live writes.");
+  } else {
   browser = await chromium.launch({
     executablePath: process.env.CHROMIUM_PATH || (fs.existsSync("/usr/bin/chromium")?"/usr/bin/chromium":undefined),
     headless: true,
@@ -391,6 +423,7 @@ try {
     (await guest.request.get(origin + "/api/admin/finance")).status(),
     403,
   );
+  assert.equal((await guest.request.get(origin + "/api/admin/command-center")).status(), 401);
   assert.equal((await (await guest.request.get(origin+"/api/status")).json()).service,"DMV Attack");
   // New athlete invitation and family-update surfaces must deny anonymous access.
   assert.equal((await guest.request.get(origin + "/api/admin/direct-invites")).status(), 403);
@@ -445,6 +478,38 @@ try {
     viewport: { width: 390, height: 844 },
   });
   await identity(context, owner);
+  const seasonResponse = await context.request.get(origin + "/api/admin/command-center");
+  assert.equal(seasonResponse.status(), 200, await seasonResponse.text());
+  assert.match(seasonResponse.headers()["cache-control"], /no-store/);
+  const season = await seasonResponse.json();
+  assert.equal(season.registrations.length, 1);
+  assert.equal(season.registrations[0].has_headshot, true);
+  assert.equal("headshot_path" in season.registrations[0], false);
+  assert.deepEqual(season.teams[0].coaches, []);
+  const parentContext = await browser.newContext();
+  await identity(parentContext, parent);
+  assert.equal((await parentContext.request.get(origin + "/api/admin/command-center")).status(), 403);
+  await parentContext.close();
+  const workspace = await context.newPage();
+  await workspace.goto(origin + "/admin");
+  await workspace.getByRole("heading", {name:"Command Center", exact:true}).waitFor();
+  await workspace.getByText("1 matching registrations", {exact:true}).waitFor();
+  assert.equal(await workspace.locator('a[href*="chatgpt"]').count(), 0);
+  for (const width of [320, 390, 768, 1440]) {
+    await workspace.setViewportSize({width,height:844});
+    assert.equal(await workspace.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth), true, "command center overflow at "+width);
+  }
+  await workspace.goto(origin + "/admin/athletes");
+  await workspace.getByRole("textbox", {name:"Search all athletes"}).fill("not-a-real-athlete");
+  await workspace.getByText("No matching registrations. Clear the filters or refresh.").waitFor();
+  await workspace.getByRole("textbox", {name:"Search all athletes"}).fill("DMV-FIXTURE-001");
+  await workspace.getByRole("link", {name:"View headshot & registration"}).click();
+  await workspace.waitForURL("**/admin/tryouts?registration="+registration);
+  await workspace.getByText("Fixture School",{exact:true}).first().waitFor();
+  await workspace.goto(origin+"/admin/teams?team="+team);
+  await workspace.getByRole("heading",{name:/Teams.*Rosters/i}).waitFor();
+  await workspace.close();
+  console.log("COMMAND CENTER PASS: anonymous/parent denial, private no-store response, existing record identity, headshot-path minimization, live directory lookup/deep links and four responsive widths.");
   const page = await context.newPage();
   page.on("pageerror", (e) => pageErrors.push(e.message));
   let r = await context.request.get(origin + "/api/admin/finance");
@@ -768,6 +833,7 @@ try {
   console.log(
     "BROWSER PASS: owner-only fee settings, deposits/installments, duplicate prevention, refunds/adjustments/history, reload persistence, role denial/CSRF, tryout payments, successful registration, duplicate error preservation, private price absence and four responsive widths. Local fixtures only.",
   );
+  }
 } finally {
   if (browser) await browser.close();
   if (server && server.exitCode === null) {
