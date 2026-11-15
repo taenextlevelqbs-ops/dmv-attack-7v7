@@ -61,7 +61,7 @@ export async function sendDecisionEmail(admin: SupabaseClient, submission: Submi
   const email=decisionEmail(submission,decision);
   const response=await fetch("https://api.resend.com/emails",{
    method:"POST",headers:{"Authorization":`Bearer ${key}`,"Content-Type":"application/json","Idempotency-Key":record.id},
-   body:JSON.stringify({from,to:[recipient],subject:email.subject,html:email.html,text:email.text}),
+   body:JSON.stringify({from,reply_to:"dmvattack@gmail.com",to:[recipient],subject:email.subject,html:email.html,text:email.text}),
   });
   const payload=await response.json().catch(()=>({}));
   if(!response.ok || !payload.id) throw new Error(`Email provider returned ${response.status}`);
