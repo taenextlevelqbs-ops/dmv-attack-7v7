@@ -14,11 +14,15 @@ export default function OfferPanel({
   athleteName,
   ageGroup,
   onSuccess,
+  availableTeams,
+  status,
 }: {
   athleteId: string;
   athleteName: string;
   ageGroup: string;
   onSuccess: () => void;
+  availableTeams?: Team[];
+  status?: string;
 }) {
   const [teams, setTeams] = useState<Team[]>([]);
   const [teamId, setTeamId] = useState("");
@@ -27,6 +31,7 @@ export default function OfferPanel({
   const [message, setMessage] = useState("");
 
   useEffect(() => {
+    if (availableTeams) { setTeams(availableTeams); setLoading(false); return; }
     fetch("/api/admin/teams", {
       cache: "no-store",
     })
@@ -47,7 +52,7 @@ export default function OfferPanel({
         );
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [availableTeams]);
 
   const choices = useMemo(() => {
     const matching = teams.filter(
@@ -71,7 +76,7 @@ export default function OfferPanel({
 
     if (
       !window.confirm(
-        `Make ${athleteName} an offer for ${team.name}?`
+        `Accept ${athleteName} onto ${team.name} and email the parent?`
       )
     ) {
       return;
@@ -91,6 +96,7 @@ export default function OfferPanel({
           body: JSON.stringify({
             tryout_submission_id: athleteId,
             team_id: selectedTeamId,
+            suppress_offer_email: true,
           }),
         }
       );
@@ -103,9 +109,19 @@ export default function OfferPanel({
         );
       }
 
-      setMessage(
-        `Offer created for ${result.team.name}.`
-      );
+      const acceptance = await fetch("/api/admin/rosters/accept", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({tryout_submission_id: athleteId, team_id: selectedTeamId}),
+      });
+      const accepted = await acceptance.json();
+      if (!acceptance.ok) throw new Error(accepted.error || "Offer saved, but acceptance failed. Retry acceptance.");
+      const emailSent = ["sent", "already_sent"].includes(accepted.email);
+      const confirmation = emailSent
+        ? `${athleteName} accepted onto ${team.name}. Acceptance email sent.`
+        : `${athleteName} accepted onto ${team.name}. Email NOT confirmed sent: ${String(accepted.email ?? "unknown").replaceAll("_", " ")}.`;
+      setMessage(confirmation);
+      window.alert(confirmation);
 
       onSuccess();
     } catch (error) {
@@ -122,21 +138,21 @@ export default function OfferPanel({
   return (
     <section className="rounded-[28px] border border-lime-400/20 bg-lime-400/[0.05] p-5 md:p-6">
       <div className="text-[10px] font-black uppercase tracking-[0.2em] text-lime-400">
-        Offer + Team Assignment
+        Accept Athlete
       </div>
 
       <h3 className="mt-2 text-2xl font-black uppercase">
-        Make The Offer
+        Choose Team & Accept
       </h3>
 
       <p className="mt-3 text-sm leading-6 text-white/50">
-        Select the team and create this athlete&apos;s
-        DMV Attack roster offer.
+        Choose a team, then accept. The parent receives the acceptance email.
       </p>
 
       <select
         value={selectedTeamId}
-        disabled={loading}
+        aria-label={`Team for ${athleteName}`}
+        disabled={loading || sending}
         onChange={(event) =>
           setTeamId(event.target.value)
         }
@@ -160,17 +176,17 @@ export default function OfferPanel({
 
       <button
         type="button"
-        disabled={sending || !selectedTeamId}
+        disabled={sending || !selectedTeamId || status === "ACCEPTED"}
         onClick={makeOffer}
         className="mt-4 w-full rounded-2xl bg-lime-400 px-6 py-4 text-sm font-black uppercase tracking-[0.14em] text-black disabled:opacity-40"
       >
         {sending
-          ? "Creating Offer..."
-          : "Make Offer + Assign Team"}
+          ? "Accepting..."
+          : status === "ACCEPTED" ? "Accepted" : "Accept Player & Email Parent"}
       </button>
 
       {message && (
-        <p className="mt-4 text-sm font-semibold text-white/60">
+        <p role="status" aria-live="polite" className="mt-4 text-sm font-semibold text-white/80">
           {message}
         </p>
       )}

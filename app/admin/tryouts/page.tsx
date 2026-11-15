@@ -88,6 +88,7 @@ function readableStatus(status: string) {
 export default function AdminTryoutsPage() {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(true);
+  const [teams, setTeams] = useState<{id:string;name:string;age_group:string;season:string}[]>([]);
   const [error, setError] = useState("");
 
   const [search, setSearch] = useState("");
@@ -112,6 +113,9 @@ export default function AdminTryoutsPage() {
 
   useEffect(() => {
     loadRegistrations();
+    requestJson("/api/admin/teams", {cache:"no-store"})
+      .then(result => setTeams(result.teams ?? []))
+      .catch(() => setError("Unable to load teams. Refresh before accepting players."));
   }, []);
 
   async function updateStatus(
@@ -418,6 +422,15 @@ export default function AdminTryoutsPage() {
                     {registration.decision_emails.map((email) => <p key={email.decision}>{email.decision}: Email {email.state}</p>)}
                   </div>
                 ) : null}
+                <OfferPanel
+                  athleteId={registration.id}
+                  athleteName={`${registration.athlete_first_name} ${registration.athlete_last_name}`}
+                  ageGroup={registration.age_group}
+                  status={registration.status}
+                  availableTeams={teams}
+                  onSuccess={() => { void loadRegistrations(); }}
+                />
+                <details className="mt-4"><summary className="cursor-pointer text-sm text-white/60">Other status options</summary>
                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/35">
                   Status
                 </label>
@@ -441,6 +454,7 @@ export default function AdminTryoutsPage() {
                       </option>
                     ))}
                 </select>
+                </details>
               </div>
             </article>
           ))}
@@ -637,6 +651,9 @@ export default function AdminTryoutsPage() {
                 </section>
 
                 <OfferPanel
+                  key={selected.id}
+                  status={selected.status}
+                  availableTeams={teams}
                   athleteId={selected.id}
                   athleteName={`${selected.athlete_first_name} ${selected.athlete_last_name}`}
                   ageGroup={selected.age_group}
@@ -644,14 +661,14 @@ export default function AdminTryoutsPage() {
                     setRegistrations((current) =>
                       current.map((item) =>
                         item.id === selected.id
-                          ? { ...item, status: "OFFERED" }
+                          ? { ...item, status: "ACCEPTED" }
                           : item
                       )
                     );
 
                     setSelected((current) =>
                       current
-                        ? { ...current, status: "OFFERED" }
+                        ? { ...current, status: "ACCEPTED" }
                         : current
                     );
                   }}

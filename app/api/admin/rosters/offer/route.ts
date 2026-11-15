@@ -154,7 +154,9 @@ export async function POST(request: Request) {
 
     if (statusError) throw statusError;
 
-    const email = await sendDecisionEmail(admin, submission, "OFFERED");
+    const email = body.suppress_offer_email === true
+      ? {state: "not_applicable"}
+      : await sendDecisionEmail(admin, submission, "OFFERED");
     return NextResponse.json({
       success: true,
       team,

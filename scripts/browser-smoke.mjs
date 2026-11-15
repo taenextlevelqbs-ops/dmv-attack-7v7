@@ -644,14 +644,21 @@ try {
     ]);
     assert.ok(scroll <= client + 1, `Fee page overflow ${width}`);
   }
-  const accepted = await context.request.post(
-    origin + "/api/admin/rosters/accept",
-    {
-      headers: { Origin: origin },
-      data: { tryout_submission_id: registration, team_id: team },
-    },
-  );
+  await page.goto(origin + "/admin/tryouts");
+  await page.setViewportSize({width:390,height:844});
+  const acceptButton = page.getByRole("button", {name:"Accept Player & Email Parent"}).first();
+  await acceptButton.waitFor();
+  assert.equal(await page.getByRole("combobox", {name:"Team for Sam Example"}).first().inputValue(), team);
+  const messages = [];
+  page.on("dialog", async dialog => {messages.push(dialog.message()); await dialog.accept();});
+  const acceptedResponse = page.waitForResponse(response => response.url().endsWith("/api/admin/rosters/accept") && response.request().method() === "POST");
+  await acceptButton.click();
+  const accepted = await acceptedResponse;
   assert.equal(accepted.status(), 200, await accepted.text());
+  await page.getByRole("button", {name:"Accepted", exact:true}).first().waitFor();
+  assert.equal(assignments[0].roster_status, "ACCEPTED");
+  assert.ok(messages.some(message => message.includes("Email NOT confirmed sent")));
+  assert.ok(!decisionEmails.some(email => email.decision === "OFFERED"), "One-step acceptance must not send an intermediate offer email");
   assert.equal(
     (await (await context.request.get(origin + "/api/auth/route-user")).json())
       .destination,
