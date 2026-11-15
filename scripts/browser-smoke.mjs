@@ -650,12 +650,14 @@ try {
   await acceptButton.waitFor();
   assert.equal(await page.getByRole("combobox", {name:"Team for Sam Example"}).first().inputValue(), team);
   const messages = [];
-  page.on("dialog", async dialog => {messages.push(dialog.message()); await dialog.accept();});
+  const acceptDialog = async dialog => {messages.push(dialog.message()); await dialog.accept();};
+  page.on("dialog", acceptDialog);
   const acceptedResponse = page.waitForResponse(response => response.url().endsWith("/api/admin/rosters/accept") && response.request().method() === "POST");
   await acceptButton.click();
   const accepted = await acceptedResponse;
   assert.equal(accepted.status(), 200, await accepted.text());
   await page.getByRole("button", {name:"Accepted", exact:true}).first().waitFor();
+  page.off("dialog", acceptDialog);
   assert.equal(assignments[0].roster_status, "ACCEPTED");
   assert.ok(messages.some(message => message.includes("Email NOT confirmed sent")));
   assert.ok(!decisionEmails.some(email => email.decision === "OFFERED"), "One-step acceptance must not send an intermediate offer email");
