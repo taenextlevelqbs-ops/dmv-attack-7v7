@@ -55,9 +55,7 @@ export default function OfferPanel({
   }, [availableTeams]);
 
   const choices = useMemo(() => {
-    const matching = teams.filter(
-      (team) => team.age_group === ageGroup
-    );
+    const matching = teams.filter(team => team.season === "2027");
 
     return matching;
   }, [teams, ageGroup]);
@@ -109,6 +107,10 @@ export default function OfferPanel({
         );
       }
 
+      if (result.already_accepted) {
+        setMessage(`${athleteName} is already on ${team.name}.`);
+        return;
+      }
       const acceptance = await fetch("/api/admin/rosters/accept", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
@@ -116,10 +118,10 @@ export default function OfferPanel({
       });
       const accepted = await acceptance.json();
       if (!acceptance.ok) throw new Error(accepted.error || "Offer saved, but acceptance failed. Retry acceptance.");
-      const emailSent = ["sent", "already_sent"].includes(accepted.email);
+      const emailSent = accepted.email === "sent";
       const confirmation = emailSent
         ? `${athleteName} accepted onto ${team.name}. Acceptance email sent.`
-        : `${athleteName} accepted onto ${team.name}. Email NOT confirmed sent: ${String(accepted.email ?? "unknown").replaceAll("_", " ")}.`;
+        : accepted.email === "already_sent" ? `${athleteName} added to ${team.name}. The acceptance email was previously sent; no duplicate email sent.` : `${athleteName} accepted onto ${team.name}. Email NOT confirmed sent: ${String(accepted.email ?? "unknown").replaceAll("_", " ")}.`;
       setMessage(confirmation);
       window.alert(confirmation);
 
@@ -146,7 +148,7 @@ export default function OfferPanel({
       </h3>
 
       <p className="mt-3 text-sm leading-6 text-white/50">
-        Choose a team, then accept. The parent receives the acceptance email.
+        Registered division: {ageGroup}. Choose any team. Add another team by selecting it and saving again; existing teams stay assigned.
       </p>
 
       <select
@@ -176,13 +178,13 @@ export default function OfferPanel({
 
       <button
         type="button"
-        disabled={sending || !selectedTeamId || status === "ACCEPTED"}
+        disabled={sending || !selectedTeamId}
         onClick={makeOffer}
         className="mt-4 w-full rounded-2xl bg-lime-400 px-6 py-4 text-sm font-black uppercase tracking-[0.14em] text-black disabled:opacity-40"
       >
         {sending
           ? "Accepting..."
-          : status === "ACCEPTED" ? "Accepted" : "Accept Player & Email Parent"}
+          : status === "ACCEPTED" ? "Add to Selected Team" : "Accept Player & Email Parent"}
       </button>
 
       {message && (

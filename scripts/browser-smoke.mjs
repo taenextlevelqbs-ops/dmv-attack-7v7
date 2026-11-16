@@ -656,7 +656,7 @@ try {
   await acceptButton.click();
   const accepted = await acceptedResponse;
   assert.equal(accepted.status(), 200, await accepted.text());
-  await page.getByRole("button", {name:"Accepted", exact:true}).first().waitFor();
+  await page.getByRole("button", {name:"Add to Selected Team", exact:true}).first().waitFor();
   page.off("dialog", acceptDialog);
   assert.equal(assignments[0].roster_status, "ACCEPTED");
   assert.ok(messages.some(message => message.includes("Email NOT confirmed sent")));
@@ -674,7 +674,8 @@ try {
       data: { tryout_submission_id: registration, team_id: team },
     },
   );
-  assert.equal(repeatedOffer.status(), 409);
+  assert.equal(repeatedOffer.status(), 200);
+  assert.equal((await repeatedOffer.json()).already_accepted, true);
   assert.equal(
     (await context.request.get(origin + "/api/admin/finance/setup")).status(),
     200,

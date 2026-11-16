@@ -140,7 +140,7 @@ export async function POST(request: Request) {
     // 3. Validate roster assignment
     // --------------------------------------------------
 
-    if(submission.age_group!==team.age_group)return NextResponse.json({error:"Athlete division must match the team"},{status:400});
+
 
     const { data: assignment, error: assignmentError } =
       await admin

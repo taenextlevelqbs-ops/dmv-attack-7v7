@@ -15,6 +15,8 @@ type Registration = {
   athlete_last_name: string;
 
   current_age: number | null;
+  date_of_birth?: string | null;
+  assigned_teams?: {id:string;name:string;status:string}[];
   age_group: string;
 
   graduation_year: number | null;
@@ -81,6 +83,13 @@ const statuses = [
   "PASS",
 ];
 
+function athleteAge(registration: Registration) {
+  if (!registration.date_of_birth) return registration.current_age == null ? "Not recorded" : `${registration.current_age} (at registration)`;
+  const dob = registration.date_of_birth.slice(0,10);
+  const today = new Intl.DateTimeFormat("en-CA",{timeZone:"America/New_York",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
+  const age = Number(today.slice(0,4))-Number(dob.slice(0,4))-(today.slice(5)<dob.slice(5)?1:0);
+  return Number.isFinite(age) && age>=0 ? String(age) : "Not recorded";
+}
 function readableStatus(status: string) {
   return status.replaceAll("_", " ");
 }
@@ -407,7 +416,7 @@ export default function AdminTryoutsPage() {
                     </div>
 
                     <div>
-                      {registration.grade || "Grade not listed"}
+                      Age: {athleteAge(registration)} · {registration.grade || "Grade not listed"}
                       {registration.graduation_year
                         ? ` • Class of ${registration.graduation_year}`
                         : ""}
@@ -422,6 +431,7 @@ export default function AdminTryoutsPage() {
                     {registration.decision_emails.map((email) => <p key={email.decision}>{email.decision}: Email {email.state}</p>)}
                   </div>
                 ) : null}
+                <p className="mb-3 text-sm text-lime-300">Teams: {registration.assigned_teams?.length ? registration.assigned_teams.map(t=>`${t.name} (${readableStatus(t.status)})`).join(", ") : "Unassigned"}</p>
                 <OfferPanel
                   athleteId={registration.id}
                   athleteName={`${registration.athlete_first_name} ${registration.athlete_last_name}`}
@@ -550,6 +560,8 @@ export default function AdminTryoutsPage() {
                     <Info label="Primary Position" value={selected.primary_position} />
                     <Info label="Secondary Position" value={selected.secondary_position} />
                     <Info label="School" value={selected.school} />
+                    <Info label="Age" value={athleteAge(selected)} />
+                    <Info label="Teams" value={selected.assigned_teams?.map(t=>t.name).join(", ") || "Unassigned"} />
                     <Info label="Grade" value={selected.grade} />
                     <Info label="Height" value={selected.height} />
                     <Info label="Weight" value={selected.weight} />
@@ -658,6 +670,7 @@ export default function AdminTryoutsPage() {
                   athleteName={`${selected.athlete_first_name} ${selected.athlete_last_name}`}
                   ageGroup={selected.age_group}
                   onSuccess={() => {
+                    void loadRegistrations();
                     setRegistrations((current) =>
                       current.map((item) =>
                         item.id === selected.id

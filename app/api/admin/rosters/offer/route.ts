@@ -88,18 +88,10 @@ export async function POST(request: Request) {
     const { data: submission, error: submissionError }=await admin.from("tryout_submissions").select("id,age_group,date_of_birth,athlete_first_name,athlete_last_name,parent_email,parent_guardian_name,status,referral_source").eq("id",tryoutId).maybeSingle();
     if(submissionError)throw submissionError;
     if(!submission)return NextResponse.json({error:"Athlete not found"},{status:404});
-    if(submission.age_group!==team.age_group)return NextResponse.json({error:"Athlete division must match the team"},{status:400});
-    // A single athlete cannot hold open or accepted offers for two teams,
-    // including the separate Green and Yellow 18U rosters.
-    const {data:otherOffers,error:otherError}=await admin.from("roster_assignments")
-      .select("id,team_id,roster_status").eq("tryout_submission_id",tryoutId).neq("team_id",teamId)
-      .in("roster_status",["OFFERED","ACCEPTED","ACTIVE"]);
-    if(otherError)throw otherError;
-    if(otherOffers?.length)return NextResponse.json({error:"This athlete already has an active offer or roster spot on another team. Review the current assignment first."},{status:409});
 
     const {data:existingOffer,error:existingError}=await admin.from("roster_assignments").select("roster_status").eq("tryout_submission_id",tryoutId).eq("team_id",teamId).maybeSingle();
     if(existingError)throw existingError;
-    if(existingOffer && ["ACCEPTED","ACTIVE"].includes(existingOffer.roster_status))return NextResponse.json({error:"Athlete has already accepted this team offer"},{status:409});
+    if(existingOffer && ["ACCEPTED","ACTIVE"].includes(existingOffer.roster_status))return NextResponse.json({success:true,team,already_accepted:true});
 
     // Older registrations can contain duplicate entries for the same player.
     // Do not offer a second roster spot through a separate submission ID.
@@ -147,7 +139,7 @@ export async function POST(request: Request) {
     const { error: statusError } = await admin
       .from("tryout_submissions")
       .update({
-        status: "OFFERED",
+        status: submission.status === "ACCEPTED" ? "ACCEPTED" : "OFFERED",
         updated_at: now,
       })
       .eq("id", tryoutId);
