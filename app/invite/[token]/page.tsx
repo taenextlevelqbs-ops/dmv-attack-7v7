@@ -30,9 +30,14 @@ export default function DirectInvitePage(){
     playerForm.set("Direct Invitation Token",token);
     playerForm.set("Tryout Division",invite.age_group??String(playerForm.get("Tryout Division")||""));
     playerForm.set("Form Type","DMV Attack Direct Player Invitation");
+    const headshot=playerForm.get("Athlete Headshot");
+    if(headshot instanceof File && headshot.size>4*1024*1024) throw new Error(`Athlete ${index+1}: Headshot must be 4MB or smaller. Choose a smaller JPG, PNG or WEBP. Your other entries are still here; do not refresh.`);
     const r=await fetch("/api/tryouts/register",{method:"POST",headers:{Accept:"application/json"},body:playerForm});
     const j=await r.json().catch(()=>({}));
-    if(!r.ok||!j.confirmation?.id)throw new Error(`Athlete ${index+1}: ${j.error||"Unable to save registration"}`);
+    if(!r.ok||!j.confirmation?.id){
+      const detail=typeof j.error==="string"?j.error:typeof j.error?.message==="string"?j.error.message:typeof j.message==="string"?j.message:r.status===413?"Headshot upload is too large. Choose a smaller photo.":"Unable to save registration. Contact DMV Attack staff with this error code: "+r.status;
+      throw new Error(`Athlete ${index+1}: ${detail} Your entries are still here. Do not refresh; correct the issue and retry.`);
+    }
     completed.current.add(index);
     setCompletedCount(completed.current.size);
    }
