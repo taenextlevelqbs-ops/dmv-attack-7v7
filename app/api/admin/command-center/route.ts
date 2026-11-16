@@ -35,9 +35,20 @@ export async function GET() {
     const teamIds = new Set((teams.data || []).map(t => t.id));
     const activeAssignments = assignments.error || teams.error ? null : (assignments.data || []).filter(a => teamIds.has(a.team_id));
     const names = new Map((staff.data || []).map(p => [p.id, [p.first_name, p.last_name].filter(Boolean).join(" ") || "Name not recorded"]));
+    // Signed links keep athlete uploads private while displaying them to staff.
+    const photoPaths = [...new Set((registrations.data || []).map(r => r.headshot_path).filter((p): p is string => Boolean(p)))];
+    const photoUrls = new Map<string, string>();
+    if (photoPaths.length) {
+      const { data: photos, error: photoError } = await db.storage
+        .from("tryout-headshots").createSignedUrls(photoPaths, 60 * 60);
+      if (photoError) problems.push("Athlete photos unavailable. Refresh to retry.");
+      for (const photo of photos || []) {
+        if (photo.path && photo.signedUrl && !photo.error) photoUrls.set(photo.path, photo.signedUrl);
+      }
+    }
     return respond({
       fetched_at: new Date().toISOString(), problems,
-      registrations: registrations.error ? null : (registrations.data || []).map(({ headshot_path, ...r }) => ({ ...r, has_headshot: Boolean(headshot_path) })),
+      registrations: registrations.error ? null : (registrations.data || []).map(({ headshot_path, ...r }) => ({ ...r, has_headshot: Boolean(headshot_path), headshot_url: headshot_path ? photoUrls.get(headshot_path) ?? null : null })),
       teams: teams.error ? null : (teams.data || []).map(t => ({ ...t, coaches: coaches.error || staff.error ? null : (coaches.data || []).filter(c => c.team_id === t.id).map(c => names.get(c.coach_id) || "Name unavailable") })),
       assignments: activeAssignments,
       family_count: families.error ? null : families.count,
