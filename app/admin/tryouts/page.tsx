@@ -83,6 +83,12 @@ const statuses = [
   "PASS",
 ];
 
+function athleteDOB(registration: Registration) {
+  const value = registration.date_of_birth?.slice(0,10);
+  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return "Not recorded";
+  const [year,month,day] = value.split("-");
+  return `${month}/${day}/${year}`;
+}
 function athleteAge(registration: Registration) {
   if (!registration.date_of_birth) return registration.current_age == null ? "Not recorded" : `${registration.current_age} (at registration)`;
   const dob = registration.date_of_birth.slice(0,10);
@@ -416,7 +422,7 @@ export default function AdminTryoutsPage() {
                     </div>
 
                     <div>
-                      Age: {athleteAge(registration)} · {registration.grade || "Grade not listed"}
+                      DOB: {athleteDOB(registration)} · Age: {athleteAge(registration)} · {registration.grade || "Grade not listed"}
                       {registration.graduation_year
                         ? ` • Class of ${registration.graduation_year}`
                         : ""}
@@ -560,6 +566,7 @@ export default function AdminTryoutsPage() {
                     <Info label="Primary Position" value={selected.primary_position} />
                     <Info label="Secondary Position" value={selected.secondary_position} />
                     <Info label="School" value={selected.school} />
+                    <Info label="Date of birth" value={athleteDOB(selected)} />
                     <Info label="Age" value={athleteAge(selected)} />
                     <Info label="Teams" value={selected.assigned_teams?.map(t=>t.name).join(", ") || "Unassigned"} />
                     <Info label="Grade" value={selected.grade} />
