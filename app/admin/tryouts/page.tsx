@@ -16,6 +16,7 @@ type Registration = {
 
   current_age: number | null;
   date_of_birth?: string | null;
+  tryout_checked_in?: boolean | null;
   assigned_teams?: {id:string;name:string;status:string}[];
   age_group: string;
 
@@ -103,22 +104,20 @@ function readableStatus(status: string) {
 
 function ParentMessage({ registration }: { registration: Registration }) {
   const athlete = registration.athlete_first_name;
-  const [subject, setSubject] = useState("DMV Attack — opportunity for " + athlete);
-  const [message, setMessage] = useState(
-    "Hey! We really enjoyed having " + athlete + " out and loved what we saw from him. We currently have two full-time quarterbacks, so his QB reps and game time at quarterback would be limited. We would still love to have him involved and explore opportunities for him at other positions. Would he be open to that?\n\nCoach Tae\nDMV Attack"
-  );
+  const [subject, setSubject] = useState("DMV Attack update for " + athlete);
+  const [message, setMessage] = useState("");
   const [copied, setCopied] = useState(false);
   const email = registration.parent_email?.trim() || "";
   const draft = "mailto:" + encodeURIComponent(email) + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(message);
   return <details className="mt-4 rounded-xl border border-white/20 p-4">
     <summary className="cursor-pointer text-sm font-bold text-lime-300">Message Parent</summary>
-    <p className="mt-3 text-xs text-white/60">QB / other-position opportunity. Edit this draft before sending.</p>
+    <p className="mt-3 text-xs text-white/60">Write any message to this parent.</p>
     <p className="mt-3 break-all text-sm text-white/80">To: {email || "No parent email recorded"}</p>
     <label className="mt-3 block text-xs text-white/60">Subject
       <input value={subject} onChange={e=>setSubject(e.target.value)} className="mt-2 w-full rounded-xl border border-white/20 bg-black p-3 text-sm text-white" />
     </label>
     <label className="mt-3 block text-xs text-white/60">Message to {athlete}&apos;s parent
-      <textarea rows={9} value={message} onChange={e=>{setMessage(e.target.value);setCopied(false);}} className="mt-2 w-full rounded-xl border border-white/20 bg-black p-3 text-sm leading-6 text-white" />
+      <textarea placeholder="Type your message here…" rows={7} value={message} onChange={e=>{setMessage(e.target.value);setCopied(false);}} className="mt-2 w-full rounded-xl border border-white/20 bg-black p-3 text-sm leading-6 text-white" />
     </label>
     <div className="mt-3 flex flex-wrap gap-3">
       {email && subject.trim() && message.trim() ? <a href={draft} className="rounded-xl bg-lime-400 px-4 py-3 text-sm font-bold text-black">Open Email Draft</a> : null}
@@ -137,6 +136,7 @@ export default function AdminTryoutsPage() {
   const [search, setSearch] = useState("");
   const [division, setDivision] = useState("ALL");
   const [status, setStatus] = useState("ALL");
+  const [attendance, setAttendance] = useState("ALL");
 
   const [selected, setSelected] = useState<Registration | null>(null);
   const [updating, setUpdating] = useState("");
@@ -252,17 +252,17 @@ export default function AdminTryoutsPage() {
       return (
         matchesDivision &&
         matchesStatus &&
-        matchesSearch
+        matchesSearch && (attendance === "ALL" || (attendance === "CHECKED_IN" ? registration.tryout_checked_in === true : registration.tryout_checked_in !== true))
       );
     });
-  }, [registrations, search, division, status]);
+  }, [registrations, search, division, status, attendance]);
 
   const counts = useMemo(() => {
     return {
       total: registrations.length,
 
       checkedIn: registrations.filter(
-        (item) => item.status === "CHECKED_IN"
+        (item) => item.tryout_checked_in === true
       ).length,
 
       offered: registrations.filter(
@@ -353,6 +353,14 @@ export default function AdminTryoutsPage() {
           ))}
         </div>
 
+        <div className="mt-6">
+          <label className="text-sm font-bold">Tryout attendance
+            <select value={attendance} onChange={e=>setAttendance(e.target.value)} className="ml-3 rounded-xl border border-white/20 bg-black px-4 py-3 text-sm">
+              <option value="ALL">All athletes</option><option value="CHECKED_IN">Checked in at tryout</option><option value="NOT_RECORDED">No recorded check-in</option>
+            </select>
+          </label>
+          <p className="mt-2 text-xs text-white/55">No recorded check-in does not mean absent. Older roster decisions may have replaced the original check-in status.</p>
+        </div>
         <div className="mt-8 grid gap-3 lg:grid-cols-[1fr_auto_auto]">
           <input
             value={search}
@@ -474,6 +482,7 @@ export default function AdminTryoutsPage() {
                   availableTeams={teams}
                   onSuccess={() => { void loadRegistrations(); }}
                 />
+                <p className="mt-4 rounded-xl border border-white/20 p-3 text-sm font-bold">Tryout: {registration.tryout_checked_in === true ? "✓ Checked in" : "No recorded check-in"}</p>
                 <ParentMessage registration={registration} />
                 <details className="mt-4"><summary className="cursor-pointer text-sm text-white/60">Other status options</summary>
                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/35">

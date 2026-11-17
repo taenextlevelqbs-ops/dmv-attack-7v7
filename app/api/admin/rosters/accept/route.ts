@@ -303,6 +303,12 @@ export async function POST(request: Request) {
       athleteId = athlete.id;
     }
 
+    // Keep attendance after the selection/roster status changes.
+    if (submission.status === "CHECKED_IN") {
+      const { error: attendanceError } = await admin.from("tryout_attendance")
+        .upsert({registration_id:tryoutId,checked_in:true,updated_by:staff.id}, {onConflict:"registration_id",ignoreDuplicates:true});
+      if (attendanceError) throw attendanceError;
+    }
     // --------------------------------------------------
     // 6. Link submission to official records
     // --------------------------------------------------

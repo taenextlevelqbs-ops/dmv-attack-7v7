@@ -85,6 +85,12 @@ export async function PATCH(request: Request) {
     if (!existing) return NextResponse.json({error:"Athlete not found"},{status:404});
     if (existing.status === status) return NextResponse.json({success:true,unchanged:true});
 
+    // Keep attendance after the selection/roster status changes.
+    if (existing.status === "CHECKED_IN" || status === "CHECKED_IN") {
+      const { error: attendanceError } = await admin.from("tryout_attendance")
+        .upsert({registration_id:id,checked_in:true,updated_by:user.id}, {onConflict:"registration_id",ignoreDuplicates:true});
+      if (attendanceError) throw attendanceError;
+    }
     // Never allow a dropdown to bypass the separate official roster-acceptance workflow.
     // The decision status here records selection only, not fee/account activation.
     const { data: changed, error } = await admin
