@@ -100,6 +100,34 @@ function readableStatus(status: string) {
   return status.replaceAll("_", " ");
 }
 
+
+function ParentMessage({ registration }: { registration: Registration }) {
+  const athlete = registration.athlete_first_name;
+  const [subject, setSubject] = useState("DMV Attack — opportunity for " + athlete);
+  const [message, setMessage] = useState(
+    "Hey! We really enjoyed having " + athlete + " out and loved what we saw from him. We currently have two full-time quarterbacks, so his QB reps and game time at quarterback would be limited. We would still love to have him involved and explore opportunities for him at other positions. Would he be open to that?\n\nCoach Tae\nDMV Attack"
+  );
+  const [copied, setCopied] = useState(false);
+  const email = registration.parent_email?.trim() || "";
+  const draft = "mailto:" + encodeURIComponent(email) + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(message);
+  return <details className="mt-4 rounded-xl border border-white/20 p-4">
+    <summary className="cursor-pointer text-sm font-bold text-lime-300">Message Parent</summary>
+    <p className="mt-3 text-xs text-white/60">QB / other-position opportunity. Edit this draft before sending.</p>
+    <p className="mt-3 break-all text-sm text-white/80">To: {email || "No parent email recorded"}</p>
+    <label className="mt-3 block text-xs text-white/60">Subject
+      <input value={subject} onChange={e=>setSubject(e.target.value)} className="mt-2 w-full rounded-xl border border-white/20 bg-black p-3 text-sm text-white" />
+    </label>
+    <label className="mt-3 block text-xs text-white/60">Message to {athlete}&apos;s parent
+      <textarea rows={9} value={message} onChange={e=>{setMessage(e.target.value);setCopied(false);}} className="mt-2 w-full rounded-xl border border-white/20 bg-black p-3 text-sm leading-6 text-white" />
+    </label>
+    <div className="mt-3 flex flex-wrap gap-3">
+      {email && subject.trim() && message.trim() ? <a href={draft} className="rounded-xl bg-lime-400 px-4 py-3 text-sm font-bold text-black">Open Email Draft</a> : null}
+      <button type="button" onClick={async()=>{try{await navigator.clipboard.writeText(message);setCopied(true);}catch{setCopied(false);}}} className="rounded-xl border border-white/25 px-4 py-3 text-sm font-bold">Copy Message</button>
+    </div>
+    <p role="status" className="mt-3 text-xs text-white/55">{copied ? "Message copied. Paste into your text or email." : "Opens your email app for review. Nothing is sent until you send it there. Draft edits are not saved after leaving this page."}</p>
+  </details>;
+}
+
 export default function AdminTryoutsPage() {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(true);
@@ -446,6 +474,7 @@ export default function AdminTryoutsPage() {
                   availableTeams={teams}
                   onSuccess={() => { void loadRegistrations(); }}
                 />
+                <ParentMessage registration={registration} />
                 <details className="mt-4"><summary className="cursor-pointer text-sm text-white/60">Other status options</summary>
                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/35">
                   Status
@@ -693,6 +722,8 @@ export default function AdminTryoutsPage() {
                     );
                   }}
                 />
+
+                <ParentMessage key={`parent-${selected.id}`} registration={selected} />
 
                 <EvaluationPanel
                     key={selected.id}
