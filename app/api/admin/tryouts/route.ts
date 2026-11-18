@@ -100,7 +100,7 @@ export async function GET() {
       emailBySubmission.set(entry.submission_id, [...(emailBySubmission.get(entry.submission_id) ?? []), entry]);
     }
     return NextResponse.json({
-      registrations: registrations.map((entry) => ({...entry, tryout_checked_in: entry.status === "CHECKED_IN" || checkIns.get(entry.id) === true ? true : null, assigned_teams: assignedTeams(entry.id), decision_emails: emailBySubmission.get(entry.id) ?? []})),
+      registrations: registrations.map((entry) => ({...entry, tryout_checked_in: checkIns.has(entry.id) ? checkIns.get(entry.id) : entry.status === "CHECKED_IN" ? true : null, assigned_teams: assignedTeams(entry.id), decision_emails: emailBySubmission.get(entry.id) ?? []})),
       role: profile.role,
     });
   } catch (error) {

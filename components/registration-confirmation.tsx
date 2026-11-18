@@ -122,6 +122,11 @@ export default function RegistrationConfirmation({
           )}
         </section>
       )}
+      <section className="mt-8 rounded-2xl border border-lime-400/30 p-6">
+        <h2 className="text-xl font-black uppercase">15U & 18U · Self Check-In</h2>
+        <p className="mt-3 text-sm leading-7 text-white/70">Already registered for Sunday, November 22? Check in after arriving at the field, from 2:30–4:30 PM Eastern. Have your Tryout ID, registration parent email and athlete DOB ready. Staff will verify any fee and assign your sticker.</p>
+        <Link href="/tryouts/check-in" className="mt-4 inline-flex rounded-full bg-lime-400 px-6 py-3 text-sm font-bold text-black">Open Tryout Self Check-In</Link>
+      </section>
       <div className="mt-10">
         <TryoutPayments tryoutId={confirmation?.id} />
       </div>

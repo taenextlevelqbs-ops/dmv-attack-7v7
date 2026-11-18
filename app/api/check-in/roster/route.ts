@@ -13,10 +13,14 @@ export async function GET() {
  const admin=adminClient(url,secret,{auth:{persistSession:false,autoRefreshToken:false}});
  const {data,error}=await admin.from("tryout_submissions").select("id,tryout_id,athlete_first_name,athlete_last_name,age_group,primary_position,secondary_position,school,grade,status,bib_number,headshot_path").order("submitted_at",{ascending:false});
  if(error)return NextResponse.json({error:"Roster unavailable"},{status:503});
+ const {data:attendance,error:attendanceError}=await admin.from("tryout_attendance").select("registration_id,checked_in,version,self_checked_in_at");
+ if(attendanceError)return NextResponse.json({error:"Attendance unavailable"},{status:503});
+ const attendanceById=new Map((attendance??[]).map(a=>[a.registration_id,a]));
  const registrations=await Promise.all((data??[]).map(async ({headshot_path,...r})=>{
  let headshot_url:null|string=null;
  if(headshot_path){const {data:signed}=await admin.storage.from("tryout-headshots").createSignedUrl(headshot_path,3600);headshot_url=signed?.signedUrl??null;}
- return {...r,headshot_url};
+ const a=attendanceById.get(r.id);
+ return {...r,headshot_url,tryout_checked_in:a?a.checked_in:r.status==="CHECKED_IN",attendance_version:a?.version??0,self_checked_in_at:a?.self_checked_in_at??null};
  }));
  return NextResponse.json({registrations,role:profile.role},{headers:{"Cache-Control":"private, no-store"}});
 }

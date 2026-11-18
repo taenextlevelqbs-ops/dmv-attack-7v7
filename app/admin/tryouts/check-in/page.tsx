@@ -19,6 +19,9 @@ type Registration = {
   status: string;
   headshot_url: string | null;
   bib_number: number | null;
+  tryout_checked_in: boolean;
+  attendance_version: number;
+  self_checked_in_at?: string | null;
 };
 
 const divisions = [
@@ -125,109 +128,27 @@ export default function TryoutCheckInPage() {
     finally{setUpdating("");}
   }
 
-  function hasArrived(status: string) {
-    return status !== "REGISTERED";
+  function hasArrived(registration: Registration) {
+    return registration.tryout_checked_in === true;
   }
-
-  async function checkIn(registration: Registration) {
+  async function recordAttendance(registration:Registration,checkedIn:boolean) {
+    if(updating)return;
+    if(!checkedIn&&!window.confirm(`Mark ${registration.athlete_first_name} as not arrived? Their roster decision will stay unchanged.`))return;
+    setUpdating(registration.id);
     try {
-      setUpdating(registration.id);
-
-      const response = await fetch(
-        "/api/admin/tryouts/status",
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            id: registration.id,
-            status: "CHECKED_IN",
-          }),
-        }
-      );
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          result.error || "Unable to check athlete in"
-        );
-      }
-
-      setRegistrations((current) =>
-        current.map((item) =>
-          item.id === registration.id
-            ? { ...item, status: "CHECKED_IN" }
-            : item
-        )
-      );
-    } catch (err) {
-      alert(
-        err instanceof Error
-          ? err.message
-          : "Unable to check athlete in"
-      );
-    } finally {
-      setUpdating("");
-    }
+      const response=await fetch("/api/admin/tryouts/attendance",{
+        method:"PATCH",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({registration_id:registration.id,checked_in:checkedIn,version:registration.attendance_version,request_id:crypto.randomUUID()})
+      });
+      const result=await response.json();
+      if(!response.ok)throw new Error(result.error||"Unable to save attendance.");
+      const a=result.attendance;
+      setRegistrations(current=>current.map(item=>item.id===registration.id?{...item,tryout_checked_in:a.checked_in,attendance_version:a.version,self_checked_in_at:a.self_checked_in_at,status:["REGISTERED","CHECKED_IN"].includes(item.status)?(checkedIn?"CHECKED_IN":"REGISTERED"):item.status}:item));
+    } catch(e) {alert(e instanceof Error?e.message:"Unable to save attendance.");}
+    finally {setUpdating("");}
   }
-
-  async function undoCheckIn(registration: Registration) {
-    if (
-      registration.status !== "CHECKED_IN"
-    ) {
-      return;
-    }
-
-    const confirmed = window.confirm(
-      `Mark ${registration.athlete_first_name} ${registration.athlete_last_name} as not arrived?`
-    );
-
-    if (!confirmed) return;
-
-    try {
-      setUpdating(registration.id);
-
-      const response = await fetch(
-        "/api/admin/tryouts/status",
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            id: registration.id,
-            status: "REGISTERED",
-          }),
-        }
-      );
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          result.error || "Unable to undo check-in"
-        );
-      }
-
-      setRegistrations((current) =>
-        current.map((item) =>
-          item.id === registration.id
-            ? { ...item, status: "REGISTERED" }
-            : item
-        )
-      );
-    } catch (err) {
-      alert(
-        err instanceof Error
-          ? err.message
-          : "Unable to undo check-in"
-      );
-    } finally {
-      setUpdating("");
-    }
-  }
+  async function checkIn(registration:Registration){await recordAttendance(registration,true);}
+  async function undoCheckIn(registration:Registration){await recordAttendance(registration,false);}
 
   const stats = useMemo(() => {
     const scoped =
@@ -238,7 +159,7 @@ export default function TryoutCheckInPage() {
           );
 
     const arrived = scoped.filter((item) =>
-      hasArrived(item.status)
+      hasArrived(item)
     ).length;
 
     return {
@@ -260,9 +181,7 @@ export default function TryoutCheckInPage() {
           return false;
         }
 
-        const arrived = hasArrived(
-          registration.status
-        );
+        const arrived = hasArrived(registration);
 
         if (show === "ARRIVED" && !arrived) {
           return false;
@@ -321,6 +240,7 @@ export default function TryoutCheckInPage() {
 
           <div className="flex flex-wrap gap-2">
             <button type="button" onClick={()=>void refreshLive()} disabled={refreshing} className="rounded-full border border-lime-400/60 px-5 py-3 text-xs font-black uppercase tracking-[0.12em] text-lime-400 disabled:opacity-50">{refreshing?"Refreshing…":"Refresh New Signups"}</button>
+            <Link href="/tryouts/check-in" className="rounded-full border border-lime-400/50 px-5 py-3 text-xs font-black uppercase text-lime-400">Public Self Check-In Link</Link>
             <Link href="/admin/tryouts/check-in/walk-ins" className="rounded-full border border-white/10 px-5 py-3 text-xs font-black uppercase tracking-[0.12em]">Walk-In QR Sign</Link>
             <Link href="/admin/tryouts/check-in/print" className="rounded-full border border-lime-400/50 px-5 py-3 text-xs font-black uppercase tracking-[0.12em] text-lime-400">Print Roster</Link>
             {staffRole==="OWNER"&&<Link href="/admin/tryouts/check-in/staff" className="rounded-full border border-white/10 px-5 py-3 text-xs font-black uppercase tracking-[0.12em]">Create Staff Login</Link>}
@@ -426,9 +346,7 @@ export default function TryoutCheckInPage() {
 
             <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
               {filtered.map((registration) => {
-                const arrived = hasArrived(
-                  registration.status
-                );
+                const arrived = hasArrived(registration);
 
                 return (
                   <article
@@ -510,6 +428,7 @@ export default function TryoutCheckInPage() {
                       <label htmlFor={`bib-${registration.id}`} className="mb-2 block text-xs font-black uppercase tracking-widest text-white/60">Shirt sticker / Tryout #</label>
                       <div className="mb-4 flex gap-2"><input id={`bib-${registration.id}`} type="number" min="1" max="9999" inputMode="numeric" placeholder="Sticker #" value={bibDrafts[registration.id]??""} onChange={e=>setBibDrafts(current=>({...current,[registration.id]:e.target.value}))} className="w-full min-w-0 rounded-xl border border-white/20 bg-black p-3 text-lg font-bold text-white"/><button type="button" disabled={updating===registration.id} onClick={()=>void saveBib(registration)} className="rounded-xl bg-white px-4 py-2 text-xs font-black text-black disabled:opacity-50">Save #</button></div>
                       {registration.bib_number!==null&&<p className="mb-3 text-xs font-bold text-lime-400">Assigned sticker #{registration.bib_number}</p>}
+                      {registration.self_checked_in_at && arrived && <p className="mb-3 text-xs font-bold text-lime-300">Family self check-in recorded</p>}
                       {!arrived ? (
                         <button
                           type="button"
@@ -532,8 +451,7 @@ export default function TryoutCheckInPage() {
                             ✓ Checked In
                           </div>
 
-                          {registration.status ===
-                            "CHECKED_IN" && (
+                          {arrived && (
                             <button
                               type="button"
                               disabled={
