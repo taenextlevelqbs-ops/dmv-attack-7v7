@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import LiveTryoutArrivals from "@/components/live-tryout-arrivals";
 import {requestJson} from "@/lib/http.mjs";
 
 import Link from "next/link";
@@ -330,6 +331,8 @@ export default function AdminTryoutsPage() {
             </Link>
           </div>
         </div>
+
+        <LiveTryoutArrivals onChange={()=>{void loadRegistrations();}}/>
 
         <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[

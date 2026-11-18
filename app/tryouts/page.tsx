@@ -50,7 +50,7 @@ export default function TryoutsPage() {
       <section className="mx-auto max-w-7xl px-4 py-6 md:px-8">
         <div className="rounded-2xl border border-lime-400/30 p-6">
           <h2 className="text-xl font-black uppercase">Already registered for 15U or 18U?</h2>
-          <p className="mt-3 text-sm leading-7 text-white/70">Self check-in opens Sunday, November 22 at 2:30 PM Eastern, 30 minutes before tryouts. Check in once you have arrived. You will need your Tryout ID, registration parent email and athlete DOB.</p>
+          <p className="mt-3 text-sm leading-7 text-white/70">Self check-in opens Sunday, November 22 at 2:30 PM Eastern, 30 minutes before tryouts. Check in once you have arrived. You only need the parent email used at registration and athlete DOB—no Tryout ID is required.</p>
           <Link href="/tryouts/check-in" className="mt-4 inline-flex rounded-full bg-lime-400 px-6 py-3 text-sm font-bold text-black">Tryout Self Check-In</Link>
         </div>
       </section>

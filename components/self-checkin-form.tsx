@@ -22,9 +22,11 @@ export default function SelfCheckinForm(){
   const input="mt-2 min-h-12 w-full rounded-xl border border-white/25 bg-black p-3 text-base";
   return <form onSubmit={submit} className="mt-8 space-y-5 rounded-2xl border border-white/20 p-6">
     <p role="status" className="text-sm font-bold text-lime-300">{availability}</p>
-    <label className="block text-sm font-bold">Tryout ID<input name="tryoutId" required maxLength={40} autoCapitalize="characters" autoComplete="off" placeholder="Example: 15U-001" className={input}/></label>
+
     <label className="block text-sm font-bold">Parent email used at registration<input name="parentEmail" required type="email" maxLength={254} autoComplete="email" className={input}/></label>
     <label className="block text-sm font-bold">Athlete date of birth<input name="dateOfBirth" required type="date" max="2026-11-21" className={input}/></label>
+    <p className="text-sm text-white/70">No registration number needed—just the parent email and athlete’s birthday.</p>
+    <details><summary className="cursor-pointer text-xs text-white/55">Optional: enter a Tryout ID if staff asks</summary><label className="mt-3 block text-sm">Tryout ID (optional)<input name="tryoutId" maxLength={40} autoCapitalize="characters" autoComplete="off" className={input}/></label></details>
     <label className="flex gap-3 text-sm leading-6"><input name="arrived" required type="checkbox" className="mt-1"/>I confirm this athlete has arrived at Independence High School for today’s tryout.</label>
     {error&&<p role="alert" className="text-sm text-red-300">{error}</p>}
     <button disabled={!open||checking||busy} className="min-h-12 w-full rounded-full bg-lime-400 px-5 py-4 font-black uppercase text-black disabled:opacity-40">{busy?"Checking In…":"Check In Athlete"}</button>

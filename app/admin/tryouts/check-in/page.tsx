@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import LiveTryoutArrivals from "@/components/live-tryout-arrivals";
 import {requestJson} from "@/lib/http.mjs";
 
 import Link from "next/link";
@@ -249,6 +250,7 @@ export default function TryoutCheckInPage() {
           </div>
         </header>
 
+        <LiveTryoutArrivals onChange={()=>{if(!updating&&!refreshing)void refreshLive();}}/>
         <section className="mt-7 grid grid-cols-3 gap-2 md:gap-4">
           <Stat
             label="Registered"

@@ -23,9 +23,9 @@ export async function POST(request: Request) {
   const id = typeof body?.tryoutId==="string" ? body.tryoutId.trim().toUpperCase() : "";
   const email = typeof body?.parentEmail==="string" ? body.parentEmail.trim().toLowerCase() : "";
   const dob = typeof body?.dateOfBirth==="string" ? body.dateOfBirth : "";
-  if (!/^[A-Z0-9-]{3,40}$/.test(id) || email.length>254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+  if ((id && !/^[A-Z0-9-]{3,40}$/.test(id)) || email.length>254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
     || !validBirthDate(dob,"2026-11-22") || body.arrived!==true)
-    return reply({error:"Enter your Tryout ID, registration parent email and athlete DOB, and confirm you have arrived."},400);
+    return reply({error:"Enter the parent email used at registration and athlete DOB, and confirm you have arrived."},400);
   const url=process.env.NEXT_PUBLIC_SUPABASE_URL,secret=process.env.SUPABASE_SECRET_KEY;
   if(!url||!secret) return reply({error:"Check-in is temporarily unavailable. Please see the check-in desk."},503);
   try {
@@ -36,6 +36,7 @@ export async function POST(request: Request) {
     if(error) throw new Error("Check-in unavailable");
     if(data?.code==="closed") return reply({error:"Self check-in is closed. Please see staff."},403);
     if(data?.code==="rate_limited") return reply({error:"Too many attempts. Please wait five minutes or visit the check-in desk."},429);
+    if(data?.code==="ambiguous") return reply({error:"More than one athlete matches these details. Enter the optional Tryout ID if you have it, or ask the check-in desk."},400);
     if(!["checked_in","already_checked_in"].includes(data?.code))
       return reply({error:"We could not match an eligible preregistration. Check your details or see staff. Do not register again."},400);
     return reply({success:true,alreadyCheckedIn:data.code==="already_checked_in",tryoutId:data.tryout_id,
