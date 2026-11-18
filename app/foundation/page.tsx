@@ -44,7 +44,7 @@ export default async function FoundationPage() {
   try {
     if (process.env.SUPABASE_SECRET_KEY) {
       const db = stripeDatabase();
-      const {data} = await db.from("foundation_contributions").select("id,business_name,website,logo_path,tier").eq("kind","SPONSORSHIP").eq("status","PAID").eq("sponsor_approved",true).eq("published",true).order("created_at",{ascending:false}).limit(100);
+      const {data} = await db.from("foundation_contributions").select("id,business_name,website,logo_path,tier").eq("status","PAID").eq("sponsor_approved",true).eq("published",true).order("created_at",{ascending:false}).limit(100);
       sponsors = await Promise.all((data || []).map(async (item) => {
         if (!item.logo_path) return {...item, logo_url:null};
         const {data:signed} = await db.storage.from("foundation-logos").createSignedUrl(item.logo_path, 3600);
@@ -88,6 +88,17 @@ export default async function FoundationPage() {
           </div>
           <div id="foundation-checkout" className="mt-10 scroll-mt-24">{paymentsEnabled ? <FoundationCheckoutForm kind="SPONSORSHIP" /> : <div className="rounded-[28px] border border-lime-400/25 p-8"><h3 className="text-2xl font-black uppercase">Reserve Your Sponsorship</h3><p className="mt-4 text-sm leading-7 text-white/70">Online sponsorship payments are being prepared. Contact our Foundation team to reserve a package, confirm artwork and learn about availability.</p><a href="mailto:dmvattackfoundation@gmail.com?subject=2027%20Business%20Sponsorship" className="mt-6 inline-flex rounded-full bg-lime-400 px-7 py-4 text-xs font-black uppercase text-black">Contact Sponsorship Team</a></div>}</div>
           <p className="mt-6 text-xs leading-6 text-white/50">Sponsorship benefits depend on final artwork approval, production deadlines, available placement and a written agreement. Logo placement is not guaranteed until confirmed. Fees and benefits are proposed for the 2027 season.</p>
+        </div>
+      </section>
+      <section id="receipts" className="border-b border-white/10 bg-white/[0.025]">
+        <div className="mx-auto max-w-7xl px-4 py-12 md:px-8">
+          <h2 className="text-3xl font-black uppercase">Payment Receipts & Tax Records</h2>
+          <div className="mt-6 grid gap-5 md:grid-cols-3">
+            <div><h3 className="font-bold text-lime-400">1. Provide your details</h3><p className="mt-2 text-sm leading-7 text-white/65">Individuals and businesses can contribute. Businesses can add a company name, website, logo, contact and mailing address. Public recognition requires your permission and staff approval.</p></div>
+            <div><h3 className="font-bold text-lime-400">2. Save your acknowledgment</h3><p className="mt-2 text-sm leading-7 text-white/65">After verified payment, the confirmation page provides a paid invoice when available. Keep it with your payment records. Contact the Foundation if you need a copy.</p></div>
+            <div><h3 className="font-bold text-lime-400">3. Confirm tax eligibility</h3><p className="mt-2 text-sm leading-7 text-white/65">A payment receipt alone does not establish a charitable deduction. This site has not verified the Foundation’s IRS recognition or EIN. Sponsorships can include benefits; do not assume the full payment is a charitable gift.</p></div>
+          </div>
+          <a href="mailto:dmvattackfoundation@gmail.com?subject=Foundation%20Receipt%20and%20Tax%20Documentation" className="mt-6 inline-flex rounded-full border border-lime-400/50 px-6 py-3 text-sm font-bold text-lime-300">Request a receipt or tax-status documents</a>
         </div>
       </section>
       <section id="donate" className="scroll-mt-24 border-b border-white/10">
@@ -238,7 +249,7 @@ export default async function FoundationPage() {
                 return <div key={sponsor.id} className="rounded-3xl border border-white/10 bg-white/[0.03] p-7 text-center">
                   {logo && <img src={logo} alt={`${sponsor.business_name} logo`} loading="lazy" className="mx-auto mb-5 h-24 w-full object-contain" />}
                   <h3 className="text-xl font-black uppercase">{sponsor.business_name}</h3>
-                  <p className="mt-2 text-xs uppercase tracking-widest text-lime-400">{sponsor.tier} Partner</p>
+                  <p className="mt-2 text-xs uppercase tracking-widest text-lime-400">{sponsor.tier ? `${sponsor.tier} Partner` : "Community Supporter"}</p>
                   {validUrl && <a href={validUrl} target="_blank" rel="noopener noreferrer nofollow sponsored" className="mt-4 inline-flex text-sm font-semibold text-white/75 underline underline-offset-4 hover:text-lime-400">Visit Business Website</a>}
                 </div>;
               })}

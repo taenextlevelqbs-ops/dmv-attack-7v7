@@ -6,6 +6,11 @@ const tiers = [{key:"BRONZE",label:"Bronze · $250"},{key:"SILVER",label:"Silver
 
 export default function FoundationCheckoutForm({kind}:{kind:Kind}) {
   const sponsor = kind === "SPONSORSHIP";
+  const [donorType,setDonorType] = useState(sponsor?"BUSINESS":"INDIVIDUAL");
+  const business = sponsor || donorType === "BUSINESS";
+  const [phone,setPhone] = useState("");
+  const [mailingAddress,setMailingAddress] = useState("");
+  const [recognitionConsent,setRecognitionConsent] = useState(false);
   const [tier,setTier] = useState<"BRONZE"|"SILVER"|"GOLD">(() => { const selected = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("sponsor") : null; return selected === "BRONZE" || selected === "SILVER" || selected === "GOLD" ? selected : "SILVER"; });
   const [amount,setAmount] = useState("50");
   const [contactName,setContactName] = useState("");
@@ -21,10 +26,11 @@ export default function FoundationCheckoutForm({kind}:{kind:Kind}) {
     if(pending) return;
     setPending(true);setError("");
     try {
+      if (business && logo && logo.size > 2097152) throw new Error("Please choose a logo under 2 MB.");
       const amountCents = Math.round(Number(amount)*100);
       const payload = new FormData();
-      payload.set("data",JSON.stringify({kind,tier,amountCents,contactName,businessName,website,email,agreed,companyWebsiteHidden:""}));
-      if(sponsor && logo) payload.set("logo",logo);
+      payload.set("data",JSON.stringify({kind,tier,amountCents,contactName,businessName:business?businessName:"",website:business?website:"",email,phone,mailingAddress,donorType:business?"BUSINESS":"INDIVIDUAL",recognitionConsent:business&&recognitionConsent,agreed,companyWebsiteHidden:""}));
+      if(business && logo) payload.set("logo",logo);
       const r = await fetch("/api/foundation/checkout",{method:"POST",body:payload});
       const data = await r.json();
       if(!r.ok || !data.url || typeof data.url!=="string") throw new Error(data.error || "Unable to open checkout");
@@ -39,16 +45,21 @@ export default function FoundationCheckoutForm({kind}:{kind:Kind}) {
       <h3 className="text-2xl font-black uppercase">{sponsor?"Become A 2027 Sponsor":"Make A Community Contribution"}</h3>
       <p className="mt-3 text-sm leading-6 text-white/60">{sponsor?"Choose your package and secure your sponsorship through Stripe. Apparel artwork is subject to approval and printing deadlines.":"Choose an amount to support DMV Attack programs. This contribution is not represented as tax-deductible."}</p>
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        {!sponsor && <label className="sm:col-span-2 text-sm font-bold">Who is contributing?
+          <select value={donorType} onChange={e=>setDonorType(e.target.value)} className="mt-2 w-full rounded-xl border border-white/25 bg-black px-4 py-3">
+            <option value="INDIVIDUAL">Individual / family</option><option value="BUSINESS">Business / organization</option>
+          </select>
+        </label>}
         {sponsor && <>
           <label className="sm:col-span-2 text-sm font-bold">Sponsorship package
             <select className="mt-2 w-full rounded-xl border border-white/25 bg-[#111710] px-4 py-3 text-white" value={tier} onChange={e=>setTier(e.target.value as typeof tier)}>
               {tiers.map(t=><option key={t.key} value={t.key}>{t.label}</option>)}
             </select>
           </label>
-          <label className="sm:col-span-2 text-sm font-bold">Business name
-            <input required maxLength={160} value={businessName} onChange={e=>setBusinessName(e.target.value)} className="mt-2 w-full rounded-xl border border-white/25 bg-black px-4 py-3" placeholder="Your company"/>
-          </label>
         </>}
+        {business && <label className="sm:col-span-2 text-sm font-bold">Company / organization name *
+          <input required maxLength={160} autoComplete="organization" value={businessName} onChange={e=>setBusinessName(e.target.value)} className="mt-2 w-full rounded-xl border border-white/25 bg-black px-4 py-3" placeholder="Name to use on payment records"/>
+        </label>}
         {!sponsor && <label className="sm:col-span-2 text-sm font-bold">Contribution amount (USD)
           <select className="mt-2 w-full rounded-xl border border-white/25 bg-[#111710] px-4 py-3" value={amount} onChange={e=>setAmount(e.target.value)}>
             {["10","25","50","75","100","200","500"].map(x=><option key={x} value={x}>${x}</option>)}
@@ -60,13 +71,17 @@ export default function FoundationCheckoutForm({kind}:{kind:Kind}) {
         <label className="text-sm font-bold">Email address
           <input required type="email" maxLength={254} autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)} className="mt-2 w-full rounded-xl border border-white/25 bg-black px-4 py-3" placeholder="you@business.com"/>
         </label>
-        {sponsor && <label className="sm:col-span-2 text-sm font-bold">Business logo (PNG, JPEG or WebP, max 2 MB)
+        {business && <label className="sm:col-span-2 text-sm font-bold">Business logo (optional) (PNG, JPEG or WebP, max 2 MB)
           <input type="file" accept="image/png,image/jpeg,image/webp" onChange={e=>setLogo(e.target.files?.[0]||null)} className="mt-2 block w-full rounded-xl border border-white/25 bg-black px-4 py-3 text-sm"/>
         </label>}
-        {sponsor && <label className="sm:col-span-2 text-sm font-bold">Business website (optional)
+        {business && <label className="sm:col-span-2 text-sm font-bold">Business website (optional)
           <input type="url" maxLength={300} value={website} onChange={e=>setWebsite(e.target.value)} className="mt-2 w-full rounded-xl border border-white/25 bg-black px-4 py-3" placeholder="https://example.com"/>
         </label>}
+        <label className="text-sm font-bold">Contact phone (optional)<input type="tel" autoComplete="tel" maxLength={40} value={phone} onChange={e=>setPhone(e.target.value)} className="mt-2 w-full rounded-xl border border-white/25 bg-black px-4 py-3"/></label>
+        <label className="sm:col-span-2 text-sm font-bold">Mailing address for acknowledgment (optional)<textarea autoComplete="street-address" rows={3} maxLength={600} value={mailingAddress} onChange={e=>setMailingAddress(e.target.value)} className="mt-2 w-full rounded-xl border border-white/25 bg-black px-4 py-3" placeholder="Street, city, state and ZIP"/></label>
+        {business && <label className="sm:col-span-2 flex items-start gap-3 text-xs leading-6 text-white/65"><input type="checkbox" checked={recognitionConsent} onChange={e=>setRecognitionConsent(e.target.checked)} className="mt-1"/><span>I am authorized to provide this logo and give DMV Attack permission to use our company name, website and logo for recognition after staff approval. Leaving this unchecked keeps our company information private.</span></label>}
       </div>
+      <p className="mt-4 text-xs leading-6 text-white/55">After payment, save your paid invoice from the confirmation page. Your contact information is private; uploading a logo does not publish it or create a sponsorship package.</p>
       <input tabIndex={-1} autoComplete="off" name="companyWebsiteHidden" className="absolute -left-[9999px]" aria-hidden="true"/>
       <label className="mt-6 flex items-start gap-3 text-xs leading-6 text-white/65">
         <input type="checkbox" required checked={agreed} onChange={e=>setAgreed(e.target.checked)} className="mt-1 accent-lime-400"/>

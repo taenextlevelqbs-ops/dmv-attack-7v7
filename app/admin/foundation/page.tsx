@@ -12,8 +12,9 @@ async function setSponsorApproval(formData: FormData) {
  const approved = formData.get("approved")==="true";
  if(!/^[0-9a-f-]{36}$/.test(id)) throw new Error("Invalid sponsor");
  const db = stripeDatabase();
- const {data: order,error:lookupError} = await db.from("foundation_contributions").select("id,kind,status,logo_path").eq("id",id).single();
- if(lookupError || !order || order.kind!=="SPONSORSHIP") throw new Error("Sponsor not found");
+ const {data: order,error:lookupError} = await db.from("foundation_contributions").select("id,kind,status,logo_path,business_name,donor_details").eq("id",id).single();
+ if(lookupError || !order || !order.business_name) throw new Error("Sponsor not found");
+ if(approved && order.donor_details?.recognitionConsent !== true) throw new Error("Contributor permission is required before publication");
  if(approved && (order.status!=="PAID" || !order.logo_path)) throw new Error("Paid sponsor with logo required for publication");
  const {error} = await db.from("foundation_contributions").update({
    sponsor_approved:approved,logo_approved:approved,published:approved,updated_at:new Date().toISOString()
@@ -26,7 +27,7 @@ export default async function FoundationAdminPage() {
  await requireOwner();
  const db = stripeDatabase();
  const {data, error} = await db.from("foundation_contributions")
-   .select("id,kind,tier,business_name,contact_name,email,website,amount_cents,status,logo_path,published,created_at")
+   .select("id,kind,tier,business_name,contact_name,email,website,amount_cents,status,logo_path,published,created_at,donor_details,stripe_session_id")
    .order("created_at",{ascending:false}).limit(100);
  const orders = await Promise.all((data || []).map(async (item) => {
   if (!item.logo_path) return {...item,logo_url:null};
@@ -39,7 +40,7 @@ export default async function FoundationAdminPage() {
   <div className="mx-auto max-w-6xl">
    <Link href="/admin" className="text-xs font-black uppercase tracking-widest text-lime-400">Back To Command Center</Link>
    <h1 className="mt-5 text-3xl font-black uppercase md:text-5xl">Foundation & Sponsors</h1>
-   <p className="mt-3 max-w-2xl text-sm leading-7 text-white/60">Private owner-only payment and sponsor approval dashboard. Stripe webhook updates payment status. Approve uploaded logos only after reviewing the business and artwork.</p>
+   <p className="mt-3 max-w-2xl text-sm leading-7 text-white/60">Private owner-only contributor details, payment records and logo approvals. Stripe webhook updates payment status. Approve uploaded logos only after reviewing the business and artwork.</p>
    <div className="mt-7 grid gap-4 sm:grid-cols-3">
     <div className="rounded-2xl border border-white/10 p-6"><p className="text-xs text-white/50">Paid in recent 100 records</p><p className="mt-2 text-3xl font-black">{(gross/100).toLocaleString("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0})}</p></div>
     <div className="rounded-2xl border border-white/10 p-6"><p className="text-xs text-white/50">Paid business sponsors</p><p className="mt-2 text-3xl font-black">{paidSponsors}</p></div>
@@ -57,12 +58,18 @@ export default async function FoundationAdminPage() {
         <div className="text-right"><p className="text-xl font-black">{(order.amount_cents/100).toLocaleString("en-US",{style:"currency",currency:"USD"})}</p><p className="mt-1 text-xs font-bold uppercase tracking-wider text-lime-400">{order.status}</p></div>
       </div>
       <div className="mt-4 flex flex-wrap gap-3 text-xs text-white/50"><span>{order.kind==="SPONSORSHIP"?order.tier:"Donation"}</span><span>{new Date(order.created_at).toLocaleDateString("en-US")}</span><span>Published: {order.published?"Yes":"No"}</span></div>
-      {order.kind==="SPONSORSHIP" && <>
+      <div className="mt-4 space-y-2 text-sm text-white/65">
+        <p>Phone: {order.donor_details?.phone || "Not provided"}</p>
+        <p className="whitespace-pre-line">Mailing address: {order.donor_details?.mailingAddress || "Not provided"}</p>
+        <p>Permission for public recognition: {order.donor_details?.recognitionConsent === true ? "Granted" : "Not granted / not recorded"}</p>
+        {order.status === "PAID" && order.stripe_session_id && <Link href={`/foundation/thank-you?session_id=${encodeURIComponent(order.stripe_session_id)}`} className="inline-flex text-lime-400 underline">Open verified payment acknowledgment / invoice</Link>}
+      </div>
+      {order.business_name && <>
         {order.logo_url ? <a className="mt-4 inline-flex text-sm text-lime-400 underline" target="_blank" rel="noopener noreferrer" href={order.logo_url || "#"}>Review uploaded logo</a> : <p className="mt-4 text-xs text-white/50">No logo uploaded. Request a PNG, JPEG or WebP file before approval.</p>}
         {order.status==="PAID" && <form action={setSponsorApproval} className="mt-5">
           <input type="hidden" name="id" value={order.id}/>
           <input type="hidden" name="approved" value={order.published?"false":"true"}/>
-          <button type="submit" disabled={!order.logo_path && !order.published} className="rounded-full bg-lime-400 px-6 py-3 text-xs font-black uppercase tracking-wider text-black disabled:cursor-not-allowed disabled:opacity-40">{order.published?"Unpublish Sponsor":"Approve & Publish Sponsor"}</button>
+          <button type="submit" disabled={!order.published && (!order.logo_path || order.donor_details?.recognitionConsent !== true)} className="rounded-full bg-lime-400 px-6 py-3 text-xs font-black uppercase tracking-wider text-black disabled:cursor-not-allowed disabled:opacity-40">{order.published?"Unpublish Sponsor":"Approve & Publish Sponsor"}</button>
         </form>}
       </>}
     </article>)}

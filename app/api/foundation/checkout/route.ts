@@ -33,7 +33,9 @@ export async function POST(request: Request) {
     const amount = tier ? prices[tier] : Number(body.amountCents);
     if (!Number.isSafeInteger(amount) || amount < 500 || amount > 1000000) return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
     const contactName = safe(body.contactName, 120);
-    const businessName = safe(body.businessName, 160);
+    const business = kind === "SPONSORSHIP" || body.donorType === "BUSINESS";
+    const businessName = business ? safe(body.businessName, 160) : "";
+    const donorDetails = {donorType:business?"BUSINESS":"INDIVIDUAL",phone:safe(body.phone,40),mailingAddress:safe(body.mailingAddress,600),recognitionConsent:business && body.recognitionConsent === true};
     const email = safe(body.email, 254).toLowerCase();
     const websiteInput = safe(body.website, 300);
     let website: string | null = null;
@@ -44,18 +46,19 @@ export async function POST(request: Request) {
         website = parsed.href;
       } catch { return NextResponse.json({ error: "Enter a valid business website URL" }, { status: 400 }); }
     }
-    if (!contactName || !emailPattern.test(email) || (kind === "SPONSORSHIP" && !businessName)) return NextResponse.json({ error: "Complete the required contact information" }, { status: 400 });
+    if (!contactName || !emailPattern.test(email) || (business && !businessName)) return NextResponse.json({ error: "Complete the required contact information" }, { status: 400 });
     if (body.agreed !== true) return NextResponse.json({ error: "Accept the sponsorship and contribution terms" }, { status: 400 });
 
     const db = stripeDatabase();
     const {data: order, error: orderError} = await db.from("foundation_contributions").insert({
       kind, tier, amount_cents: amount, contact_name: contactName,
-      business_name: kind === "SPONSORSHIP" ? businessName : null,
+      business_name: businessName || null,
+      donor_details: donorDetails,
       email, website, status: "PENDING"
     }).select("id").single();
     if (orderError || !order) throw new Error("Unable to open contribution ledger");
 
-    if (kind === "SPONSORSHIP" && logo) {
+    if (business && logo) {
       const buf = new Uint8Array(await logo.arrayBuffer());
       const png = buf.length >= 8 && [137,80,78,71,13,10,26,10].every((b,i)=>buf[i]===b);
       const jpeg = buf[0]===255 && buf[1]===216 && buf[2]===255;
@@ -75,6 +78,8 @@ export async function POST(request: Request) {
       mode: "payment",
       customer_email: email,
       customer_creation: "always",
+      billing_address_collection: "required",
+      phone_number_collection: {enabled:true},
       invoice_creation: {
         enabled: true,
         invoice_data: {
@@ -82,6 +87,7 @@ export async function POST(request: Request) {
           custom_fields: [
             { name: "Payment type", value: kind === "SPONSORSHIP" ? `${tier} sponsorship` : "Community contribution" },
             { name: "Reference", value: order.id },
+            { name: "Contributor", value: (businessName || contactName).slice(0,140) },
           ],
           footer: "Payment record only. This document does not certify a tax-deductible charitable donation. Consult your tax professional.",
         },
