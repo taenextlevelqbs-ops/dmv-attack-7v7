@@ -85,11 +85,11 @@ export async function GET() {
     const [rosterResult, teamResult, attendanceResult] = await Promise.all([
       admin.from("roster_assignments").select("tryout_submission_id,team_id,roster_status").in("roster_status",["OFFERED","ACCEPTED","ACTIVE"]),
       admin.from("teams").select("id,name,season").eq("active",true).eq("season","2027"),
-      admin.from("tryout_attendance").select("registration_id,checked_in"),
+      admin.from("tryout_attendance").select("registration_id,checked_in,reported_payment_method"),
     ]);
     if (rosterResult.error || teamResult.error) throw new Error("Unable to load team assignments");
     if (attendanceResult.error) throw new Error("Unable to load tryout attendance");
-    const checkIns = new Map((attendanceResult.data ?? []).map(a=>[a.registration_id,a.checked_in]));
+    const checkIns = new Map((attendanceResult.data ?? []).map(a=>[a.registration_id,a]));
     const teamNames = new Map((teamResult.data ?? []).map(t => [t.id,t.name]));
     const assignedTeams = (id:string) => (rosterResult.data ?? []).filter(a => a.tryout_submission_id===id && teamNames.has(a.team_id)).map(a => ({id:a.team_id,name:teamNames.get(a.team_id),status:a.roster_status}));
     // Notification log stays server-side and is visible only to authorized admins.
@@ -100,7 +100,7 @@ export async function GET() {
       emailBySubmission.set(entry.submission_id, [...(emailBySubmission.get(entry.submission_id) ?? []), entry]);
     }
     return NextResponse.json({
-      registrations: registrations.map((entry) => ({...entry, tryout_checked_in: checkIns.has(entry.id) ? checkIns.get(entry.id) : entry.status === "CHECKED_IN" ? true : null, assigned_teams: assignedTeams(entry.id), decision_emails: emailBySubmission.get(entry.id) ?? []})),
+      registrations: registrations.map((entry) => ({...entry, tryout_checked_in: checkIns.has(entry.id) ? checkIns.get(entry.id)?.checked_in : entry.status === "CHECKED_IN" ? true : null, reported_payment_method: checkIns.get(entry.id)?.reported_payment_method ?? null, assigned_teams: assignedTeams(entry.id), decision_emails: emailBySubmission.get(entry.id) ?? []})),
       role: profile.role,
     });
   } catch (error) {

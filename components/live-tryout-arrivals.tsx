@@ -1,6 +1,7 @@
 "use client";
 import {useEffect,useRef,useState} from "react";
-type Arrival={id:string;name:string;division:string;checkedInAt:string|null;selfCheckinUsed:boolean};
+import { reportedPaymentLabel } from "@/lib/reported-payment";
+type Arrival={id:string;name:string;division:string;checkedInAt:string|null;selfCheckinUsed:boolean;reportedPaymentMethod:string|null};
 type Data={registered:number;checkedIn:number;waiting:number;arrivals:Arrival[];fingerprint:string;readAt:string};
 export default function LiveTryoutArrivals({onChange}:{onChange?:()=>void}){
   const [data,setData]=useState<Data|null>(null),[error,setError]=useState("");
@@ -28,7 +29,7 @@ export default function LiveTryoutArrivals({onChange}:{onChange?:()=>void}){
     {error?<p role="alert" className="mt-4 text-sm text-amber-200">{error} The list below may be outdated.</p>:null}
     <h3 className="mt-5 text-xs font-bold uppercase text-white/60">Recently Checked In</h3>
     <ul aria-live="polite" className="mt-3 grid gap-2 sm:grid-cols-2">
-      {data?.arrivals.map(a=><li key={a.id} className="rounded-xl border border-white/10 bg-black p-3 text-sm"><p className="font-bold text-lime-300">✓ {a.name} checked in</p><p className="mt-1 text-xs text-white/60">{a.division} · {a.checkedInAt?new Date(a.checkedInAt).toLocaleTimeString("en-US",{timeZone:"America/New_York",hour:"numeric",minute:"2-digit"}):"Time not recorded"}{a.selfCheckinUsed?" · Self check-in":""}</p></li>)}
+      {data?.arrivals.map(a=><li key={a.id} className="rounded-xl border border-white/10 bg-black p-3 text-sm"><p className="font-bold text-lime-300">✓ {a.name} checked in</p><p className="mt-1 text-xs text-white/60">{a.division} · {a.checkedInAt?new Date(a.checkedInAt).toLocaleTimeString("en-US",{timeZone:"America/New_York",hour:"numeric",minute:"2-digit"}):"Time not recorded"}{a.selfCheckinUsed?" · Self check-in":""}</p><p className="mt-1 text-xs text-white/70">Parent-reported payment: {reportedPaymentLabel(a.reportedPaymentMethod)}</p></li>)}
     </ul>
     {data&&!data.arrivals.length&&!error?<p className="mt-3 text-sm text-white/60">No recorded 15U/18U arrivals yet. New check-ins will appear here.</p>:null}
   </section>;

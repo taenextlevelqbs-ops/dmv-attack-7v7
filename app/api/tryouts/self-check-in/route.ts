@@ -32,7 +32,14 @@ export async function POST(request: Request) {
     const ip=(request.headers.get("x-forwarded-for")||"unknown").split(",")[0].trim();
     const key=createHmac("sha256",secret).update("self-checkin-nov22:"+ip).digest("hex");
     const db=createClient(url,secret,{auth:{persistSession:false,autoRefreshToken:false}});
-    const {data,error}=await db.rpc("self_checkin_high_school_tryout",{p_tryout_id:id,p_parent_email:email,p_date_of_birth:dob,p_attempt_key:key});
+    const method = body.paymentMethod;
+    if (method != null && !["stripe","venmo","not_paid","unsure"].includes(method)) {
+      return reply({error:"Choose a valid payment method."},400);
+    }
+    const identity = {p_tryout_id:id,p_parent_email:email,p_date_of_birth:dob,p_attempt_key:key};
+    const {data,error}=method == null
+      ? await db.rpc("self_checkin_high_school_tryout",identity)
+      : await db.rpc("self_checkin_with_payment",{...identity,p_payment_method:method});
     if(error) throw new Error("Check-in unavailable");
     if(data?.code==="closed") return reply({error:"Self check-in is closed. Please see staff."},403);
     if(data?.code==="rate_limited") return reply({error:"Too many attempts. Please wait five minutes or visit the check-in desk."},429);

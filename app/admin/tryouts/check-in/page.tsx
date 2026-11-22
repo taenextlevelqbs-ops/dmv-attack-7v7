@@ -1,5 +1,6 @@
 "use client";
 import Image from "next/image";
+import { reportedPaymentLabel } from "@/lib/reported-payment";
 import LiveTryoutArrivals from "@/components/live-tryout-arrivals";
 import {requestJson} from "@/lib/http.mjs";
 
@@ -19,6 +20,7 @@ type Registration = {
   grade: string | null;
   status: string;
   headshot_url: string | null;
+  reported_payment_method?: string | null;
   bib_number: number | null;
   tryout_checked_in: boolean;
   attendance_version: number;
@@ -429,6 +431,7 @@ export default function TryoutCheckInPage() {
                       </div> : <p className="mb-4 text-xs text-lime-400">Verified payment {payments[registration.id]?.payment_note ? `• ${payments[registration.id].payment_note}` : "• Existing verified record"}</p>}
                       <label htmlFor={`bib-${registration.id}`} className="mb-2 block text-xs font-black uppercase tracking-widest text-white/60">Shirt sticker / Tryout #</label>
                       <div className="mb-4 flex gap-2"><input id={`bib-${registration.id}`} type="number" min="1" max="9999" inputMode="numeric" placeholder="Sticker #" value={bibDrafts[registration.id]??""} onChange={e=>setBibDrafts(current=>({...current,[registration.id]:e.target.value}))} className="w-full min-w-0 rounded-xl border border-white/20 bg-black p-3 text-lg font-bold text-white"/><button type="button" disabled={updating===registration.id} onClick={()=>void saveBib(registration)} className="rounded-xl bg-white px-4 py-2 text-xs font-black text-black disabled:opacity-50">Save #</button></div>
+                      {arrived && <p className="mb-3 text-xs text-white/70">Parent-reported payment: {reportedPaymentLabel(registration.reported_payment_method)}</p>}
                       {registration.bib_number!==null&&<p className="mb-3 text-xs font-bold text-lime-400">Assigned sticker #{registration.bib_number}</p>}
                       {registration.self_checked_in_at && arrived && <p className="mb-3 text-xs font-bold text-lime-300">Family self check-in recorded</p>}
                       {!arrived ? (

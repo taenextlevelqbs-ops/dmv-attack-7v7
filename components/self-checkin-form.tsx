@@ -13,7 +13,7 @@ export default function SelfCheckinForm(){
     e.preventDefault();if(busy||!open)return;setBusy(true);setError("");
     const form=new FormData(e.currentTarget);
     try{
-      const r=await fetch("/api/tryouts/self-check-in",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({tryoutId:form.get("tryoutId"),parentEmail:form.get("parentEmail"),dateOfBirth:form.get("dateOfBirth"),arrived:form.get("arrived")==="on"})});
+      const r=await fetch("/api/tryouts/self-check-in",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({tryoutId:form.get("tryoutId"),parentEmail:form.get("parentEmail"),dateOfBirth:form.get("dateOfBirth"),paymentMethod:form.get("paymentMethod"),arrived:form.get("arrived")==="on"})});
       const data=await r.json();if(!r.ok||!data.success)throw new Error(data.error||"Unable to confirm check-in.");
       setSuccess(data.message);setId(data.tryoutId);
     }catch(e){setError(e instanceof Error?e.message:"Unable to confirm check-in. See staff.");}finally{setBusy(false);}
@@ -27,6 +27,7 @@ export default function SelfCheckinForm(){
     <label className="block text-sm font-bold">Athlete date of birth<input name="dateOfBirth" required type="date" max="2026-11-21" className={input}/></label>
     <p className="text-sm text-white/70">No registration number needed—just the parent email and athlete’s birthday.</p>
     <details><summary className="cursor-pointer text-xs text-white/55">Optional: enter a Tryout ID if staff asks</summary><label className="mt-3 block text-sm">Tryout ID (optional)<input name="tryoutId" maxLength={40} autoCapitalize="characters" autoComplete="off" className={input}/></label></details>
+    <label className="block text-sm font-semibold">How did you pay the tryout fee?<select name="paymentMethod" required defaultValue="" className={input}><option value="" disabled>Select an option</option><option value="stripe">Stripe (card)</option><option value="venmo">Venmo</option><option value="not_paid">Haven’t paid yet</option><option value="unsure">Not sure</option></select></label>
     <label className="flex gap-3 text-sm leading-6"><input name="arrived" required type="checkbox" className="mt-1"/>I confirm this athlete has arrived at Independence High School for today’s tryout.</label>
     {error&&<p role="alert" className="text-sm text-red-300">{error}</p>}
     <button disabled={!open||checking||busy} className="min-h-12 w-full rounded-full bg-lime-400 px-5 py-4 font-black uppercase text-black disabled:opacity-40">{busy?"Checking In…":"Check In Athlete"}</button>

@@ -15,12 +15,12 @@ export async function GET(){
     const {data:registrations,error}=await db.from("tryout_submissions").select("id,athlete_first_name,athlete_last_name,age_group,status").in("age_group",["15U","18U"]).lt("submitted_at","2026-11-22T17:00:00-05:00").limit(1000);
     if(error)throw new Error();
     const ids=(registrations??[]).map(r=>r.id);
-    const {data:attendance,error:attendanceError}=ids.length?await db.from("tryout_attendance").select("registration_id,checked_in,updated_at,self_checked_in_at").in("registration_id",ids):{data:[],error:null};
+    const {data:attendance,error:attendanceError}=ids.length?await db.from("tryout_attendance").select("registration_id,checked_in,updated_at,self_checked_in_at,reported_payment_method").in("registration_id",ids):{data:[],error:null};
     if(attendanceError)throw new Error();
     const byId=new Map((attendance??[]).map(a=>[a.registration_id,a]));
     const arrived=(registrations??[]).filter(r=>byId.has(r.id)?byId.get(r.id)?.checked_in:r.status==="CHECKED_IN").map(r=>({
       id:r.id,name:[r.athlete_first_name,r.athlete_last_name].filter(Boolean).join(" "),division:r.age_group,
-      checkedInAt:byId.get(r.id)?.updated_at??null,selfCheckinUsed:Boolean(byId.get(r.id)?.self_checked_in_at)
+      checkedInAt:byId.get(r.id)?.updated_at??null,reportedPaymentMethod:byId.get(r.id)?.reported_payment_method??null,selfCheckinUsed:Boolean(byId.get(r.id)?.self_checked_in_at)
     })).sort((a,b)=>(b.checkedInAt??"").localeCompare(a.checkedInAt??"")||a.name.localeCompare(b.name));
     return NextResponse.json({registered:ids.length,checkedIn:arrived.length,waiting:ids.length-arrived.length,arrivals:arrived.slice(0,12),fingerprint:arrived.map(a=>a.id+":"+a.checkedInAt).join("|"),readAt:new Date().toISOString()},{headers});
   }catch{return NextResponse.json({error:"Live arrivals unavailable. Refresh or use the check-in desk view."},{status:503,headers});}
