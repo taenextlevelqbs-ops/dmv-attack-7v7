@@ -21,6 +21,22 @@ export default function TryoutForm({
       encType="multipart/form-data"
       className="space-y-4 md:space-y-8"
       aria-busy={submitting}
+      onInvalidCapture={(event) => {
+        const field = event.target;
+        if (
+          !(field instanceof HTMLInputElement ||
+            field instanceof HTMLSelectElement ||
+            field instanceof HTMLTextAreaElement) ||
+          field !== event.currentTarget.querySelector("input:invalid, select:invalid, textarea:invalid")
+        ) return;
+
+        const fieldName = field.name === "Athlete Headshot"
+          ? "Athlete headshot"
+          : field.labels?.[0]?.textContent?.trim().replace(/\s+/g, " ") || field.name;
+        setError(
+          `Registration hasn’t been submitted. ${fieldName ? `${fieldName}: ` : ""}${field.validationMessage}`,
+        );
+      }}
       onChange={(e) => {
         const target = e.target;
         if (
@@ -103,18 +119,6 @@ export default function TryoutForm({
         }
       }}
     >
-      <div
-        ref={alert}
-        tabIndex={-1}
-        role={error ? "alert" : undefined}
-        className={
-          error
-            ? "rounded-xl border border-red-400/40 p-4 text-red-200"
-            : "hidden"
-        }
-      >
-        {error}
-      </div>
       {selectedFile && (
         <p role="status" className="text-xs leading-6 text-white/70">
           {selectedFile}
@@ -126,6 +130,14 @@ export default function TryoutForm({
       >
         {children}
       </fieldset>
+      <div
+        ref={alert}
+        tabIndex={-1}
+        role="alert"
+        className={error ? "rounded-xl border border-red-400/40 p-4 text-red-200" : "sr-only"}
+      >
+        {error}
+      </div>
       {submitting && (
         <p role="status" className="text-lime-300">
           Saving your registration and headshot. Please wait…
