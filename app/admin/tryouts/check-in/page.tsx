@@ -42,6 +42,7 @@ export default function TryoutCheckInPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const [showDetails, setShowDetails] = useState(false);
   const [search, setSearch] = useState("");
   const [division, setDivision] = useState("ALL");
   const [show, setShow] = useState<
@@ -68,26 +69,30 @@ export default function TryoutCheckInPage() {
   }
 
   useEffect(() => {
-    loadRegistrations();
+    void loadRegistrations();
+  }, []);
+
+  useEffect(() => {
+    if (!showDetails) return;
     requestJson("/api/check-in/payments",{cache:"no-store"}).then(result=>{
       const records:Payment[]=result.payments??[];
       setPayments(Object.fromEntries(records.map(p=>[p.registration_id,p])));
       setPaymentDrafts(Object.fromEntries(records.map(p=>[p.registration_id,{method:p.payment_method==="STRIPE"?"STRIPE":"VENMO",note:p.payment_note??""}])));
     }).catch(()=>setError("Payment statuses unavailable. Verify payments before admitting athletes."));
-  }, []);
+  }, [showDetails]);
 
   async function refreshLive() {
     setRefreshing(true);
     try{
-      const [roster,paymentResult]=await Promise.all([
-        requestJson("/api/check-in/roster",{cache:"no-store"}),
-        requestJson("/api/check-in/payments",{cache:"no-store"})
-      ]);
+      const roster = await requestJson("/api/check-in/roster", {cache:"no-store"});
       setRegistrations(roster.registrations??[]);
       setStaffRole(roster.role??"");
       setBibDrafts(current=>Object.fromEntries((roster.registrations??[]).map((r:Registration)=>[r.id,current[r.id]??(r.bib_number==null?"":String(r.bib_number))])));
-      const records=paymentResult.payments??[];
-      setPayments(Object.fromEntries(records.map((p:Payment)=>[p.registration_id,p])));
+      if (showDetails) {
+        const paymentResult = await requestJson("/api/check-in/payments", {cache:"no-store"});
+        const records: Payment[] = paymentResult.payments ?? [];
+        setPayments(Object.fromEntries(records.map(p => [p.registration_id, p])));
+      }
       setError("");
     }catch(e){setError(e instanceof Error?e.message:"Refresh failed");}
     finally{setRefreshing(false)}
@@ -96,9 +101,9 @@ export default function TryoutCheckInPage() {
   useEffect(() => {
     const interval = window.setInterval(() => {
       if (document.visibilityState === "visible" && !updating && !refreshing) void refreshLive();
-    }, 30000);
+    }, showDetails ? 30000 : 15000);
     return () => window.clearInterval(interval);
-  }, [updating, refreshing]);
+  }, [updating, refreshing, showDetails]);
 
   async function savePayment(registration:Registration,status:"PAID"|"PENDING") {
     const draft=paymentDrafts[registration.id]??{method:"VENMO" as const,note:""};
@@ -223,6 +228,46 @@ export default function TryoutCheckInPage() {
     show,
   ]);
 
+  if (!showDetails) {
+    const waiting = filtered.filter(player =>
+      (player.age_group === "15U" || player.age_group === "18U") && !hasArrived(player)
+    );
+    return (
+      <main className="min-h-screen bg-black px-4 py-6 text-white">
+        <div className="mx-auto max-w-xl">
+          <h1 className="text-3xl font-black">Tryout Roll Call</h1>
+          <p className="mt-2 text-white/70">Registered 15U and 18U players still waiting to check in.</p>
+          <div className="my-4 flex flex-wrap gap-4">
+            <button type="button" onClick={() => void refreshLive()} disabled={loading || refreshing || !!updating} className="rounded-xl border px-4 py-2">Refresh</button>
+            <button type="button" onClick={() => { setSearch(""); setDivision("ALL"); setShow("ALL"); setError(""); setShowDetails(true); }} className="rounded-xl border px-4 py-2">Full dashboard</button>
+          </div>
+          <label className="block">
+            <span className="sr-only">Search players</span>
+            <input value={search} onChange={event => setSearch(event.target.value)} placeholder="Search player name" className="w-full rounded-xl border border-white/30 bg-black p-3" />
+          </label>
+          {error && <p role="alert" className="mt-4 text-red-300">{error}</p>}
+          {loading ? <p className="mt-4">Loading players…</p> : (
+            <>
+              {!error && <p className="mt-4 text-sm text-white/70">{waiting.length} waiting{search.trim() ? " matching your search" : ""}</p>}
+              <ul className="mt-3 divide-y divide-white/15">
+                {waiting.map(player => (
+                  <li key={player.id} className="flex items-center justify-between gap-3 py-3">
+                    <div>
+                      <p className="font-bold">{player.athlete_first_name} {player.athlete_last_name}</p>
+                      <p className="text-sm text-white/65">{player.age_group} · {player.tryout_id}</p>
+                    </div>
+                    <button type="button" onClick={() => void checkIn(player)} disabled={!!updating || refreshing} className="shrink-0 rounded-xl bg-lime-400 px-4 py-3 font-bold text-black disabled:opacity-50">{updating === player.id ? "Saving…" : "Check In"}</button>
+                  </li>
+                ))}
+              </ul>
+              {!error && !waiting.length && <p className="mt-4">{search.trim() ? "No waiting players match that search." : "Everyone on the list is checked in."}</p>}
+            </>
+          )}
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-black px-4 py-6 text-white md:px-8 md:py-10">
       <div className="mx-auto max-w-7xl">
@@ -242,6 +287,7 @@ export default function TryoutCheckInPage() {
           </div>
 
           <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={() => { setSearch(""); setDivision("ALL"); setShow("ALL"); setError(""); setShowDetails(false); }} className="rounded-full border border-lime-400 px-5 py-3 text-xs font-black uppercase text-lime-400">Roll call</button>
             <button type="button" onClick={()=>void refreshLive()} disabled={refreshing} className="rounded-full border border-lime-400/60 px-5 py-3 text-xs font-black uppercase tracking-[0.12em] text-lime-400 disabled:opacity-50">{refreshing?"Refreshing…":"Refresh New Signups"}</button>
             <Link href="/tryouts/check-in" className="rounded-full border border-lime-400/50 px-5 py-3 text-xs font-black uppercase text-lime-400">Public Self Check-In Link</Link>
             <Link href="/admin/tryouts/check-in/walk-ins" className="rounded-full border border-white/10 px-5 py-3 text-xs font-black uppercase tracking-[0.12em]">Walk-In QR Sign</Link>
