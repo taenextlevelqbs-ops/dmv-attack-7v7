@@ -69,6 +69,7 @@ export default function TryoutCheckInPage() {
   }
 
   useEffect(() => {
+    setShowDetails(new URLSearchParams(window.location.search).get("view") === "payments");
     void loadRegistrations();
   }, []);
 
@@ -239,7 +240,7 @@ export default function TryoutCheckInPage() {
           <p className="mt-2 text-white/70">Registered 15U and 18U players still waiting to check in.</p>
           <div className="my-4 flex flex-wrap gap-4">
             <button type="button" onClick={() => void refreshLive()} disabled={loading || refreshing || !!updating} className="rounded-xl border px-4 py-2">Refresh</button>
-            <button type="button" onClick={() => { setSearch(""); setDivision("ALL"); setShow("ALL"); setError(""); setShowDetails(true); }} className="rounded-xl border px-4 py-2">Full dashboard</button>
+            <a href="/admin/tryouts/check-in?view=payments" className="rounded-xl border px-4 py-2">Payment dashboard</a>
           </div>
           <label className="block">
             <span className="sr-only">Search players</span>
@@ -287,7 +288,7 @@ export default function TryoutCheckInPage() {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <button type="button" onClick={() => { setSearch(""); setDivision("ALL"); setShow("ALL"); setError(""); setShowDetails(false); }} className="rounded-full border border-lime-400 px-5 py-3 text-xs font-black uppercase text-lime-400">Roll call</button>
+            <a href="/admin/tryouts/check-in" className="rounded-full border border-lime-400 px-5 py-3 text-xs font-black uppercase text-lime-400">Roll call</a>
             <button type="button" onClick={()=>void refreshLive()} disabled={refreshing} className="rounded-full border border-lime-400/60 px-5 py-3 text-xs font-black uppercase tracking-[0.12em] text-lime-400 disabled:opacity-50">{refreshing?"Refreshing…":"Refresh New Signups"}</button>
             <Link href="/tryouts/check-in" className="rounded-full border border-lime-400/50 px-5 py-3 text-xs font-black uppercase text-lime-400">Public Self Check-In Link</Link>
             <Link href="/admin/tryouts/check-in/walk-ins" className="rounded-full border border-white/10 px-5 py-3 text-xs font-black uppercase tracking-[0.12em]">Walk-In QR Sign</Link>
