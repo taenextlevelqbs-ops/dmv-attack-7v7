@@ -69,8 +69,11 @@ export default function TryoutCheckInPage() {
   }
 
   useEffect(() => {
-    setShowDetails(new URLSearchParams(window.location.search).get("view") === "payments");
+    const syncView = () => setShowDetails(new URLSearchParams(window.location.search).get("view") === "payments");
+    syncView();
+    window.addEventListener("popstate", syncView);
     void loadRegistrations();
+    return () => window.removeEventListener("popstate", syncView);
   }, []);
 
   useEffect(() => {
@@ -229,6 +232,32 @@ export default function TryoutCheckInPage() {
     show,
   ]);
 
+  const viewTabs = (
+    <nav aria-label="Staff check-in views" className="mb-5 grid max-w-sm grid-cols-2 gap-1 rounded-xl border border-white/20 bg-white/5 p-1">
+      {[{ label: "Roll Call", payments: false }, { label: "Payments", payments: true }].map(({ label, payments }) => {
+        const href = payments ? "/admin/tryouts/check-in?view=payments" : "/admin/tryouts/check-in";
+        const active = showDetails === payments;
+        return (
+          <a key={label} href={href} aria-current={active ? "page" : undefined}
+            className={`rounded-lg px-3 py-3 text-center text-sm font-bold ${active ? "bg-lime-400 text-black" : "text-white hover:bg-white/10"}`}
+            onClick={event => {
+              if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+              event.preventDefault();
+              if (active) return;
+              window.history.pushState(null, "", href);
+              setShowDetails(payments);
+              setSearch("");
+              setDivision("ALL");
+              setShow("ALL");
+              setError("");
+            }}>
+            {label}
+          </a>
+        );
+      })}
+    </nav>
+  );
+
   if (!showDetails) {
     const waiting = filtered.filter(player =>
       ["14U", "15U", "18U"].includes(player.age_group) && !hasArrived(player)
@@ -236,11 +265,11 @@ export default function TryoutCheckInPage() {
     return (
       <main className="min-h-screen bg-black px-4 py-6 text-white">
         <div className="mx-auto max-w-xl">
+          {viewTabs}
           <h1 className="text-3xl font-black">Tryout Roll Call</h1>
           <p className="mt-2 text-white/70">Registered 14U, 15U, and 18U players still waiting to check in.</p>
           <div className="my-4 flex flex-wrap gap-4">
             <button type="button" onClick={() => void refreshLive()} disabled={loading || refreshing || !!updating} className="rounded-xl border px-4 py-2">Refresh</button>
-            <a href="/admin/tryouts/check-in?view=payments" className="rounded-xl border px-4 py-2">Payment dashboard</a>
           </div>
           <label className="block">
             <span className="sr-only">Search players</span>
@@ -272,6 +301,7 @@ export default function TryoutCheckInPage() {
   return (
     <main className="min-h-screen bg-black px-4 py-6 text-white md:px-8 md:py-10">
       <div className="mx-auto max-w-7xl">
+        {viewTabs}
         <header className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div>
             <div className="text-[10px] font-black uppercase tracking-[0.28em] text-lime-400">
@@ -288,7 +318,6 @@ export default function TryoutCheckInPage() {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <a href="/admin/tryouts/check-in" className="rounded-full border border-lime-400 px-5 py-3 text-xs font-black uppercase text-lime-400">Roll call</a>
             <button type="button" onClick={()=>void refreshLive()} disabled={refreshing} className="rounded-full border border-lime-400/60 px-5 py-3 text-xs font-black uppercase tracking-[0.12em] text-lime-400 disabled:opacity-50">{refreshing?"Refreshing…":"Refresh New Signups"}</button>
             <Link href="/tryouts/check-in" className="rounded-full border border-lime-400/50 px-5 py-3 text-xs font-black uppercase text-lime-400">Public Self Check-In Link</Link>
             <Link href="/admin/tryouts/check-in/walk-ins" className="rounded-full border border-white/10 px-5 py-3 text-xs font-black uppercase tracking-[0.12em]">Walk-In QR Sign</Link>
