@@ -3,23 +3,23 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {PGlite} from '@electric-sql/pglite';
 import {selfCheckinWindow,SELF_CHECKIN_OPEN} from '../lib/self-checkin.mjs';
-const sql=fs.readFileSync('supabase/migrations/20261118211454_tryout_self_checkin.sql','utf8')+'\n'+fs.readFileSync('supabase/migrations/20261118213615_tryout_self_checkin_without_id.sql','utf8')+'\n'+fs.readFileSync('supabase/migrations/20261122164658_tryout_walkup_checkin.sql','utf8');
+const sql=fs.readFileSync('supabase/migrations/20261118211454_tryout_self_checkin.sql','utf8')+'\n'+fs.readFileSync('supabase/migrations/20261118213615_tryout_self_checkin_without_id.sql','utf8')+'\n'+fs.readFileSync('supabase/migrations/20261122164658_tryout_walkup_checkin.sql','utf8')+'\n'+fs.readFileSync('supabase/migrations/20261122173404_tryout_extended_checkin_hours.sql','utf8');
 const a='11111111-1111-4111-8111-111111111111',b='22222222-2222-4222-8222-222222222222';
 const key='a'.repeat(64);
-test('self check-in has exact 2:30–4:30 PM Eastern boundaries',()=>{
- assert.equal(SELF_CHECKIN_OPEN,'2026-11-22T19:30:00.000Z');
- assert.equal(selfCheckinWindow(Date.parse('2026-11-22T19:29:59Z')).open,false);
- assert.equal(selfCheckinWindow(Date.parse('2026-11-22T19:30:00Z')).open,true);
- assert.equal(selfCheckinWindow(Date.parse('2026-11-22T21:29:59Z')).open,true);
- assert.equal(selfCheckinWindow(Date.parse('2026-11-22T21:30:00Z')).open,false);
+test('self check-in has exact 2:15–5:00 PM Eastern boundaries',()=>{
+ assert.equal(SELF_CHECKIN_OPEN,'2026-11-22T19:15:00.000Z');
+ assert.equal(selfCheckinWindow(Date.parse('2026-11-22T19:14:59Z')).open,false);
+ assert.equal(selfCheckinWindow(Date.parse('2026-11-22T19:15:00Z')).open,true);
+ assert.equal(selfCheckinWindow(Date.parse('2026-11-22T21:59:59Z')).open,true);
+ assert.equal(selfCheckinWindow(Date.parse('2026-11-22T22:00:00Z')).open,false);
 });
 test('database verifies identity/window/division, deduplicates and preserves roster decisions and payment',async()=>{
  const db=new PGlite();
  await db.exec(`create role anon;create role authenticated;create role service_role;create table public.tryout_submissions(id uuid primary key,tryout_id text unique,parent_email text,date_of_birth date,age_group text,submitted_at timestamptz,status text,updated_at timestamptz);create table public.tryout_attendance(registration_id uuid primary key references public.tryout_submissions(id),checked_in boolean not null default false,version integer not null default 0,updated_by uuid,updated_at timestamptz default now());create table tryout_payments(registration_id uuid,status text);insert into tryout_submissions values('${a}','15U-001','Parent@Example.invalid','2011-01-01','15U','2026-11-21T12:00Z','REGISTERED',now()),('${b}','18U-002','parent@example.invalid','2009-01-01','18U','2026-11-21T12:00Z','ACCEPTED',now()),('33333333-3333-4333-8333-333333333333','14U-003','parent@example.invalid','2012-01-01','14U','2026-11-21T12:00Z','REGISTERED',now()),('44444444-4444-4444-8444-444444444444','15U-004','parent@example.invalid','2011-01-01','15U','2026-11-22T15:01-05:00','REGISTERED',now());insert into tryout_payments values('${a}','UNPAID'),('${b}','PAID');`);
  const time=async value=>db.exec(sql.replaceAll('clock_timestamp()',`'${value}'::timestamptz`));
  const call=async(id='15U-001',email='parent@example.invalid',dob='2011-01-01',attempt=key)=>(await db.query('select public.self_checkin_high_school_tryout($1,$2,$3,$4) as result',[id,email,dob,attempt])).rows[0].result;
- await time('2026-11-22T14:29:59-05:00');assert.equal((await call()).code,'closed');assert.equal((await db.query('select count(*)::int as n from tryout_attendance')).rows[0].n,0);
- await time('2026-11-22T14:30:00-05:00');
+ await time('2026-11-22T14:14:59-05:00');assert.equal((await call()).code,'closed');assert.equal((await db.query('select count(*)::int as n from tryout_attendance')).rows[0].n,0);
+ await time('2026-11-22T14:15:00-05:00');
  assert.equal((await call('15U-001','wrong@example.invalid')).code,'not_found');
  assert.equal((await call('15U-001','parent@example.invalid','2011-01-02')).code,'not_found');
  assert.equal((await call('14U-003','parent@example.invalid','2012-01-01')).code,'not_found');
@@ -38,6 +38,6 @@ test('database verifies identity/window/division, deduplicates and preserves ros
  assert.equal((await db.query("select has_function_privilege('service_role','public.self_checkin_high_school_tryout(text,text,date,text)','execute') as allowed")).rows[0].allowed,true);
  await time('2026-11-22T15:02:00-05:00');
  assert.equal((await call('15U-004','parent@example.invalid','2011-01-01','b'.repeat(64))).code,'checked_in');
- await time('2026-11-22T16:30:00-05:00');assert.equal((await call()).code,'closed');
+ await time('2026-11-22T17:00:00-05:00');assert.equal((await call()).code,'closed');
  await db.close();
 });

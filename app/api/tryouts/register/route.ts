@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { validBirthDate, imageMatchesType } from "@/lib/tryout-validation.mjs";
 import { after, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { SELF_CHECKIN_EVENT } from "@/lib/self-checkin.mjs";
+import { SELF_CHECKIN_CLOSE } from "@/lib/self-checkin.mjs";
 import { sendTryoutCheckinEmail } from "@/lib/tryout-checkin-email";
 
 export const runtime = "nodejs";
@@ -397,7 +397,7 @@ export async function POST(request: Request) {
 
     if (!invitationHash && communicationConsent &&
         (ageGroup === "15U" || ageGroup === "18U") &&
-        SELF_CHECKIN_EVENT && Date.now() < Date.parse(SELF_CHECKIN_EVENT.end)) {
+        Date.now() < Date.parse(SELF_CHECKIN_CLOSE)) {
       after(() => sendTryoutCheckinEmail(parentEmail));
     }
 

@@ -21,11 +21,11 @@ export async function sendTryoutCheckinEmail(parentEmail: string) {
         from: "DMV Attack 7v7 <notifications@dmvattack.com>",
         to: [recipient],
         reply_to: "dmvattack@gmail.com",
-        subject: "DMV Attack 15U/18U tryouts: check-in opens at 2:30 PM Eastern",
+        subject: "DMV Attack 15U/18U tryouts: check-in opens at 2:15 PM Eastern",
         text: [
           "Your DMV Attack tryout registration is saved.",
           "Sunday, November 22: tryouts run 3:00–4:30 PM Eastern at Independence High School, 23115 Learning Circle, Ashburn, VA 20148.",
-          "Once you arrive, check in between 2:30 and 4:30 PM Eastern at https://www.dmvattack.com/tryouts/check-in. Use the parent email you registered with and your athlete’s date of birth.",
+          "Once you arrive, check in between 2:15 and 5:00 PM Eastern at https://www.dmvattack.com/tryouts/check-in. Use the parent email you registered with and your athlete’s date of birth.",
           "If you need help, see staff at the check-in desk. Stop there after checking in for a sticker number and any payment verification. If you already paid, hold off on paying again.",
           "Coach Tae\nDMV Attack",
         ].join("\n\n"),

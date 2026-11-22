@@ -13,7 +13,7 @@ export function GET() {
 export async function POST(request: Request) {
   const reply = (body:unknown,status=200) => NextResponse.json(body,{status,headers});
   if (!sameOrigin(request)) return reply({error:"Request origin rejected."},403);
-  if (!selfCheckinWindow().open) return reply({error:"Self check-in is open Sunday, November 22, 2:30–4:30 PM Eastern only."},403);
+  if (!selfCheckinWindow().open) return reply({error:"Self check-in is open Sunday, November 22, 2:15–5:00 PM Eastern only."},403);
   if (!request.headers.get("content-type")?.startsWith("application/json") || Number(request.headers.get("content-length")||0)>2048)
     return reply({error:"Invalid check-in request."},400);
   const text = await request.text();

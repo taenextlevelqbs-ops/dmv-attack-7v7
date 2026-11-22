@@ -5,7 +5,7 @@ export default function SelfCheckinForm(){
   const [availability,setAvailability]=useState("Checking availability…");
   const [error,setError]=useState(""),[success,setSuccess]=useState(""),[id,setId]=useState("");
   const load=useCallback(async()=>{
-    try {const r=await fetch("/api/tryouts/self-check-in",{cache:"no-store"});if(!r.ok)throw new Error();const data=await r.json();setOpen(data.open===true);setAvailability(data.open===true?"Self check-in is open.":Date.parse(data.serverTime)>=Date.parse(data.closesAt)?"Self check-in has ended. Please see staff.":"Self check-in opens Sunday, November 22 at 2:30 PM Eastern.");setChecking(false);}
+    try {const r=await fetch("/api/tryouts/self-check-in",{cache:"no-store"});if(!r.ok)throw new Error();const data=await r.json();setOpen(data.open===true);setAvailability(data.open===true?"Self check-in is open.":Date.parse(data.serverTime)>=Date.parse(data.closesAt)?"Self check-in has ended. Please see staff.":"Self check-in opens Sunday, November 22 at 2:15 PM Eastern.");setChecking(false);}
     catch {setOpen(false);setChecking(false);setError("Unable to check availability. Please refresh or see the check-in desk.");}
   },[]);
   useEffect(()=>{void load();const timer=window.setInterval(()=>void load(),30000);return()=>window.clearInterval(timer);},[load]);
