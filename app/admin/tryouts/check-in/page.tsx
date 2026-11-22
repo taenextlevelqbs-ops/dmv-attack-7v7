@@ -231,13 +231,13 @@ export default function TryoutCheckInPage() {
 
   if (!showDetails) {
     const waiting = filtered.filter(player =>
-      (player.age_group === "15U" || player.age_group === "18U") && !hasArrived(player)
+      ["14U", "15U", "18U"].includes(player.age_group) && !hasArrived(player)
     );
     return (
       <main className="min-h-screen bg-black px-4 py-6 text-white">
         <div className="mx-auto max-w-xl">
           <h1 className="text-3xl font-black">Tryout Roll Call</h1>
-          <p className="mt-2 text-white/70">Registered 15U and 18U players still waiting to check in.</p>
+          <p className="mt-2 text-white/70">Registered 14U, 15U, and 18U players still waiting to check in.</p>
           <div className="my-4 flex flex-wrap gap-4">
             <button type="button" onClick={() => void refreshLive()} disabled={loading || refreshing || !!updating} className="rounded-xl border px-4 py-2">Refresh</button>
             <a href="/admin/tryouts/check-in?view=payments" className="rounded-xl border px-4 py-2">Payment dashboard</a>
