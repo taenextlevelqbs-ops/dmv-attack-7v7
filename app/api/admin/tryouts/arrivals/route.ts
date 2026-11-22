@@ -12,7 +12,7 @@ export async function GET(){
     const url=process.env.NEXT_PUBLIC_SUPABASE_URL,secret=process.env.SUPABASE_SECRET_KEY;
     if(!url||!secret)throw new Error();
     const db=serviceClient(url,secret,{auth:{persistSession:false,autoRefreshToken:false}});
-    const {data:registrations,error}=await db.from("tryout_submissions").select("id,athlete_first_name,athlete_last_name,age_group,status").in("age_group",["15U","18U"]).lt("submitted_at","2026-11-22T15:00:00-05:00").limit(1000);
+    const {data:registrations,error}=await db.from("tryout_submissions").select("id,athlete_first_name,athlete_last_name,age_group,status").in("age_group",["15U","18U"]).lt("submitted_at","2026-11-22T16:30:00-05:00").limit(1000);
     if(error)throw new Error();
     const ids=(registrations??[]).map(r=>r.id);
     const {data:attendance,error:attendanceError}=ids.length?await db.from("tryout_attendance").select("registration_id,checked_in,updated_at,self_checked_in_at").in("registration_id",ids):{data:[],error:null};

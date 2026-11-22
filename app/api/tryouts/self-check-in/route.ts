@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     if(data?.code==="rate_limited") return reply({error:"Too many attempts. Please wait five minutes or visit the check-in desk."},429);
     if(data?.code==="ambiguous") return reply({error:"More than one athlete matches these details. Enter the optional Tryout ID if you have it, or ask the check-in desk."},400);
     if(!["checked_in","already_checked_in"].includes(data?.code))
-      return reply({error:"We could not match an eligible preregistration. Check your details or see staff. Do not register again."},400);
+      return reply({error:"We could not match an eligible registration. Check your details or see staff. Do not register again."},400);
     return reply({success:true,alreadyCheckedIn:data.code==="already_checked_in",tryoutId:data.tryout_id,
       message:"You’re checked in! Please see the check-in desk for your sticker number and any payment verification. Check-in does not confirm payment or a roster spot."});
   } catch {

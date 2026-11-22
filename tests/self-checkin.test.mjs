@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {PGlite} from '@electric-sql/pglite';
 import {selfCheckinWindow,SELF_CHECKIN_OPEN} from '../lib/self-checkin.mjs';
-const sql=fs.readFileSync('supabase/migrations/20261118211454_tryout_self_checkin.sql','utf8')+'\n'+fs.readFileSync('supabase/migrations/20261118213615_tryout_self_checkin_without_id.sql','utf8');
+const sql=fs.readFileSync('supabase/migrations/20261118211454_tryout_self_checkin.sql','utf8')+'\n'+fs.readFileSync('supabase/migrations/20261118213615_tryout_self_checkin_without_id.sql','utf8')+'\n'+fs.readFileSync('supabase/migrations/20261122164658_tryout_walkup_checkin.sql','utf8');
 const a='11111111-1111-4111-8111-111111111111',b='22222222-2222-4222-8222-222222222222';
 const key='a'.repeat(64);
 test('self check-in has exact 2:30–4:30 PM Eastern boundaries',()=>{
@@ -36,6 +36,8 @@ test('database verifies identity/window/division, deduplicates and preserves ros
  for(let i=0;i<20;i++)await call('missing');assert.equal((await call()).code,'rate_limited');
  assert.equal((await db.query("select has_function_privilege('anon','public.self_checkin_high_school_tryout(text,text,date,text)','execute') as allowed")).rows[0].allowed,false);
  assert.equal((await db.query("select has_function_privilege('service_role','public.self_checkin_high_school_tryout(text,text,date,text)','execute') as allowed")).rows[0].allowed,true);
+ await time('2026-11-22T15:02:00-05:00');
+ assert.equal((await call('15U-004','parent@example.invalid','2011-01-01','b'.repeat(64))).code,'checked_in');
  await time('2026-11-22T16:30:00-05:00');assert.equal((await call()).code,'closed');
  await db.close();
 });

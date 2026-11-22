@@ -1,7 +1,9 @@
 import { createHash } from "node:crypto";
 import { validBirthDate, imageMatchesType } from "@/lib/tryout-validation.mjs";
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { SELF_CHECKIN_EVENT } from "@/lib/self-checkin.mjs";
+import { sendTryoutCheckinEmail } from "@/lib/tryout-checkin-email";
 
 export const runtime = "nodejs";
 
@@ -391,6 +393,12 @@ export async function POST(request: Request) {
         await supabase.storage.from("tryout-headshots").remove([storagePath]);
         return NextResponse.json({error:"This invitation is no longer available. Please contact DMV Attack."},{status:409});
       }
+    }
+
+    if (!invitationHash && communicationConsent &&
+        (ageGroup === "15U" || ageGroup === "18U") &&
+        SELF_CHECKIN_EVENT && Date.now() < Date.parse(SELF_CHECKIN_EVENT.end)) {
+      after(() => sendTryoutCheckinEmail(parentEmail));
     }
 
     const confirmationUrl = new URL(invitationHash ? "/invite/success" : "/tryouts/success", request.url);
