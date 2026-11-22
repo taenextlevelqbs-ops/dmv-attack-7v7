@@ -91,12 +91,16 @@ function athleteDOB(registration: Registration) {
   const [year,month,day] = value.split("-");
   return `${month}/${day}/${year}`;
 }
+function ageOnDate(dob: string, date: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dob) || !/^\d{4}-\d{2}-\d{2}$/.test(date) || dob > date) return null;
+  return Number(date.slice(0,4)) - Number(dob.slice(0,4)) - Number(date.slice(5) < dob.slice(5));
+}
 function athleteAge(registration: Registration) {
   if (!registration.date_of_birth) return registration.current_age == null ? "Not recorded" : `${registration.current_age} (at registration)`;
   const dob = registration.date_of_birth.slice(0,10);
   const today = new Intl.DateTimeFormat("en-CA",{timeZone:"America/New_York",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
-  const age = Number(today.slice(0,4))-Number(dob.slice(0,4))-(today.slice(5)<dob.slice(5)?1:0);
-  return Number.isFinite(age) && age>=0 ? String(age) : "Not recorded";
+  const age = ageOnDate(dob, today);
+  return age == null ? "Not recorded" : String(age);
 }
 function readableStatus(status: string) {
   return status.replaceAll("_", " ");
@@ -138,6 +142,16 @@ export default function AdminTryoutsPage() {
   const [division, setDivision] = useState("ALL");
   const [status, setStatus] = useState("ALL");
   const [attendance, setAttendance] = useState("ALL");
+  const [position, setPosition] = useState("");
+  const [school, setSchool] = useState("");
+  const [groupBy, setGroupBy] = useState<"division" | "position" | "school">("division");
+  const [cutoff, setCutoff] = useState("");
+  const [showCards, setShowCards] = useState(false);
+
+  const positions = useMemo(() => [...new Set(registrations.flatMap(player =>
+    [player.primary_position, player.secondary_position].map(value => value?.trim().toUpperCase() || "").filter(Boolean)
+  ))].sort(), [registrations]);
+  const schools = useMemo(() => [...new Set(registrations.map(player => player.school?.trim() || "").filter(Boolean))].sort((a,b) => a.localeCompare(b)), [registrations]);
 
   const [selected, setSelected] = useState<Registration | null>(null);
   const [updating, setUpdating] = useState("");
@@ -240,6 +254,8 @@ export default function AdminTryoutsPage() {
         registration.tryout_id,
         registration.school,
         registration.primary_position,
+        registration.secondary_position,
+        registration.grade,
         registration.parent_guardian_name,
         registration.parent_email,
       ]
@@ -253,10 +269,28 @@ export default function AdminTryoutsPage() {
       return (
         matchesDivision &&
         matchesStatus &&
+        (!position || [registration.primary_position, registration.secondary_position].some(value => value?.trim().toUpperCase() === position)) &&
+        (!school || registration.school?.trim() === school) &&
         matchesSearch && (attendance === "ALL" || (attendance === "CHECKED_IN" ? registration.tryout_checked_in === true : registration.tryout_checked_in !== true))
       );
     });
-  }, [registrations, search, division, status, attendance]);
+  }, [registrations, search, division, status, attendance, position, school]);
+
+  const groups = useMemo(() => {
+    const grouped = new Map<string, Registration[]>();
+    for (const player of filtered) {
+      const label = groupBy === "position" ? player.primary_position?.trim().toUpperCase() || "Position not listed"
+        : groupBy === "school" ? player.school?.trim() || "School not listed" : player.age_group || "Division not listed";
+      const group = grouped.get(label) ?? [];
+      group.push(player);
+      grouped.set(label, group);
+    }
+    for (const group of grouped.values()) {
+      group.sort((a,b) => a.athlete_last_name.localeCompare(b.athlete_last_name)
+        || a.athlete_first_name.localeCompare(b.athlete_first_name));
+    }
+    return [...grouped].sort(([a],[b]) => a.localeCompare(b, undefined, {numeric:true}));
+  }, [filtered, groupBy]);
 
   const counts = useMemo(() => {
     return {
@@ -409,8 +443,52 @@ export default function AdminTryoutsPage() {
           Showing {filtered.length} of {registrations.length} athletes
         </div>
 
-        <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {filtered.map((registration) => (
+        <div className="mt-4 grid gap-3 rounded-2xl border border-white/15 p-4 sm:grid-cols-2 xl:grid-cols-4">
+          <label className="text-sm">Position
+            <select value={position} onChange={e=>setPosition(e.target.value)} className="mt-1 w-full rounded-xl border border-white/20 bg-black p-3">
+              <option value="">All positions</option>{positions.map(value=><option key={value}>{value}</option>)}
+            </select>
+          </label>
+          <label className="text-sm">School
+            <select value={school} onChange={e=>setSchool(e.target.value)} className="mt-1 w-full rounded-xl border border-white/20 bg-black p-3">
+              <option value="">All schools</option>{schools.map(value=><option key={value}>{value}</option>)}
+            </select>
+          </label>
+          <label className="text-sm">Group player list by
+            <select value={groupBy} onChange={e=>{const value=e.target.value;if(value==="division"||value==="position"||value==="school"){setGroupBy(value);setShowCards(false);}}} className="mt-1 w-full rounded-xl border border-white/20 bg-black p-3">
+              <option value="division">Registered age division</option><option value="position">Primary position</option><option value="school">School</option>
+            </select>
+          </label>
+          <label className="text-sm">League cutoff date
+            <input type="date" value={cutoff} onChange={e=>{setCutoff(e.target.value);setShowCards(false);}} className="mt-1 w-full rounded-xl border border-white/20 bg-black p-3" />
+          </label>
+          <p className="text-xs text-white/65 sm:col-span-2 xl:col-span-4">Enter your league’s cutoff to see each player’s age on that date. Confirm eligible divisions and play-up rules with your league.</p>
+        </div>
+        <button type="button" onClick={()=>setShowCards(!showCards)} className="mt-4 rounded-xl border border-lime-400/60 px-4 py-2 text-sm font-bold text-lime-300">{showCards ? "Show player list" : "Show player cards"}</button>
+
+        {!showCards && <div className="mt-5 space-y-5">
+          {groups.map(([label, players]) => (
+            <section key={label} className="rounded-2xl border border-white/15">
+              <h2 className="border-b border-white/15 px-4 py-3 text-lg font-black">{label} <span className="text-sm font-normal text-white/65">· {players.length} players</span></h2>
+              <ul className="divide-y divide-white/10">
+                {players.map(player => {
+                  const cutoffAge = cutoff ? ageOnDate(player.date_of_birth?.slice(0,10) || "", cutoff) : null;
+                  return <li key={player.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+                    <div>
+                      <p className="font-bold">{player.athlete_first_name} {player.athlete_last_name}</p>
+                      <p className="text-sm text-white/70">{[player.age_group, player.primary_position, player.secondary_position, player.school || "School not listed", player.grade].filter(Boolean).join(" · ")}</p>
+                      <p className="text-sm text-white/65">Age {athleteAge(player)}{cutoff && ` · Age on cutoff: ${cutoffAge ?? "Not available"}`} · {player.tryout_checked_in === true ? "Checked in" : "No recorded check-in"} · {readableStatus(player.status)}</p>
+                    </div>
+                    <button type="button" onClick={()=>setSelected(player)} className="rounded-xl border border-lime-400/60 px-4 py-2 text-sm font-bold text-lime-300">Details & notes<span className="sr-only"> for {player.athlete_first_name} {player.athlete_last_name}</span></button>
+                  </li>;
+                })}
+              </ul>
+            </section>
+          ))}
+        </div>}
+
+        <div hidden={!showCards} className={showCards ? "mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3" : "hidden"}>
+          {showCards && filtered.map((registration) => (
             <article
               key={registration.id}
               className="overflow-hidden rounded-[30px] border border-white/10 bg-white/[0.03]"
@@ -545,6 +623,7 @@ export default function AdminTryoutsPage() {
                 </h2>
               </div>
 
+              <a href="#coach-evaluations" className="text-sm font-bold text-lime-300">Coach notes</a>
               <button
                 type="button"
                 onClick={() => setSelected(null)}
@@ -737,10 +816,12 @@ export default function AdminTryoutsPage() {
 
                 <ParentMessage key={`parent-${selected.id}`} registration={selected} />
 
+                <div id="coach-evaluations">
                 <EvaluationPanel
                     key={selected.id}
                   tryoutSubmissionId={selected.id}
                 />
+                </div>
 
                 <section>
                   <div className="text-xs font-black uppercase tracking-[0.2em] text-lime-400">
