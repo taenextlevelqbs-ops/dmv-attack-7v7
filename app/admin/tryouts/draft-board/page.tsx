@@ -27,7 +27,7 @@ export default function TryoutDraftBoard() {
   const [guestName, setGuestName] = useState("");
   const [search, setSearch] = useState("");
   const [division, setDivision] = useState("");
-  const [view, setView] = useState<"players" | "roster">("players");
+  const [view, setView] = useState<"players" | "roster">("roster");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [saveError, setSaveError] = useState("");
@@ -82,7 +82,7 @@ export default function TryoutDraftBoard() {
     <div className="mx-auto max-w-6xl">
       <Link href="/admin/tryouts" className="text-sm font-bold text-lime-300">Back to Tryouts</Link>
       <h1 className="mt-3 text-4xl font-black">Draft Roster Board</h1>
-      <p className="mt-2 text-white/70">Pick a team, then add players. Draft changes are shared with coaches only.</p>
+      <p className="mt-2 text-white/70">Pick a team to view its roster. Draft changes are shared with coaches only.</p>
       <nav aria-label="Draft teams" className="my-5 flex flex-wrap gap-2">
         {draftTeams.map(item => <button key={item.id} type="button" aria-pressed={team.id === item.id} disabled={busy} onClick={() => { setTeamId(item.id); setGuestName(""); }}
           className={button + (team.id === item.id ? " bg-lime-400 text-black" : "")}>
@@ -94,8 +94,8 @@ export default function TryoutDraftBoard() {
       {busy && <p role="status" className="mb-3 text-lime-300">Saving draft change…</p>}
       {!board && !error && <p>Loading draft rosters…</p>}
       {board && <nav aria-label="Draft board view" className="mb-4 grid grid-cols-2 gap-2 md:hidden">
-        <button type="button" aria-pressed={view === "players"} className={button + (view === "players" ? " bg-white text-black" : "")} onClick={() => setView("players")}>Add players</button>
         <button type="button" aria-pressed={view === "roster"} className={button + (view === "roster" ? " bg-white text-black" : "")} onClick={() => setView("roster")}>Roster ({teamPlayers.length + teamGuests.length})</button>
+        <button type="button" aria-pressed={view === "players"} className={button + (view === "players" ? " bg-white text-black" : "")} onClick={() => setView("players")}>Add players</button>
       </nav>}
       {board && <div className="grid gap-5 md:grid-cols-2">
         <section className={"rounded-2xl border border-white/20 p-4 md:block " + (view === "roster" ? "" : "hidden")}>
