@@ -26,15 +26,21 @@ export async function GET() {
   const { db, error } = await access();
   if (!db) return error ?? reply({error:"Draft board unavailable."},503);
   const [players, placements, attendance, guests] = await Promise.all([
-    db.from("tryout_submissions").select("id,athlete_first_name,athlete_last_name,age_group,primary_position,secondary_position,school,status,tryout_id").in("age_group", ["12U","14U","15U","18U"]).order("athlete_last_name").order("athlete_first_name"),
+    db.from("tryout_submissions").select("id,athlete_first_name,athlete_last_name,age_group,primary_position,secondary_position,school,status,tryout_id,headshot_path").in("age_group", ["12U","14U","15U","18U"]).order("athlete_last_name").order("athlete_first_name"),
     db.from("tryout_draft_placements").select("registration_id,division,team"),
     db.from("tryout_attendance").select("registration_id,checked_in"),
     db.from("tryout_draft_guests").select("id,team,name").order("name"),
   ]);
   if (players.error || placements.error || attendance.error || guests.error) return reply({ error: "Couldn’t load the draft board." }, 503);
   const arrived = new Map(attendance.data.map(row => [row.registration_id, row.checked_in]));
-  const pool = players.data.map(({ status, ...player }) => ({
-    ...player, checked_in: arrived.get(player.id) ?? (status === "CHECKED_IN"),
+  const photoPaths = [...new Set(players.data.flatMap(row => row.headshot_path ? [row.headshot_path] : []))];
+  const signedPhotos = photoPaths.length
+    ? (await db.storage.from("tryout-headshots").createSignedUrls(photoPaths, 60 * 60)).data
+    : [];
+  const photos = new Map(signedPhotos?.map(photo => [photo.path, photo.signedUrl]));
+  const pool = players.data.map(({ status, headshot_path, ...player }) => ({
+    ...player, headshot_url: photos.get(headshot_path) || null,
+    checked_in: arrived.get(player.id) ?? (status === "CHECKED_IN"),
   }));
   const playerIds = new Set(pool.map(player => player.id));
   return reply({ players: pool, guests:guests.data, placements: placements.data.filter(row => playerIds.has(row.registration_id)) });
