@@ -26,10 +26,10 @@ export async function GET() {
   const { db, error } = await access();
   if (!db) return error ?? reply({error:"Draft board unavailable."},503);
   const [players, placements, attendance, guests] = await Promise.all([
-    db.from("tryout_submissions").select("id,athlete_first_name,athlete_last_name,age_group,primary_position,secondary_position,school,status,tryout_id,headshot_path").in("age_group", ["12U","14U","15U","18U"]).order("athlete_last_name").order("athlete_first_name"),
-    db.from("tryout_draft_placements").select("registration_id,division,team"),
+    db.from("tryout_submissions").select("id,athlete_first_name,athlete_last_name,age_group,primary_position,secondary_position,school,status,tryout_id,headshot_path,parent_email").in("age_group", ["12U","14U","15U","18U"]).order("athlete_last_name").order("athlete_first_name"),
+    db.from("tryout_draft_placements").select("registration_id,division,team,parent_email"),
     db.from("tryout_attendance").select("registration_id,checked_in"),
-    db.from("tryout_draft_guests").select("id,team,name").order("name"),
+    db.from("tryout_draft_guests").select("id,team,name,parent_email").order("name"),
   ]);
   if (players.error || placements.error || attendance.error || guests.error) return reply({ error: "Couldn’t load the draft board." }, 503);
   const arrived = new Map(attendance.data.map(row => [row.registration_id, row.checked_in]));
@@ -38,12 +38,15 @@ export async function GET() {
     ? (await db.storage.from("tryout-headshots").createSignedUrls(photoPaths, 60 * 60)).data
     : [];
   const photos = new Map(signedPhotos?.map(photo => [photo.path, photo.signedUrl]));
-  const pool = players.data.map(({ status, headshot_path, ...player }) => ({
+  const registrationEmails = new Map(players.data.map(row => [row.id, row.parent_email]));
+  const pool = players.data.map(({ status, headshot_path, parent_email: _parentEmail, ...player }) => ({
     ...player, headshot_url: photos.get(headshot_path) || null,
     checked_in: arrived.get(player.id) ?? (status === "CHECKED_IN"),
   }));
   const playerIds = new Set(pool.map(player => player.id));
-  return reply({ players: pool, guests:guests.data, placements: placements.data.filter(row => playerIds.has(row.registration_id)) });
+  return reply({ players: pool, guests:guests.data, placements: placements.data.filter(row => playerIds.has(row.registration_id)).map(row => ({
+    ...row, registration_email: registrationEmails.get(row.registration_id) || null,
+  })) });
 }
 
 export async function PATCH(request: Request) {
@@ -52,6 +55,25 @@ export async function PATCH(request: Request) {
   if (!db) return error ?? reply({error:"Draft board unavailable."},503);
   const body = await request.json().catch(() => null);
   const team = draftTeams.find(team => team.id === body?.team);
+  if (body?.action === "saveParentEmail") {
+    const { id, kind, email } = body;
+    if (!team || typeof id !== "string" || !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(id)
+      || (kind !== "guest" && kind !== "registered") || typeof email !== "string") {
+      return reply({ error: "Choose a player on this draft roster." }, 400);
+    }
+    const address = email.trim();
+    if (address.length > 254 || (address && !/^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/.test(address))) {
+      return reply({ error: "Enter a valid parent email address." }, 400);
+    }
+    const update = { parent_email: address || null };
+    const result = kind === "guest"
+      ? await db.from("tryout_draft_guests").update(update).eq("team", team.id).eq("id", id).select("id").maybeSingle()
+      : await db.from("tryout_draft_placements").update(update).eq("team", team.id)
+        .eq("division", team.division).eq("registration_id", id).select("registration_id").maybeSingle();
+    if (result.error) return reply({ error: "Couldn’t save the parent email." }, 503);
+    if (!result.data) return reply({ error: "This player is no longer on the selected draft roster." }, 404);
+    return reply({ saved: true });
+  }
   if (team && body?.action === "addGuest") {
     const name = typeof body.name === "string" ? body.name.trim().replace(/\s+/g, " ") : "";
     if (!name || name.length > 100) return reply({error:"Enter a player name up to 100 characters."},400);
