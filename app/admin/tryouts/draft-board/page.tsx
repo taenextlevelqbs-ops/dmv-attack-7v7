@@ -5,11 +5,13 @@ import { draftTeams } from "@/lib/tryout-draft-teams";
 
 type Player = { id:string; athlete_first_name:string; athlete_last_name:string; age_group:string; primary_position:string|null; secondary_position:string|null; school:string|null; checked_in:boolean; tryout_id:string };
 type Placement = { registration_id:string; division:string; team:string };
-type Board = { players:Player[]; placements:Placement[] };
+type Guest = { id:string; team:string; name:string };
+type Board = { players:Player[]; placements:Placement[]; guests:Guest[] };
 
 export default function TryoutDraftBoard() {
   const [board, setBoard] = useState<Board|null>(null);
   const [teamId, setTeamId] = useState<string>(draftTeams[0].id);
+  const [guestName, setGuestName] = useState("");
   const [search, setSearch] = useState("");
   const [division, setDivision] = useState("");
   const [checkedOnly, setCheckedOnly] = useState(false);
@@ -36,22 +38,25 @@ export default function TryoutDraftBoard() {
   }, [busy, load]);
   const team = draftTeams.find(item => item.id === teamId) ?? draftTeams[0];
   const placements = board?.placements ?? [];
+  const guests = board?.guests ?? [];
+  const teamGuests = guests.filter(guest => guest.team === team.id);
   const teamPlayers = board?.players.filter(player => placements.some(row => row.team === team.id && row.registration_id === player.id)) ?? [];
   const pool = board?.players.filter(player =>
     (!division || player.age_group === division) && (!checkedOnly || player.checked_in)
     && [player.athlete_first_name, player.athlete_last_name, player.school, player.primary_position, player.secondary_position, player.tryout_id].join(" ").toLowerCase().includes(search.trim().toLowerCase())
     && !teamPlayers.some(member => member.id === player.id)) ?? [];
-  async function save(registrationId: string, remove: boolean) {
+  async function save(change: {registrationId:string; remove:boolean} | {action:"addGuest"; name:string} | {action:"removeGuest"; id:string}) {
     if (busy) return;
     setBusy(true);
     setSaveError("");
     try {
       const response = await fetch("/api/admin/tryouts/draft-board", {
         method: "PATCH", headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({registrationId, team:team.id, remove}),
+        body: JSON.stringify({...change, team:team.id}),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
+      if ("action" in change && change.action === "addGuest") setGuestName("");
     } catch (e) {
       setSaveError(e instanceof Error ? e.message : "Couldn’t save the change.");
     } finally {
@@ -66,9 +71,9 @@ export default function TryoutDraftBoard() {
       <h1 className="mt-3 text-4xl font-black">Draft Roster Board</h1>
       <p className="mt-2 text-white/70">Staff only. Changes are shared with coaches. You can move or remove players as you build each team.</p>
       <nav aria-label="Draft teams" className="my-5 flex flex-wrap gap-2">
-        {draftTeams.map(item => <button key={item.id} type="button" aria-pressed={team.id === item.id} onClick={() => setTeamId(item.id)}
+        {draftTeams.map(item => <button key={item.id} type="button" aria-pressed={team.id === item.id} disabled={busy} onClick={() => { setTeamId(item.id); setGuestName(""); }}
           className={button + (team.id === item.id ? " bg-lime-400 text-black" : "")}>
-          {item.label}{board && ` (${placements.filter(row => row.team === item.id).length})`}
+          {item.label}{board && ` (${placements.filter(row => row.team === item.id).length + guests.filter(guest => guest.team === item.id).length})`}
         </button>)}
       </nav>
       {error && <p role="alert" className="mb-4 text-red-300">{error}{board && " Showing the last loaded roster."}</p>}
@@ -78,11 +83,21 @@ export default function TryoutDraftBoard() {
       {board && <div className="grid gap-5 md:grid-cols-2">
         <section className="rounded-2xl border border-white/20 p-4">
           <h2 className="text-xl font-bold">{team.label} draft roster</h2>
-          {!teamPlayers.length && <p className="mt-3 text-white/65">Add players from the tryout list.</p>}
+          {!teamPlayers.length && !teamGuests.length && <p className="mt-3 text-white/65">Add players from the tryout list.</p>}
           <ul className="mt-2 divide-y divide-white/15">{teamPlayers.map(player => <li key={player.id} className="flex items-center justify-between gap-2 py-3">
             <div><p className="font-bold">{playerName(player)}</p><p className="text-sm text-white/65">{player.tryout_id} · {player.primary_position || "Position unlisted"}</p></div>
-            <button className={button} disabled={busy || !!error} onClick={() => void save(player.id,true)}>Remove</button>
+            <button className={button} disabled={busy || !!error} onClick={() => void save({registrationId:player.id,remove:true})}>Remove</button>
+          </li>)}
+          {teamGuests.map(guest => <li key={guest.id} className="flex items-center justify-between gap-2 py-3">
+            <div><p className="font-bold">{guest.name}</p><p className="text-sm text-amber-300">Not registered yet</p></div>
+            <button type="button" className={button} disabled={busy || !!error} onClick={() => void save({action:"removeGuest",id:guest.id})}>Remove</button>
           </li>)}</ul>
+          <form className="mt-4 border-t border-white/20 pt-4" onSubmit={e=>{e.preventDefault();if(guestName.trim()) void save({action:"addGuest",name:guestName});}}>
+            <label className="block text-sm font-bold">Add player who hasn’t registered
+              <input value={guestName} onChange={e=>setGuestName(e.target.value)} required maxLength={100} placeholder="Player’s full name" className="mt-1 w-full rounded-lg border border-white/25 bg-black p-2" />
+            </label>
+            <button disabled={busy || !!error || !guestName.trim()} className={button + " mt-2"}>Add to {team.label}</button>
+          </form>
         </section>
         <section className="rounded-2xl border border-white/20 p-4">
           <h2 className="text-xl font-bold">Tryout players</h2>
@@ -96,7 +111,7 @@ export default function TryoutDraftBoard() {
             return <li key={player.id} className="flex items-center justify-between gap-2 py-3">
               <div><p className="font-bold">{playerName(player)}</p><p className="text-sm text-white/65">{[player.tryout_id,player.primary_position,player.secondary_position,player.school,player.checked_in ? "Checked in" : "No recorded check-in"].filter(Boolean).join(" · ")}</p>
               {!!assigned.length && <p className="text-sm text-lime-300">Drafted: {assigned.join(", ")}</p>}</div>
-              <button className={button} disabled={busy || !!error} onClick={() => void save(player.id,false)}>{peer ? "Move here" : "Add"}</button>
+              <button className={button} disabled={busy || !!error} onClick={() => void save({registrationId:player.id,remove:false})}>{peer ? "Move here" : "Add"}</button>
             </li>;
           })}</ul>
         </section>
