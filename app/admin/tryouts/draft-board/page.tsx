@@ -3,10 +3,23 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { draftTeams } from "@/lib/tryout-draft-teams";
 
-type Player = { id:string; athlete_first_name:string; athlete_last_name:string; age_group:string; primary_position:string|null; secondary_position:string|null; school:string|null; checked_in:boolean; tryout_id:string };
+type Player = { id:string; athlete_first_name:string; athlete_last_name:string; age_group:string; primary_position:string|null; secondary_position:string|null; school:string|null; checked_in:boolean; tryout_id:string; headshot_url:string|null };
 type Placement = { registration_id:string; division:string; team:string };
 type Guest = { id:string; team:string; name:string };
 type Board = { players:Player[]; placements:Placement[]; guests:Guest[] };
+
+function PlayerPhoto({ url }: { url: string | null }) {
+  const [failedUrl, setFailedUrl] = useState<string | null>(null);
+  return (
+    <div aria-hidden="true" className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white/10 text-center text-xs text-white/70">
+      {url && url !== failedUrl ? (
+        // The signed registration photo is loaded directly from private storage.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={url} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setFailedUrl(url)} className="h-full w-full object-cover" />
+      ) : "No photo"}
+    </div>
+  );
+}
 
 export default function TryoutDraftBoard() {
   const [board, setBoard] = useState<Board|null>(null);
@@ -14,7 +27,7 @@ export default function TryoutDraftBoard() {
   const [guestName, setGuestName] = useState("");
   const [search, setSearch] = useState("");
   const [division, setDivision] = useState("");
-  const [checkedOnly, setCheckedOnly] = useState(false);
+  const [view, setView] = useState<"players" | "roster">("players");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [saveError, setSaveError] = useState("");
@@ -42,7 +55,7 @@ export default function TryoutDraftBoard() {
   const teamGuests = guests.filter(guest => guest.team === team.id);
   const teamPlayers = board?.players.filter(player => placements.some(row => row.team === team.id && row.registration_id === player.id)) ?? [];
   const pool = board?.players.filter(player =>
-    (!division || player.age_group === division) && (!checkedOnly || player.checked_in)
+    (!division || player.age_group === division)
     && [player.athlete_first_name, player.athlete_last_name, player.school, player.primary_position, player.secondary_position, player.tryout_id].join(" ").toLowerCase().includes(search.trim().toLowerCase())
     && !teamPlayers.some(member => member.id === player.id)) ?? [];
   async function save(change: {registrationId:string; remove:boolean} | {action:"addGuest"; name:string} | {action:"removeGuest"; id:string}) {
@@ -69,7 +82,7 @@ export default function TryoutDraftBoard() {
     <div className="mx-auto max-w-6xl">
       <Link href="/admin/tryouts" className="text-sm font-bold text-lime-300">Back to Tryouts</Link>
       <h1 className="mt-3 text-4xl font-black">Draft Roster Board</h1>
-      <p className="mt-2 text-white/70">Staff only. Changes are shared with coaches. You can move or remove players as you build each team.</p>
+      <p className="mt-2 text-white/70">Pick a team, then add players. Draft changes are shared with coaches only.</p>
       <nav aria-label="Draft teams" className="my-5 flex flex-wrap gap-2">
         {draftTeams.map(item => <button key={item.id} type="button" aria-pressed={team.id === item.id} disabled={busy} onClick={() => { setTeamId(item.id); setGuestName(""); }}
           className={button + (team.id === item.id ? " bg-lime-400 text-black" : "")}>
@@ -80,38 +93,45 @@ export default function TryoutDraftBoard() {
       {saveError && <p role="alert" className="mb-4 text-red-300">{saveError}</p>}
       {busy && <p role="status" className="mb-3 text-lime-300">Saving draft change…</p>}
       {!board && !error && <p>Loading draft rosters…</p>}
+      {board && <nav aria-label="Draft board view" className="mb-4 grid grid-cols-2 gap-2 md:hidden">
+        <button type="button" aria-pressed={view === "players"} className={button + (view === "players" ? " bg-white text-black" : "")} onClick={() => setView("players")}>Add players</button>
+        <button type="button" aria-pressed={view === "roster"} className={button + (view === "roster" ? " bg-white text-black" : "")} onClick={() => setView("roster")}>Roster ({teamPlayers.length + teamGuests.length})</button>
+      </nav>}
       {board && <div className="grid gap-5 md:grid-cols-2">
-        <section className="rounded-2xl border border-white/20 p-4">
+        <section className={"rounded-2xl border border-white/20 p-4 md:block " + (view === "roster" ? "" : "hidden")}>
           <h2 className="text-xl font-bold">{team.label} draft roster</h2>
           {!teamPlayers.length && !teamGuests.length && <p className="mt-3 text-white/65">Add players from the tryout list.</p>}
           <ul className="mt-2 divide-y divide-white/15">{teamPlayers.map(player => <li key={player.id} className="flex items-center justify-between gap-2 py-3">
-            <div><p className="font-bold">{playerName(player)}</p><p className="text-sm text-white/65">{player.tryout_id} · {player.primary_position || "Position unlisted"}</p></div>
+            <div className="flex min-w-0 items-center gap-3"><PlayerPhoto url={player.headshot_url} /><div><p className="font-bold">{playerName(player)}</p><p className="text-sm text-white/65">{player.tryout_id} · {player.primary_position || "Position unlisted"}</p></div></div>
             <button className={button} disabled={busy || !!error} onClick={() => void save({registrationId:player.id,remove:true})}>Remove</button>
           </li>)}
           {teamGuests.map(guest => <li key={guest.id} className="flex items-center justify-between gap-2 py-3">
             <div><p className="font-bold">{guest.name}</p><p className="text-sm text-amber-300">Not registered yet</p></div>
             <button type="button" className={button} disabled={busy || !!error} onClick={() => void save({action:"removeGuest",id:guest.id})}>Remove</button>
           </li>)}</ul>
-          <form className="mt-4 border-t border-white/20 pt-4" onSubmit={e=>{e.preventDefault();if(guestName.trim()) void save({action:"addGuest",name:guestName});}}>
-            <label className="block text-sm font-bold">Add player who hasn’t registered
-              <input value={guestName} onChange={e=>setGuestName(e.target.value)} required maxLength={100} placeholder="Player’s full name" className="mt-1 w-full rounded-lg border border-white/25 bg-black p-2" />
+
+        </section>
+        <section className={"rounded-2xl border border-white/20 p-4 md:block " + (view === "players" ? "" : "hidden")}>
+          <h2 className="text-xl font-bold">Registered players</h2>
+          <details className="mt-3 rounded-xl border border-white/20 p-3">
+            <summary className="cursor-pointer font-bold text-lime-300">Add an unregistered player by name</summary>
+          <form className="mt-3" onSubmit={e=>{e.preventDefault();if(guestName.trim()) void save({action:"addGuest",name:guestName});}}>
+            <label className="block text-sm font-bold">Player’s full name
+              <input value={guestName} onChange={e=>setGuestName(e.target.value)} required maxLength={100} className="mt-1 w-full rounded-lg border border-white/25 bg-black p-2" />
             </label>
             <button disabled={busy || !!error || !guestName.trim()} className={button + " mt-2"}>Add to {team.label}</button>
           </form>
-        </section>
-        <section className="rounded-2xl border border-white/20 p-4">
-          <h2 className="text-xl font-bold">Tryout players</h2>
+          </details>
           <label className="mt-3 block">Search players<input className="mt-1 w-full rounded-lg border border-white/25 bg-black p-2" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Name, school, position or ID" /></label>
           <label className="mt-3 block">Registered division <select className="rounded border border-white/25 bg-black p-2" value={division} onChange={e=>setDivision(e.target.value)}><option value="">All</option>{["12U","14U","15U","18U"].map(item=><option key={item}>{item}</option>)}</select></label>
-          <label className="mt-3 block"><input type="checkbox" checked={checkedOnly} onChange={e=>setCheckedOnly(e.target.checked)} /> Checked in only</label>
           {!pool.length && <p className="mt-3">No players match.</p>}
-          <ul className="mt-2 max-h-[38rem] divide-y divide-white/15 overflow-y-auto">{pool.map(player => {
+          <ul className="mt-2 divide-y divide-white/15 md:max-h-[38rem] md:overflow-y-auto">{pool.map(player => {
             const peer = placements.find(row => row.registration_id === player.id && row.division === team.division);
             const assigned = placements.filter(row => row.registration_id === player.id).map(row => draftTeams.find(item=>item.id === row.team)?.label).filter(Boolean);
             return <li key={player.id} className="flex items-center justify-between gap-2 py-3">
-              <div><p className="font-bold">{playerName(player)}</p><p className="text-sm text-white/65">{[player.tryout_id,player.primary_position,player.secondary_position,player.school,player.checked_in ? "Checked in" : "No recorded check-in"].filter(Boolean).join(" · ")}</p>
-              {!!assigned.length && <p className="text-sm text-lime-300">Drafted: {assigned.join(", ")}</p>}</div>
-              <button className={button} disabled={busy || !!error} onClick={() => void save({registrationId:player.id,remove:false})}>{peer ? "Move here" : "Add"}</button>
+              <div className="flex min-w-0 items-center gap-3"><PlayerPhoto url={player.headshot_url} /><div><p className="font-bold">{playerName(player)}</p><p className="text-sm text-white/65">{[player.tryout_id,player.primary_position,player.secondary_position,player.school,player.checked_in ? "Checked in" : "No recorded check-in"].filter(Boolean).join(" · ")}</p>
+              {!!assigned.length && <p className="text-sm text-lime-300">Drafted: {assigned.join(", ")}</p>}</div></div>
+              <button className={button + " shrink-0 bg-lime-400 text-black"} disabled={busy || !!error} onClick={() => void save({registrationId:player.id,remove:false})}>{peer ? "Move here" : "Add"}</button>
             </li>;
           })}</ul>
         </section>
