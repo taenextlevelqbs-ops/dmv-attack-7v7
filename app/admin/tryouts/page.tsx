@@ -351,6 +351,7 @@ export default function AdminTryoutsPage() {
               Open Check-In Mode
             </Link>
 
+            <Link href="/admin/tryouts/draft-board" className="rounded-full bg-lime-400 px-6 py-3 text-xs font-black text-black">Draft Roster Board</Link>
             <Link href="/admin/family-updates" className="rounded-full border border-lime-400/40 bg-lime-400/10 px-6 py-3 text-xs font-black uppercase tracking-[0.15em] text-lime-400">Family Updates by Division</Link>
 
             <Link href="/admin/direct-invites" className="rounded-full border border-lime-400/40 bg-lime-400/10 px-6 py-3 text-xs font-black uppercase tracking-[0.15em] text-lime-400">Direct Player Invites</Link>
