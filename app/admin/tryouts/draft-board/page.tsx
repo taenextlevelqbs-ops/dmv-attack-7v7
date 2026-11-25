@@ -8,6 +8,21 @@ type Placement = { registration_id:string; division:string; team:string; parent_
 type Guest = { id:string; team:string; name:string; parent_email:string|null };
 type Board = { players:Player[]; placements:Placement[]; guests:Guest[] };
 
+const positionLabels = new Map([
+  ["Quarterback", "QB"],
+  ["Running Back", "RB"],
+  ["Wide Receiver", "WR"],
+  ["Tight End", "TE"],
+  ["Defensive Back", "DB"],
+  ["Linebacker", "LB"],
+  ["Athlete / Multiple Positions", "ATH"],
+]);
+
+function playerPositions(player: Player) {
+  return [...new Set([player.primary_position?.trim(), player.secondary_position?.trim()]
+    .filter((value): value is string => Boolean(value)))];
+}
+
 function PlayerPhoto({ url }: { url: string | null }) {
   const [failedUrl, setFailedUrl] = useState<string | null>(null);
   return (
@@ -66,6 +81,7 @@ export default function TryoutDraftBoard() {
   const [guestName, setGuestName] = useState("");
   const [search, setSearch] = useState("");
   const [division, setDivision] = useState("");
+  const [position, setPosition] = useState("");
   const [view, setView] = useState<"players" | "roster">("roster");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -93,7 +109,25 @@ export default function TryoutDraftBoard() {
   const guests = board?.guests ?? [];
   const teamGuests = guests.filter(guest => guest.team === team.id);
   const teamPlayers = board?.players.filter(player => placements.some(row => row.team === team.id && row.registration_id === player.id)) ?? [];
-  const pool = board?.players.filter(player =>
+  const positionsOnBoard = new Set(board?.players.flatMap(playerPositions));
+  const positionOptions = [
+    ...Array.from(positionLabels.keys()).filter(value => positionsOnBoard.has(value)),
+    ...Array.from(positionsOnBoard).filter(value => !positionLabels.has(value)).sort(),
+  ];
+  const positionFilters = [
+    { value: "", label: "All positions" },
+    ...positionOptions.map(value => ({ value, label: positionLabels.get(value) ?? value })),
+    { value: "unlisted", label: "Unlisted" },
+  ];
+
+  function matchesPosition(player: Player) {
+    const positions = playerPositions(player);
+    if (position === "unlisted") return positions.length === 0;
+    return !position || positions.includes(position);
+  }
+  const visibleTeamPlayers = teamPlayers.filter(matchesPosition);
+  const visibleTeamGuests = !position || position === "unlisted" ? teamGuests : [];
+  const pool = board?.players.filter(player => matchesPosition(player) &&
     (!division || player.age_group === division)
     && [player.athlete_first_name, player.athlete_last_name, player.school, player.primary_position, player.secondary_position, player.tryout_id].join(" ").toLowerCase().includes(search.trim().toLowerCase())
     && !teamPlayers.some(member => member.id === player.id)) ?? [];
@@ -138,16 +172,24 @@ export default function TryoutDraftBoard() {
         <button type="button" aria-pressed={view === "roster"} className={button + (view === "roster" ? " bg-white text-black" : "")} onClick={() => setView("roster")}>Roster ({teamPlayers.length + teamGuests.length})</button>
         <button type="button" aria-pressed={view === "players"} className={button + (view === "players" ? " bg-white text-black" : "")} onClick={() => setView("players")}>Add players</button>
       </nav>}
+      {board && <div role="group" aria-label="Filter by position" className="mb-4 flex flex-wrap gap-2">
+        {positionFilters.map(option => <button key={option.value} type="button"
+          aria-label={option.value && option.value !== "unlisted" ? option.value : option.label}
+          aria-pressed={position === option.value} disabled={busy}
+          className={button + (position === option.value ? " bg-lime-400 text-black" : "")}
+          onClick={() => setPosition(option.value)}>{option.label}</button>)}
+      </div>}
       {board && <div className="grid gap-5 md:grid-cols-2">
         <section className={"rounded-2xl border border-white/20 p-4 md:block " + (view === "roster" ? "" : "hidden")}>
           <h2 className="text-xl font-bold">{team.label} draft roster</h2>
           {!teamPlayers.length && !teamGuests.length && <p className="mt-3 text-white/65">Add players from the tryout list.</p>}
+          {position && !visibleTeamPlayers.length && !visibleTeamGuests.length && !!(teamPlayers.length || teamGuests.length) && <p className="mt-3 text-white/65">No players on this roster match this position.</p>}
           <ul className="mt-2 divide-y divide-white/15">
-            {teamPlayers.map(player => {
+            {visibleTeamPlayers.map(player => {
               const placement = placements.find(row => row.team === team.id && row.registration_id === player.id);
               return <li key={player.id} className="py-3">
                 <div className="flex items-center justify-between gap-2">
-                  <div className="flex min-w-0 items-center gap-3"><PlayerPhoto url={player.headshot_url} /><div><p className="font-bold">{playerName(player)}</p><p className="text-sm text-white/65">{player.tryout_id} · {player.primary_position || "Position unlisted"}</p></div></div>
+                  <div className="flex min-w-0 items-center gap-3"><PlayerPhoto url={player.headshot_url} /><div><p className="font-bold">{playerName(player)}</p><p className="text-sm text-white/65">{player.tryout_id} · {playerPositions(player).join(" / ") || "Position unlisted"}</p></div></div>
                   <button type="button" className={button} disabled={busy || !!error} onClick={() => void save({registrationId:player.id,remove:true})}>Remove</button>
                 </div>
                 <ParentEmail key={team.id} name={playerName(player)} email={placement?.parent_email ?? null}
@@ -155,7 +197,7 @@ export default function TryoutDraftBoard() {
                   onSave={email => save({action:"saveParentEmail",kind:"registered",id:player.id,email})} />
               </li>;
             })}
-            {teamGuests.map(guest => <li key={guest.id} className="py-3">
+            {visibleTeamGuests.map(guest => <li key={guest.id} className="py-3">
               <div className="flex items-center justify-between gap-2">
                 <div><p className="font-bold">{guest.name}</p><p className="text-sm text-amber-300">Not registered yet</p></div>
                 <button type="button" className={button} disabled={busy || !!error} onClick={() => void save({action:"removeGuest",id:guest.id})}>Remove</button>
