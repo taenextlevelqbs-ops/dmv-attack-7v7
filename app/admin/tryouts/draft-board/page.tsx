@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import FilmReview from "./film-review";
+import { filmDivisions } from "@/lib/tryout-film";
 import { draftTeams } from "@/lib/tryout-draft-teams";
 
 type Player = { id:string; athlete_first_name:string; athlete_last_name:string; age_group:string; primary_position:string|null; secondary_position:string|null; school:string|null; checked_in:boolean; tryout_id:string; headshot_url:string|null };
@@ -82,6 +83,7 @@ export default function TryoutDraftBoard() {
   const [guestName, setGuestName] = useState("");
   const [search, setSearch] = useState("");
   const [division, setDivision] = useState("");
+  const [playerStatus, setPlayerStatus] = useState<"all" | "drafted" | "available">("all");
   const [position, setPosition] = useState("");
   const [view, setView] = useState<"players" | "roster" | "film">("roster");
   const [busy, setBusy] = useState(false);
@@ -128,10 +130,16 @@ export default function TryoutDraftBoard() {
   }
   const visibleTeamPlayers = teamPlayers.filter(matchesPosition);
   const visibleTeamGuests = !position || position === "unlisted" ? teamGuests : [];
-  const pool = board?.players.filter(player => matchesPosition(player) &&
-    (!division || player.age_group === division)
-    && [player.athlete_first_name, player.athlete_last_name, player.school, player.primary_position, player.secondary_position, player.tryout_id].join(" ").toLowerCase().includes(search.trim().toLowerCase())
-    && !teamPlayers.some(member => member.id === player.id)) ?? [];
+  const searchTerm = search.trim().toLowerCase();
+  const draftedIds = new Set(placements.map(row => row.registration_id));
+  const pool = board?.players.filter(player =>
+    matchesPosition(player) && (!division || player.age_group === division)
+    && (playerStatus === "all" || draftedIds.has(player.id) === (playerStatus === "drafted"))
+    && [player.athlete_first_name, player.athlete_last_name, player.school, player.primary_position, player.secondary_position, player.tryout_id]
+      .join(" ").toLowerCase().includes(searchTerm)) ?? [];
+  const poolGuests = !position || position === "unlisted" ? guests.filter(guest =>
+    playerStatus !== "available" && guest.name.toLowerCase().includes(searchTerm)
+    && (!division || draftTeams.some(item => item.id === guest.team && item.division === division))) : [];
   async function save(change: {registrationId:string; remove:boolean} | {action:"addGuest"; name:string} | {action:"removeGuest"; id:string} | {action:"saveParentEmail"; kind:"registered"|"guest"; id:string; email:string} | {action:"addFilmPlayer"; id:string}, targetTeam: string = team.id) {
     if (busy) return false;
     setBusy(true);
@@ -171,7 +179,7 @@ export default function TryoutDraftBoard() {
       {!board && !error && <p>Loading draft rosters…</p>}
       {board && <nav aria-label="Draft board view" className="mb-4 grid grid-cols-3 gap-2 md:flex">
         <button type="button" aria-pressed={view === "roster"} className={button + " md:hidden" + (view === "roster" ? " bg-white text-black" : "")} onClick={() => setView("roster")}>Roster ({teamPlayers.length + teamGuests.length})</button>
-        <button type="button" aria-pressed={view === "players"} className={button + " md:hidden" + (view === "players" ? " bg-white text-black" : "")} onClick={() => setView("players")}>Add players</button>
+        <button type="button" aria-pressed={view === "players"} className={button + " md:hidden" + (view === "players" ? " bg-white text-black" : "")} onClick={() => setView("players")}>All players</button>
         <button type="button" aria-pressed={view === "film"} className={button + (view === "film" ? " bg-white text-black" : "")}
           onClick={() => setView(view === "film" ? "roster" : "film")}>
           <span className="md:hidden">Film Review</span><span className="hidden md:inline">{view === "film" ? "Back to roster" : "Film Review"}</span>
@@ -216,7 +224,7 @@ export default function TryoutDraftBoard() {
 
         </section>
         <section className={"rounded-2xl border border-white/20 p-4 md:block " + (view === "players" ? "" : "hidden")}>
-          <h2 className="text-xl font-bold">Registered players</h2>
+          <h2 className="text-xl font-bold">All players</h2>
           <details className="mt-3 rounded-xl border border-white/20 p-3">
             <summary className="cursor-pointer font-bold text-lime-300">Add an unregistered player by name</summary>
           <form className="mt-3" onSubmit={e=>{e.preventDefault();if(guestName.trim()) void save({action:"addGuest",name:guestName});}}>
@@ -227,17 +235,31 @@ export default function TryoutDraftBoard() {
           </form>
           </details>
           <label className="mt-3 block">Search players<input className="mt-1 w-full rounded-lg border border-white/25 bg-black p-2" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Name, school, position or ID" /></label>
-          <label className="mt-3 block">Registered division <select className="rounded border border-white/25 bg-black p-2" value={division} onChange={e=>setDivision(e.target.value)}><option value="">All</option>{["12U","14U","15U","18U"].map(item=><option key={item}>{item}</option>)}</select></label>
-          {!pool.length && <p className="mt-3">No players match.</p>}
+          <label className="mt-3 block">Age group <select className="rounded border border-white/25 bg-black p-2" value={division} onChange={e=>setDivision(e.target.value)}><option value="">All</option>{filmDivisions.map(item=><option key={item}>{item}</option>)}</select></label>
+          <label className="mt-3 block">Draft status <select className="rounded border border-white/25 bg-black p-2"
+            value={playerStatus} onChange={event => {
+              const value = event.target.value;
+              if (value === "all" || value === "drafted" || value === "available") setPlayerStatus(value);
+            }}>
+            <option value="all">All</option><option value="drafted">Drafted</option><option value="available">Undrafted</option>
+          </select></label>
+          <p aria-live="polite" className="mt-3 text-sm text-white/70">{pool.length + poolGuests.length} players shown</p>
+          {!pool.length && !poolGuests.length && <p className="mt-3">No players match these filters.</p>}
           <ul className="mt-2 divide-y divide-white/15 md:max-h-[38rem] md:overflow-y-auto">{pool.map(player => {
             const peer = placements.find(row => row.registration_id === player.id && row.division === team.division);
             const assigned = placements.filter(row => row.registration_id === player.id).map(row => draftTeams.find(item=>item.id === row.team)?.label).filter(Boolean);
             return <li key={player.id} className="flex items-center justify-between gap-2 py-3">
               <div className="flex min-w-0 items-center gap-3"><PlayerPhoto url={player.headshot_url} /><div><p className="font-bold">{playerName(player)}</p><p className="text-sm text-white/65">{[player.tryout_id,player.primary_position,player.secondary_position,player.school,player.checked_in ? "Checked in" : "No recorded check-in"].filter(Boolean).join(" · ")}</p>
               {!!assigned.length && <p className="text-sm text-lime-300">Drafted: {assigned.join(", ")}</p>}</div></div>
-              <button className={button + " shrink-0 bg-lime-400 text-black"} disabled={busy || !!error} onClick={() => void save({registrationId:player.id,remove:false})}>{peer ? "Move here" : "Add"}</button>
+              {peer?.team !== team.id && <button type="button" className={button + " shrink-0 bg-lime-400 text-black"}
+                disabled={busy || !!error} onClick={() => void save({registrationId:player.id,remove:false})}>{peer ? "Move here" : "Add"}</button>}
             </li>;
-          })}</ul>
+          })}
+          {poolGuests.map(guest => <li key={guest.id} className="py-3">
+            <p className="font-bold">{guest.name}</p>
+            <p className="text-sm text-white/65">Added by name · {draftTeams.find(item => item.id === guest.team)?.label ?? guest.team}</p>
+          </li>)}
+          </ul>
         </section>
       </div>}
     </div>

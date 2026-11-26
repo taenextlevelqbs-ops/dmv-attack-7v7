@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { createClient as serverClient } from "@/lib/supabase/server";
 import { sameOrigin } from "@/lib/admin/api";
+import { filmDivisions } from "@/lib/tryout-film";
 import { draftTeams } from "@/lib/tryout-draft-teams";
 
 const reply = (body: unknown, status = 200) => NextResponse.json(body, {
@@ -26,13 +27,19 @@ export async function GET(request: Request) {
   const { db, error } = await access();
   if (!db) return error ?? reply({error:"Draft board unavailable."},503);
   if (new URL(request.url).searchParams.has("film")) {
-    const { data, error } = await db.from("tryout_film_submissions")
-      .select("id,registration_id,athlete_name,parent_email,age_group,school,primary_position,secondary_position,film_url,submitted_at")
-      .order("submitted_at", { ascending: false }).order("id").limit(100);
-    return error ? reply({ error: "Couldn’t load film submissions." }, 503) : reply({ submissions: data });
+    const pageSize = 100;
+    const submissions = [];
+    for (let offset = 0; ; offset += pageSize) {
+      const { data, error } = await db.from("tryout_film_submissions")
+        .select("id,registration_id,athlete_name,parent_email,age_group,school,primary_position,secondary_position,film_url,submitted_at")
+        .order("submitted_at", { ascending: false }).order("id").range(offset, offset + pageSize - 1);
+      if (error) return reply({ error: "Couldn’t load film submissions." }, 503);
+      submissions.push(...data);
+      if (data.length < pageSize) return reply({ submissions });
+    }
   }
   const [players, placements, attendance, guests] = await Promise.all([
-    db.from("tryout_submissions").select("id,athlete_first_name,athlete_last_name,age_group,primary_position,secondary_position,school,status,tryout_id,headshot_path,parent_email").in("age_group", ["12U","14U","15U","18U"]).order("athlete_last_name").order("athlete_first_name"),
+    db.from("tryout_submissions").select("id,athlete_first_name,athlete_last_name,age_group,primary_position,secondary_position,school,status,tryout_id,headshot_path,parent_email").in("age_group", [...filmDivisions]).order("athlete_last_name").order("athlete_first_name"),
     db.from("tryout_draft_placements").select("registration_id,division,team,parent_email"),
     db.from("tryout_attendance").select("registration_id,checked_in"),
     db.from("tryout_draft_guests").select("id,team,name,parent_email").order("name"),
@@ -116,7 +123,7 @@ export async function PATCH(request: Request) {
     return reply({ error: "Choose a player and draft team." }, 400);
   }
   const { data: player, error: lookupError } = await db.from("tryout_submissions").select("id").eq("id", id)
-    .in("age_group", ["12U","14U","15U","18U"]).maybeSingle();
+    .in("age_group", [...filmDivisions]).maybeSingle();
   if (lookupError) return reply({error:"Couldn’t look up the player."},503);
   if (!player) return reply({error:"Player not found."},404);
   const table = db.from("tryout_draft_placements");

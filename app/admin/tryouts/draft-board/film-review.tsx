@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { draftTeams } from "@/lib/tryout-draft-teams";
-import { safeFilmUrl } from "@/lib/tryout-film";
+import { filmDivisions, filmPositions, safeFilmUrl } from "@/lib/tryout-film";
 
 type Submission = {
   id: string;
@@ -24,6 +24,10 @@ export default function FilmReview({ placements, guests, onDraft, disabled }: {
 }) {
   const [films, setFilms] = useState<Submission[] | null>(null);
   const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [division, setDivision] = useState("");
+  const [position, setPosition] = useState("");
+  const [source, setSource] = useState("");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -43,14 +47,37 @@ export default function FilmReview({ placements, guests, onDraft, disabled }: {
     return () => { controller.abort(); window.clearInterval(timer); };
   }, []);
 
+  const searchTerm = search.trim().toLowerCase();
+  const visibleFilms = films?.filter(film =>
+    (!division || film.age_group === division)
+    && (!position || film.primary_position === position || film.secondary_position === position)
+    && (!source || Boolean(film.registration_id) === (source === "registered"))
+    && [film.athlete_name, film.school, film.parent_email].join(" ").toLowerCase().includes(searchTerm));
+  const input = "mt-1 block w-full rounded-lg border border-white/25 bg-black p-2";
   return <section className="rounded-2xl border border-white/20 p-4">
     <h2 className="text-xl font-bold">Film Review</h2>
     {error && <p role="alert" className="mt-3 text-red-300">{error}</p>}
     {!films && !error && <p className="mt-3">Loading film submissions…</p>}
     {films?.length === 0 && <p className="mt-3 text-white/70">No film submissions yet.</p>}
-    {films?.length === 100 && <p className="mt-3 text-sm text-white/70">Showing the latest 100 submissions.</p>}
+    {!!films?.length && <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <label>Search<input value={search} onChange={event => setSearch(event.target.value)}
+        placeholder="Name, school, or parent email" className={input} /></label>
+      <label>Age group<select value={division} onChange={event => setDivision(event.target.value)} className={input}>
+        <option value="">All age groups</option>
+        {filmDivisions.map(value => <option key={value}>{value}</option>)}
+      </select></label>
+      <label>Position<select value={position} onChange={event => setPosition(event.target.value)} className={input}>
+        <option value="">All positions</option>
+        {filmPositions.map(value => <option key={value}>{value}</option>)}
+      </select></label>
+      <label>Registration<select value={source} onChange={event => setSource(event.target.value)} className={input}>
+        <option value="">All submissions</option><option value="registered">Already registered</option><option value="new">New player</option>
+      </select></label>
+    </div>}
+    {!!films?.length && <p aria-live="polite" className="mt-3 text-sm text-white/70">{visibleFilms?.length} of {films.length} submissions</p>}
+    {!!films?.length && visibleFilms?.length === 0 && <p className="mt-2">No submissions match these filters.</p>}
     <ul className="divide-y divide-white/15">
-      {films?.map(film => {
+      {visibleFilms?.map(film => {
         const teams = draftTeams.filter(team => team.division === film.age_group);
         const assigned = teams.filter(team => film.registration_id
           ? placements.some(row => row.team === team.id && row.registration_id === film.registration_id)
