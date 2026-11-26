@@ -22,9 +22,15 @@ async function access() {
   return { db: createClient(url, key, { auth: { persistSession: false } }) };
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const { db, error } = await access();
   if (!db) return error ?? reply({error:"Draft board unavailable."},503);
+  if (new URL(request.url).searchParams.has("film")) {
+    const { data, error } = await db.from("tryout_film_submissions")
+      .select("id,registration_id,athlete_name,parent_email,age_group,school,primary_position,secondary_position,film_url,submitted_at")
+      .order("submitted_at", { ascending: false }).order("id").limit(100);
+    return error ? reply({ error: "Couldn’t load film submissions." }, 503) : reply({ submissions: data });
+  }
   const [players, placements, attendance, guests] = await Promise.all([
     db.from("tryout_submissions").select("id,athlete_first_name,athlete_last_name,age_group,primary_position,secondary_position,school,status,tryout_id,headshot_path,parent_email").in("age_group", ["12U","14U","15U","18U"]).order("athlete_last_name").order("athlete_first_name"),
     db.from("tryout_draft_placements").select("registration_id,division,team,parent_email"),
@@ -55,6 +61,26 @@ export async function PATCH(request: Request) {
   if (!db) return error ?? reply({error:"Draft board unavailable."},503);
   const body = await request.json().catch(() => null);
   const team = draftTeams.find(team => team.id === body?.team);
+  if (body?.action === "addFilmPlayer") {
+    if (!team || typeof body.id !== "string" || !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(body.id)) {
+      return reply({ error: "Choose a draft team and film submission." }, 400);
+    }
+    const { data: film, error } = await db.from("tryout_film_submissions")
+      .select("registration_id,athlete_name,age_group,parent_email").eq("id", body.id).maybeSingle();
+    if (error) return reply({ error: "Couldn’t load the film submission." }, 503);
+    if (!film) return reply({ error: "Film submission not found." }, 404);
+    if (film.age_group !== team.division) return reply({ error: "Choose a team in the athlete’s age group." }, 400);
+    if (film.registration_id) {
+      const { error } = await db.from("tryout_draft_placements")
+        .upsert({ registration_id: film.registration_id, division: team.division, team: team.id },
+          { onConflict: "registration_id,division", ignoreDuplicates: true });
+      return error ? reply({ error: "Couldn’t add this athlete to the draft." }, 503) : reply({ saved: true });
+    }
+    const { error: insertError } = await db.from("tryout_draft_guests")
+      .insert({ team: team.id, name: film.athlete_name, parent_email: film.parent_email });
+    if (insertError && insertError.code !== "23505") return reply({ error: "Couldn’t add this athlete to the draft." }, 503);
+    return reply({ saved: true });
+  }
   if (body?.action === "saveParentEmail") {
     const { id, kind, email } = body;
     if (!team || typeof id !== "string" || !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(id)

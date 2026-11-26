@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import FilmReview from "./film-review";
 import { draftTeams } from "@/lib/tryout-draft-teams";
 
 type Player = { id:string; athlete_first_name:string; athlete_last_name:string; age_group:string; primary_position:string|null; secondary_position:string|null; school:string|null; checked_in:boolean; tryout_id:string; headshot_url:string|null };
@@ -82,7 +83,7 @@ export default function TryoutDraftBoard() {
   const [search, setSearch] = useState("");
   const [division, setDivision] = useState("");
   const [position, setPosition] = useState("");
-  const [view, setView] = useState<"players" | "roster">("roster");
+  const [view, setView] = useState<"players" | "roster" | "film">("roster");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [saveError, setSaveError] = useState("");
@@ -131,14 +132,14 @@ export default function TryoutDraftBoard() {
     (!division || player.age_group === division)
     && [player.athlete_first_name, player.athlete_last_name, player.school, player.primary_position, player.secondary_position, player.tryout_id].join(" ").toLowerCase().includes(search.trim().toLowerCase())
     && !teamPlayers.some(member => member.id === player.id)) ?? [];
-  async function save(change: {registrationId:string; remove:boolean} | {action:"addGuest"; name:string} | {action:"removeGuest"; id:string} | {action:"saveParentEmail"; kind:"registered"|"guest"; id:string; email:string}) {
+  async function save(change: {registrationId:string; remove:boolean} | {action:"addGuest"; name:string} | {action:"removeGuest"; id:string} | {action:"saveParentEmail"; kind:"registered"|"guest"; id:string; email:string} | {action:"addFilmPlayer"; id:string}, targetTeam = team.id) {
     if (busy) return false;
     setBusy(true);
     setSaveError("");
     try {
       const response = await fetch("/api/admin/tryouts/draft-board", {
         method: "PATCH", headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({...change, team:team.id}),
+        body: JSON.stringify({...change, team:targetTeam}),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
@@ -168,18 +169,24 @@ export default function TryoutDraftBoard() {
       {saveError && <p role="alert" className="mb-4 text-red-300">{saveError}</p>}
       {busy && <p role="status" className="mb-3 text-lime-300">Saving draft change…</p>}
       {!board && !error && <p>Loading draft rosters…</p>}
-      {board && <nav aria-label="Draft board view" className="mb-4 grid grid-cols-2 gap-2 md:hidden">
-        <button type="button" aria-pressed={view === "roster"} className={button + (view === "roster" ? " bg-white text-black" : "")} onClick={() => setView("roster")}>Roster ({teamPlayers.length + teamGuests.length})</button>
-        <button type="button" aria-pressed={view === "players"} className={button + (view === "players" ? " bg-white text-black" : "")} onClick={() => setView("players")}>Add players</button>
+      {board && <nav aria-label="Draft board view" className="mb-4 grid grid-cols-3 gap-2 md:flex">
+        <button type="button" aria-pressed={view === "roster"} className={button + " md:hidden" + (view === "roster" ? " bg-white text-black" : "")} onClick={() => setView("roster")}>Roster ({teamPlayers.length + teamGuests.length})</button>
+        <button type="button" aria-pressed={view === "players"} className={button + " md:hidden" + (view === "players" ? " bg-white text-black" : "")} onClick={() => setView("players")}>Add players</button>
+        <button type="button" aria-pressed={view === "film"} className={button + (view === "film" ? " bg-white text-black" : "")}
+          onClick={() => setView(view === "film" ? "roster" : "film")}>
+          <span className="md:hidden">Film Review</span><span className="hidden md:inline">{view === "film" ? "Back to roster" : "Film Review"}</span>
+        </button>
       </nav>}
-      {board && <div role="group" aria-label="Filter by position" className="mb-4 flex flex-wrap gap-2">
+      {board && view === "film" && <FilmReview placements={placements} guests={guests}
+        disabled={busy || !!error} onDraft={(id, targetTeam) => save({action:"addFilmPlayer",id}, targetTeam)} />}
+      {board && view !== "film" && <div role="group" aria-label="Filter by position" className="mb-4 flex flex-wrap gap-2">
         {positionFilters.map(option => <button key={option.value} type="button"
           aria-label={option.value && option.value !== "unlisted" ? option.value : option.label}
           aria-pressed={position === option.value} disabled={busy}
           className={button + (position === option.value ? " bg-lime-400 text-black" : "")}
           onClick={() => setPosition(option.value)}>{option.label}</button>)}
       </div>}
-      {board && <div className="grid gap-5 md:grid-cols-2">
+      {board && view !== "film" && <div className="grid gap-5 md:grid-cols-2">
         <section className={"rounded-2xl border border-white/20 p-4 md:block " + (view === "roster" ? "" : "hidden")}>
           <h2 className="text-xl font-bold">{team.label} draft roster</h2>
           {!teamPlayers.length && !teamGuests.length && <p className="mt-3 text-white/65">Add players from the tryout list.</p>}

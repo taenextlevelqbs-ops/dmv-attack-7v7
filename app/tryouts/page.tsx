@@ -43,9 +43,9 @@ export default function TryoutsPage() {
       <DmvPageHeader
         eyebrow="DMV Attack 7v7"
         title="2027 Season Tryouts"
-        description="Your next season starts here. Join DMV Attack for youth and high school tryouts this November. Register your athlete, save your Tryout ID, then choose Stripe or Venmo for the $20 fee."
-        buttonText="Register your athlete"
-        buttonHref="#registration"
+        description="Send your film for DMV Attack’s 2027 season. New athletes can share their player information, and registered athletes can add film to their existing submission."
+        buttonText="Missed Tryouts? Submit Your Film"
+        buttonHref="/tryouts/film"
       />
       <section className="mx-auto max-w-7xl px-4 py-6 md:px-8">
         <div className="rounded-2xl border border-lime-400/30 p-6">
