@@ -132,7 +132,7 @@ export default function TryoutDraftBoard() {
     (!division || player.age_group === division)
     && [player.athlete_first_name, player.athlete_last_name, player.school, player.primary_position, player.secondary_position, player.tryout_id].join(" ").toLowerCase().includes(search.trim().toLowerCase())
     && !teamPlayers.some(member => member.id === player.id)) ?? [];
-  async function save(change: {registrationId:string; remove:boolean} | {action:"addGuest"; name:string} | {action:"removeGuest"; id:string} | {action:"saveParentEmail"; kind:"registered"|"guest"; id:string; email:string} | {action:"addFilmPlayer"; id:string}, targetTeam = team.id) {
+  async function save(change: {registrationId:string; remove:boolean} | {action:"addGuest"; name:string} | {action:"removeGuest"; id:string} | {action:"saveParentEmail"; kind:"registered"|"guest"; id:string; email:string} | {action:"addFilmPlayer"; id:string}, targetTeam: string = team.id) {
     if (busy) return false;
     setBusy(true);
     setSaveError("");
